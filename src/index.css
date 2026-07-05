@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand: #150a4e; /* Actors Lines wordmark colour, matching the app */
+  --color-brand-light: #4636b3;
+  --color-paper: #faf7f0;
+}
+
+body {
+  @apply bg-paper text-gray-900 antialiased;
+}

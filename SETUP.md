@@ -1,0 +1,136 @@
+# SETUP — standing up actorslines.app, step by step
+
+Follow these in order. Each step says **who** does it (You / Claude Code) and roughly how
+long it takes. You only need a web browser and this PC. Nothing here requires programming —
+where a terminal command is needed, it's given exactly, and you can also just ask Claude Code
+to run it while you do the browser parts.
+
+> **Where things stand**: all the code in this folder is already written. These steps connect
+> it to the free services it runs on. Steps marked ✅ are already done.
+
+---
+
+## S0 — Tools on this PC (~10 min, You + Claude Code)
+
+1. **Node.js** — may already be installed by Claude Code. To check, open PowerShell and run
+   `node --version`. If it says "not recognized", run:
+   `winget install OpenJS.NodeJS.LTS` and click **Yes** on the admin prompt.
+2. **GitHub CLI** — run `winget install GitHub.cli`, then **close and reopen** the terminal
+   and run `gh auth login`. Choose: **GitHub.com → HTTPS → Login with a web browser**, and
+   follow the browser prompts. (This lets Claude Code create the website repository and set
+   secrets for you.)
+3. **Supabase CLI** — easiest via npm once Node is in:
+   `npm install -g supabase`
+
+## S1 — Create the Supabase project (~10 min, You)
+
+Supabase provides the accounts system, 2FA and database. Free tier, no card needed.
+
+1. Go to **supabase.com** → Start your project → sign up (easiest: "Continue with GitHub").
+2. Click **New project**. Organisation: accept the default. Name: `actorslines`.
+   **Database password**: click Generate, then save it somewhere safe (you rarely need it,
+   but don't lose it). Region: **West EU (London)** or whatever is closest. Click **Create**.
+3. Wait ~2 minutes while it provisions.
+4. Collect three values (left sidebar → ⚙ **Project Settings** → **API**):
+   - **Project URL** (looks like `https://abcdefgh.supabase.co`)
+   - **anon public** key (long text starting `eyJ…`)
+   - **service_role** key (⚠️ secret — never goes in a public file)
+5. Also note the **Reference ID** (Project Settings → General) — an 8-20 character code.
+
+**Then tell Claude Code you've done it** and paste the Project URL + anon key. Claude Code
+will: create `.env` from `.env.example`, link the project (`supabase link`), push the
+database schema (`supabase db push`), and deploy the two edge functions.
+
+6. **Auth settings** (left sidebar → **Authentication** → **URL Configuration**):
+   - Site URL: `https://actorslines.app`
+   - Add redirect URLs: `https://actorslines.app/*` and `http://localhost:5173/*`
+7. **Make yourself admin** (after you've registered on the site in S5):
+   ask Claude Code, or run in the dashboard's **SQL Editor**:
+   `update profiles set role = 'admin' where id = (select id from auth.users where email = 'robertdeanmoore@gmail.com');`
+
+## S2 — Local test run (~5 min, You + Claude Code)
+
+With S1 done, Claude Code runs `npm install` and `npm run dev`, and gives you a
+`http://localhost:5173` address. Open it, create an account with your real email, click the
+confirmation link, sign in, and try enabling 2FA from your profile page (you'll need an
+authenticator app on your phone — Google Authenticator or Microsoft Authenticator).
+
+## S3 — Create the GitHub repository (~2 min, Claude Code)
+
+Claude Code runs `gh repo create actorslines-website --public` and pushes the code. Nothing
+for you to do (needs S0.2 done). The repo must be **public** — it contains no secrets, and
+public repos get free CI minutes.
+
+## S4 — Cloudflare Pages + your domain (~20 min, You)
+
+1. Go to **dash.cloudflare.com** → sign up (free plan).
+2. **Workers & Pages → Create → Pages → Connect to Git** → authorise GitHub → pick
+   `actorslines-website`.
+3. Build settings: Framework preset **Vite** (build command `npm run build`, output `dist` —
+   the preset fills these). Before deploying, open **Environment variables** and add:
+   - `VITE_SUPABASE_URL` = your Project URL from S1
+   - `VITE_SUPABASE_ANON_KEY` = the anon public key from S1
+4. Click **Save and Deploy**. In ~2 minutes you'll get a `*.pages.dev` address — check the
+   site loads.
+5. **Attach your domain**: in the Pages project → **Custom domains → Set up a custom domain**
+   → enter `actorslines.app`. Cloudflare will tell you what to change at your domain
+   registrar (where you bought actorslines.app):
+   - Simplest path: at the registrar, change the **nameservers** to the two Cloudflare gives
+     you. DNS then moves to Cloudflare and it wires everything automatically.
+   - Propagation can take from minutes to a day. When `https://actorslines.app` loads, done.
+6. Repeat step 5 to also add `www.actorslines.app` (Cloudflare offers a one-click redirect).
+
+## S5 — Register and become admin (~5 min, You)
+
+On the live site: create your account, confirm the email, enable 2FA. Then do S1.7 so your
+account is the admin — the **Admin** menu item appears when you next sign in.
+
+## S6 — Wire the AI pipeline (~15 min, You + Claude Code)
+
+This connects the website to the ActorsVoice repository's AI workflows.
+
+1. **Claude subscription token**: in a terminal run `claude setup-token` and follow the
+   browser prompt. Copy the token it prints (starts `sk-ant-oat…`).
+2. **GitHub dispatch token**: github.com → your avatar → **Settings → Developer settings →
+   Personal access tokens → Fine-grained tokens → Generate new token**. Name:
+   `actorslines-dispatch`. Expiration: 1 year. Repository access: **Only select
+   repositories → ActorsVoice**. Permissions → Repository permissions → **Contents:
+   Read and write**. Generate, copy the token (starts `github_pat_…`).
+3. **Hand both tokens to Claude Code**, which will store them (they never enter any repo):
+   - On the **ActorsVoice** repo: secrets `CLAUDE_CODE_OAUTH_TOKEN`, `SUPABASE_URL`,
+     `SUPABASE_SERVICE_ROLE_KEY` (via `gh secret set`).
+   - On **Supabase**: `supabase secrets set GH_DISPATCH_TOKEN=… GH_REPO=robertdeanmoore/ActorsVoice`.
+4. **Test**: submit a test enhancement request on the site. Within a few minutes an AI
+   report should appear on that request's page in the Admin area. (Watch progress at
+   github.com/robertdeanmoore/ActorsVoice → Actions tab.)
+
+## S7 — Brevo email (~15 min, You) — needed before real users arrive
+
+Brevo sends the inactivity-warning emails, and (recommended) the signup-confirmation emails
+once you have real users — Supabase's built-in mailer is limited to ~2 emails/hour.
+
+1. **brevo.com** → sign up free (300 emails/day).
+2. Verify your sender: Brevo → Senders & Domains → add `actorslines.app` as a domain and
+   follow its DNS instructions (you add a few records in Cloudflare's DNS page — copy-paste).
+3. Get an **API key**: Brevo → profile menu → SMTP & API → **Generate a new API key**. Give
+   it to Claude Code to run: `supabase secrets set BREVO_API_KEY=… MAIL_FROM="Actors Lines <hello@actorslines.app>"`.
+4. Also generate a **lifecycle secret** (Claude Code invents a random string) and set it in
+   both places: `supabase secrets set LIFECYCLE_SECRET=…` and
+   `gh secret set LIFECYCLE_SECRET --repo robertdeanmoore/actorslines-website`, plus
+   `gh secret set SUPABASE_URL` on the same repo.
+5. (Recommended) Point Supabase auth emails at Brevo: Supabase dashboard → Authentication →
+   **SMTP Settings** → enable custom SMTP with the values Brevo shows under SMTP & API →
+   SMTP (host `smtp-relay.brevo.com`, port 587, your Brevo login + SMTP key).
+
+## S8 — YouTube (whenever you like, You)
+
+Upload tutorial videos to your YouTube channel; paste each video's normal watch link on its
+own line in a knowledge-base article and it appears embedded.
+
+## S9 — Later / optional
+
+- **Decap CMS** (browser-based article editor): deferred — articles are plain markdown files
+  for now; ask Claude Code to add an article, or edit on github.com directly.
+- **Cloudflare Turnstile** (CAPTCHA): add if spam registrations ever appear.
+- **Conversational AI refinement** of requests (the 2-week nag flow): designed for, not yet
+  built — the message thread on each request is already in place.
