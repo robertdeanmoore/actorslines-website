@@ -4,7 +4,9 @@ Website for **Actors Lines**, the on-device rehearsal companion for actors
 (Android). Marketing site, members' knowledge base, and a community
 enhancement-request pipeline backed by AI triage.
 
-- **Frontend**: React + Vite + TypeScript + Tailwind, hosted on Cloudflare Pages.
+- **Frontend**: React + Vite + TypeScript + Tailwind, deployed as static assets on
+  Cloudflare Workers (`wrangler.jsonc`) — live at
+  https://actorslines-website.robertdeanmoore.workers.dev, moving to actorslines.app.
 - **Backend**: Supabase (auth incl. TOTP 2FA, Postgres with row-level security,
   edge functions).
 - **AI pipeline**: GitHub Actions in the (private) ActorsVoice app repository run
