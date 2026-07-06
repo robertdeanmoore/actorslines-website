@@ -61,24 +61,35 @@ Claude Code runs `gh repo create actorslines-website --public` and pushes the co
 for you to do (needs S0.2 done). The repo must be **public** — it contains no secrets, and
 public repos get free CI minutes.
 
-## S4 — Cloudflare Pages + your domain (~20 min, You)
+## S4 — Cloudflare (Workers) + your domain (~20 min, You)
+
+**Note:** Cloudflare has merged classic "Pages" into a unified **Workers** deploy flow (it
+builds and runs `npx wrangler deploy`, not the old Pages pipeline). The site's
+`wrangler.jsonc` already tells it this is a static site, not server code — nothing extra
+needed there.
 
 1. Go to **dash.cloudflare.com** → sign up (free plan).
-2. **Workers & Pages → Create → Pages → Connect to Git** → authorise GitHub → pick
-   `actorslines-website`.
-3. Build settings: Framework preset **Vite** (build command `npm run build`, output `dist` —
-   the preset fills these). Before deploying, open **Environment variables** and add:
-   - `VITE_SUPABASE_URL` = your Project URL from S1
+2. **Workers & Pages → Create → Connect to Git (or "Import a repository")** → authorise
+   GitHub → pick `actorslines-website`.
+3. On the "Set up your application" screen: **Build command** `npm run build` (should be
+   pre-filled), **Deploy command** leave as `npx wrangler deploy`, Path `/` — leave defaults.
+4. API token: leave as **"A new token will be created automatically"**.
+5. **Variables and secrets**: add exactly (case-sensitive, `VITE_` not `VITA_` or similar —
+   easy to fat-finger, and there's no way to rename afterwards, only delete and re-add):
+   - `VITE_SUPABASE_URL` = your Project URL from S1 (e.g. `https://xxxx.supabase.co`)
    - `VITE_SUPABASE_ANON_KEY` = the anon public key from S1
-4. Click **Save and Deploy**. In ~2 minutes you'll get a `*.pages.dev` address — check the
-   site loads.
-5. **Attach your domain**: in the Pages project → **Custom domains → Set up a custom domain**
-   → enter `actorslines.app`. Cloudflare will tell you what to change at your domain
-   registrar (where you bought actorslines.app):
-   - Simplest path: at the registrar, change the **nameservers** to the two Cloudflare gives
-     you. DNS then moves to Cloudflare and it wires everything automatically.
-   - Propagation can take from minutes to a day. When `https://actorslines.app` loads, done.
-6. Repeat step 5 to also add `www.actorslines.app` (Cloudflare offers a one-click redirect).
+6. Deploy. You'll get a `*.workers.dev` address — check the site loads and sign-in works.
+7. **Attach your domain**: project → **Settings → Domains & Routes → Add → Custom Domain**
+   → enter `actorslines.app`. If it's not already a Cloudflare zone, it'll guide you to add
+   it — usually by changing your domain's **nameservers** at your registrar to the two
+   Cloudflare gives you. DNS then moves to Cloudflare and wires itself up automatically.
+   Propagation can take minutes to a day.
+8. Repeat for `www.actorslines.app` if you want that to work too.
+9. **After the domain is live**: add `https://actorslines.app/*` to Supabase →
+   Authentication → URL Configuration → Redirect URLs (alongside the workers.dev one already
+   there from S1.6).
+10. **No "redeploy" button in this UI** — if you ever need to force a fresh build (e.g. after
+    fixing a variable), the way to trigger one is simply pushing any commit to `main`.
 
 ## S5 — Register and become admin (~5 min, You)
 
