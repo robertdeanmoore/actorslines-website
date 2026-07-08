@@ -1,0 +1,22 @@
+backend:
+  name: github
+  repo: robertdeanmoore/actorslines-website
+  branch: main
+  base_url: https://actorslines-cms-auth.robertdeanmoore.workers.dev
+  auth_endpoint: auth
+
+media_folder: "public/kb-media"
+public_folder: "/kb-media"
+
+collections:
+  - name: "kb"
+    label: "Knowledge Base"
+    folder: "src/content/kb"
+    create: true
+    slug: "{{slug}}"
+    format: "frontmatter"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Summary", name: "summary", widget: "string" }
+      - { label: "Date", name: "date", widget: "date", format: "YYYY-MM-DD" }
+      - { label: "Body", name: "body", widget: "markdown" }

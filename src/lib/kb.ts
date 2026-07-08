@@ -22,7 +22,7 @@ function parseFrontMatter(text: string): { meta: Record<string, string>; body: s
   const meta: Record<string, string> = {};
   for (const line of m[1].split(/\r?\n/)) {
     const kv = line.match(/^(\w+):\s*(.*)$/);
-    if (kv) meta[kv[1]] = kv[2].trim();
+    if (kv) meta[kv[1]] = kv[2].trim().replace(/^(["'])(.*)\1$/, "$2");
   }
   return { meta, body: m[2] };
 }
