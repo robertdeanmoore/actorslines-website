@@ -17,6 +17,11 @@ scrolling, however long the play is.
   everywhere in the chart.
 - A thin line runs the full width of the screen — across both bars and the scene-label gap
   between them — wherever one scene ends and the next begins.
+- Fine curly brackets in the scene-label gap mark any line sections you've set up for that
+  scene — the same chapter markers you use to navigate during a run — in their usual colours.
+  Practice or Rehearsal filters show that mode's sections; Both shows one shared set if you keep
+  sections aligned across modes (Settings → Practice and Rehearse), or two narrower "P"/"R" sets
+  if you don't.
 - The left column, "How much practised", shades from red (untouched) to blue (your
   most-practised line) by session count.
 - The right column, "How well done", uses the same green/amber/red you see elsewhere (set in
