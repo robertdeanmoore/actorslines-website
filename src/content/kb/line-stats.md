@@ -30,3 +30,8 @@ without opening anything.
 
 > **Tip:** These are live: hide or reveal a line, or add or remove a section, and the count
 > updates the moment you back out to the scene or play list.
+
+> **Tip:** The two lines just above a Play card's stats — "Days until books down" and "Days
+> until curtain up" — count down to the Offbook date and Performance from date you set in that
+> play's Edit Play Details dialog (tap the pencil icon on its card). Leave the Offbook date
+> blank and it just shows "TBA".
