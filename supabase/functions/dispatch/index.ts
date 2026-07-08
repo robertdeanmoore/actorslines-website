@@ -15,7 +15,7 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 const ALLOWED_ACTIONS = ["triage-report", "implementation-plan", "implement-pr"];
 
 const cors = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": "https://actorslines.app",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
