@@ -27,7 +27,20 @@ export default function AdminQueuePage() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold text-brand">Admin — request queue</h1>
+      <div className="flex items-center gap-3">
+        <h1 className="flex-1 text-2xl font-bold text-brand">Admin — request queue</h1>
+        <a
+          href="https://supabase.com/dashboard/project/dicywovaxxuwnkidinpn/auth/users"
+          target="_blank" rel="noreferrer"
+          className="rounded-md bg-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-300"
+        >
+          Manage users (Supabase) →
+        </a>
+      </div>
+      <p className="mt-1 text-xs text-gray-400">
+        User accounts (view, reset password, delete) are managed in Supabase's own dashboard —
+        it can't be embedded here (Supabase blocks framing its dashboard for security).
+      </p>
       <div className="mt-4 flex flex-wrap gap-2">
         {FILTERS.map((f) => (
           <button key={f} onClick={() => setFilter(f)}
