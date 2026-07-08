@@ -69,6 +69,7 @@ export interface Plan {
   iteration: number;
   prompt: string;
   repo_path: string | null;
+  plan_md: string | null;
   status: "requested" | "draft" | "approved" | "implemented" | "failed";
   pr_url: string | null;
   created_at: string;

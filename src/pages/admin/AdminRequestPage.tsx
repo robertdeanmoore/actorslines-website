@@ -195,6 +195,11 @@ export default function AdminRequestPage() {
                 {p.repo_path && <code className="text-xs text-gray-500">{p.repo_path}</code>}
               </div>
               <p className="mt-1 text-gray-600 whitespace-pre-wrap">{p.prompt}</p>
+              {p.plan_md && (
+                <div className="mt-2 max-h-96 overflow-y-auto rounded-md border border-gray-200 bg-gray-50 p-3 text-sm [&_h1]:font-bold [&_h2]:font-semibold [&_h2]:mt-3 [&_ul]:list-disc [&_ul]:ml-5 [&_ol]:list-decimal [&_ol]:ml-5">
+                  <Markdown>{p.plan_md}</Markdown>
+                </div>
+              )}
               <div className="mt-2 flex gap-2">
                 {p.status === "draft" && (
                   <button onClick={() => approvePlan(p)}
