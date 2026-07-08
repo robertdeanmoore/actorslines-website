@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../auth/AuthContext";
+import TurnstileWidget, { turnstileConfigured } from "../../components/TurnstileWidget";
+import type { TurnstileInstance } from "@marsidev/react-turnstile";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -10,6 +12,8 @@ export default function LoginPage() {
   const [stage, setStage] = useState<"credentials" | "mfa">("credentials");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileInstance>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const { refreshProfile } = useAuth();
@@ -18,8 +22,15 @@ export default function LoginPage() {
   async function submitCredentials(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true); setError("");
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) { setError(error.message); setBusy(false); return; }
+    const { error } = await supabase.auth.signInWithPassword({
+      email, password,
+      options: { captchaToken: captchaToken ?? undefined },
+    });
+    if (error) {
+      setError(error.message); setBusy(false);
+      turnstileRef.current?.reset(); setCaptchaToken(null);
+      return;
+    }
     const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
     if (aal?.nextLevel === "aal2" && aal.currentLevel !== "aal2") {
       setStage("mfa");
@@ -60,7 +71,8 @@ export default function LoginPage() {
           <input type="password" required placeholder="Password" value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm" />
-          <button disabled={busy}
+          <TurnstileWidget ref={turnstileRef} onToken={setCaptchaToken} />
+          <button disabled={busy || (turnstileConfigured && !captchaToken)}
             className="w-full rounded-md bg-brand text-white py-2 font-semibold hover:bg-brand-light disabled:opacity-50">
             {busy ? "Signing in…" : "Sign in"}
           </button>

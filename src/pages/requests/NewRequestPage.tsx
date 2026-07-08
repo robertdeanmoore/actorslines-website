@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../auth/AuthContext";
+import TurnstileWidget, { turnstileConfigured } from "../../components/TurnstileWidget";
+import type { TurnstileInstance } from "@marsidev/react-turnstile";
 
 const FREQUENCIES = [
   "Every session", "Most sessions", "Occasionally", "Rarely, but it matters when I need it",
@@ -18,6 +20,8 @@ export default function NewRequestPage() {
   const [extra, setExtra] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileInstance>(null);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -44,7 +48,7 @@ export default function NewRequestPage() {
 
     // Kick off the AI triage (fire-and-forget — the report lands later).
     supabase.functions.invoke("dispatch", {
-      body: { action: "triage-report", request_id: data.id },
+      body: { action: "triage-report", request_id: data.id, turnstileToken: captchaToken },
     }).catch(() => {});
 
     navigate(`/requests/${data.id}`, { replace: true });
@@ -99,7 +103,8 @@ export default function NewRequestPage() {
           onChange={(e) => setExtra(e.target.value)} className={field}
           placeholder="Optional — examples from other apps, edge cases, anything." />
 
-        <button disabled={busy}
+        <TurnstileWidget ref={turnstileRef} onToken={setCaptchaToken} />
+        <button disabled={busy || (turnstileConfigured && !captchaToken)}
           className="mt-6 w-full rounded-md bg-brand text-white py-2 font-semibold hover:bg-brand-light disabled:opacity-50">
           {busy ? "Submitting…" : "Submit suggestion"}
         </button>

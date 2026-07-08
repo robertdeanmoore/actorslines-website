@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@marsidev/react-turnstile": "^1.5.3",
     "@supabase/supabase-js": "^2.47.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

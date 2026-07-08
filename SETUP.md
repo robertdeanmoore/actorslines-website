@@ -78,6 +78,13 @@ needed there.
    easy to fat-finger, and there's no way to rename afterwards, only delete and re-add):
    - `VITE_SUPABASE_URL` = your Project URL from S1 (e.g. `https://xxxx.supabase.co`)
    - `VITE_SUPABASE_ANON_KEY` = the anon public key from S1
+
+   **Note (found Jul 2026):** Cloudflare has since split this — for a static-assets-only
+   project like this one, the classic "Variables and secrets" panel now refuses *new*
+   entries ("Variables cannot be added to a Worker that only has static assets"). The two
+   above still work fine where they already are. Any **new** `VITE_*` build-time value
+   (e.g. the Turnstile site key in S10) goes under a different panel: project →
+   **Settings → Build → Build variables and secrets**.
 6. Deploy. You'll get a `*.workers.dev` address — check the site loads and sign-in works.
 7. **Attach your domain**: project → **Settings → Domains & Routes → Add → Custom Domain**
    → enter `actorslines.app`. If it's not already a Cloudflare zone, it'll guide you to add
@@ -142,6 +149,28 @@ own line in a knowledge-base article and it appears embedded.
 
 - **Decap CMS** (browser-based article editor): deferred — articles are plain markdown files
   for now; ask Claude Code to add an article, or edit on github.com directly.
-- **Cloudflare Turnstile** (CAPTCHA): add if spam registrations ever appear.
 - **Conversational AI refinement** of requests (the 2-week nag flow): designed for, not yet
   built — the message thread on each request is already in place.
+
+## S10 — Cloudflare Turnstile (CAPTCHA) ✅ (done 8 Jul 2026)
+
+Adds a "prove you're human" challenge to signup, login, password reset, and the "generate
+AI report" button on enhancement requests. **Follow this order exactly** — doing the
+Supabase step (10.5) before the code is deployed will lock you out of login.
+
+1. ✅ Turnstile site created (dash.cloudflare.com → Turnstile → Add site, domain
+   `actorslines.app`, Managed widget) — site key + secret key retrieved.
+2. ✅ `VITE_TURNSTILE_SITE_KEY` set under project → **Settings → Build → Build variables
+   and secrets** (not the older "Variables and secrets" panel — see the note in S4.5).
+3. Confirm the widget renders on `https://actorslines.app/register` after the next deploy.
+4. Give Claude Code the Secret Key to run
+   `supabase secrets set TURNSTILE_SECRET_KEY=<secret key>`, then
+   `supabase functions deploy dispatch` — gates the "generate AI report" button only,
+   independent of Supabase Auth. Confirm that button still works afterwards.
+5. **Only once 2–4 are confirmed live**, enable Supabase dashboard → **Authentication →
+   Attack Protection** → CAPTCHA protection → Provider: Turnstile → paste the same Secret
+   Key → Save. ⚠️ This is a single project-wide switch — it applies to signup, login,
+   *and* password reset simultaneously. That's why the widget is on all three pages.
+6. Test immediately: sign out and back in on the live site, then try "Forgot password".
+   If you temporarily flip `REGISTRATION_ENABLED = true` to test signup, flip it back and
+   redeploy afterwards.

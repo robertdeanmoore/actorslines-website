@@ -30,12 +30,17 @@ async function sendEmail(to: string, subject: string, text: string): Promise<boo
       textContent: text,
     }),
   });
+  if (!resp.ok) {
+    const detail = await resp.text().catch(() => "");
+    console.error(`[lifecycle] brevo send failed to=${to} subject="${subject}" status=${resp.status} body=${detail.slice(0, 300)}`);
+  }
   return resp.ok;
 }
 
 Deno.serve(async (req) => {
   const auth = req.headers.get("x-lifecycle-secret");
   if (!auth || auth !== Deno.env.get("LIFECYCLE_SECRET")) {
+    console.error("[lifecycle] forbidden: missing or invalid x-lifecycle-secret header");
     return new Response("forbidden", { status: 403 });
   }
 
@@ -46,10 +51,13 @@ Deno.serve(async (req) => {
   const now = Date.now();
   const summary = { warned1: 0, warned2: 0, deleted: 0, errors: 0 };
 
-  const { data: profiles } = await admin
+  const { data: profiles, error: queryErr } = await admin
     .from("profiles")
     .select("id, last_seen_at, inactivity_warned_1_at, inactivity_warned_2_at")
     .lt("last_seen_at", new Date(now - 5 * MONTH_MS).toISOString());
+  if (queryErr) {
+    console.error("[lifecycle] failed to query inactive profiles", queryErr);
+  }
 
   for (const p of profiles ?? []) {
     const { data: { user } } = await admin.auth.admin.getUserById(p.id);
@@ -78,13 +86,16 @@ Deno.serve(async (req) => {
       } else if (p.inactivity_warned_2_at &&
                  now - Date.parse(p.inactivity_warned_2_at) > FORTNIGHT_MS) {
         await admin.auth.admin.deleteUser(p.id); // cascades to profile + content FKs
+        console.log(`[lifecycle] deleted inactive account id=${p.id}`);
         summary.deleted++;
       }
-    } catch {
+    } catch (e) {
+      console.error(`[lifecycle] failed processing profile id=${p.id} email=${email}`, e);
       summary.errors++;
     }
   }
 
+  console.log("[lifecycle] run complete", summary);
   return new Response(JSON.stringify(summary), {
     headers: { "Content-Type": "application/json" },
   });

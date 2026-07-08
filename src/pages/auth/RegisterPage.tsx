@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
+import TurnstileWidget, { turnstileConfigured } from "../../components/TurnstileWidget";
+import type { TurnstileInstance } from "@marsidev/react-turnstile";
 
 // Registrations are closed while the site is still being finished. Flip to true
 // (and redeploy) when ready to open sign-ups.
@@ -31,6 +33,8 @@ function RegisterForm() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileInstance>(null);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -40,9 +44,14 @@ function RegisterForm() {
       options: {
         data: { display_name: displayName.trim() },
         emailRedirectTo: `${window.location.origin}/login`,
+        captchaToken: captchaToken ?? undefined,
       },
     });
-    if (error) { setError(error.message); setBusy(false); return; }
+    if (error) {
+      setError(error.message); setBusy(false);
+      turnstileRef.current?.reset(); setCaptchaToken(null);
+      return;
+    }
     setDone(true);
   }
 
@@ -79,7 +88,8 @@ function RegisterForm() {
         <input type="password" required minLength={8} placeholder="Password (8+ characters)"
           value={password} onChange={(e) => setPassword(e.target.value)}
           className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm" />
-        <button disabled={busy}
+        <TurnstileWidget ref={turnstileRef} onToken={setCaptchaToken} />
+        <button disabled={busy || (turnstileConfigured && !captchaToken)}
           className="w-full rounded-md bg-brand text-white py-2 font-semibold hover:bg-brand-light disabled:opacity-50">
           {busy ? "Creating…" : "Create account"}
         </button>
