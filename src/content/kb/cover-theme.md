@@ -27,4 +27,5 @@ look regardless — this only affects the surrounding app chrome.
 
 - Re-crop the same cover or replace it with a new photo — the checkbox keeps its state either
   way, so a new photo simply becomes the new theme source.
-- Uncheck the box, or clear the cover entirely, to drop back to the default look.
+- Uncheck the box, or tap the cover icon and choose "Remove image", to drop back to the default
+  look.
