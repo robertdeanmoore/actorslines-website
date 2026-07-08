@@ -13,7 +13,8 @@ export default function Layout() {
     <div className="min-h-screen flex flex-col">
       <header className="bg-white shadow-sm">
         <nav className="mx-auto max-w-5xl px-4 py-3 flex flex-wrap items-center gap-2">
-          <Link to="/" className="mr-4 text-xl font-bold text-brand">
+          <Link to="/" className="mr-4 flex items-center gap-2 text-xl font-bold text-brand">
+            <img src="/assets/logo-mark.png" alt="" className="w-8 h-8 rounded-lg" />
             Actors Lines
           </Link>
           {session && profile && (
