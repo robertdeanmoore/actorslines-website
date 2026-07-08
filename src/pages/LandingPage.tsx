@@ -29,7 +29,7 @@ export default function LandingPage() {
               to="/register"
               className="px-6 py-3 rounded-lg bg-brand text-white font-semibold hover:bg-brand-light"
             >
-              Create a free account
+              Coming soon
             </Link>
           )}
           <Link
