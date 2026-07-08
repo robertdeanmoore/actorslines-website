@@ -11,16 +11,18 @@ edge functions); AI pipeline runs as GitHub Actions in the ActorsVoice repo.
   the board view `board_posts_with_stats` is deliberately security-definer.
 - **KB articles**: `src/content/kb/<slug>.md` with `title`/`summary`/`date` front-matter. A
   bare YouTube link on its own line renders as an embed.
-- **KB articles mirrored from the app's in-app help**: 14 articles under `src/content/kb/`
-  (as of 8 Jul 2026) are word-for-word mirrors of an article in ActorsVoice's
-  `HelpManual.kt`, matched **by slug/id** — e.g. `src/content/kb/selftape.md` mirrors
-  `HelpManual.SELFTAPE`. This is intentional and the pairing is deliberately just the shared
-  filename, no automated sync exists. **When you edit a `HelpManual.kt` article, also update
-  the matching KB file here in the same piece of work** (translate `B.h`→`##`, `B.p`→a plain
-  paragraph, `B.b`→a `-` list item, `B.tip`→a `> **Tip:** …` blockquote); conversely, if you
-  add a brand-new KB article that has no in-app equivalent, it's not part of this mirror and
-  doesn't need a HelpManual counterpart. Not every HelpManual article needs a KB one either —
-  only keep the two in sync where a KB file with that slug already exists.
+- **Every KB article must mirror an in-app Help article, word-for-word — full parity, not a
+  subset.** Matched **by slug/id**: `src/content/kb/<slug>.md` mirrors
+  `HelpManual.<CONST>` in the ActorsVoice repo wherever `HelpManual.<CONST> = "<slug>"` (e.g.
+  `src/content/kb/selftape.md` ↔ `HelpManual.SELFTAPE`). No automated sync exists — the
+  pairing is the shared filename, kept in sync by hand. **Whenever a `HelpManual.kt` article
+  is added or edited, add or update the matching KB file in the same piece of work**
+  (translate `B.h`→`##`, `B.p`→a plain paragraph, `B.b`→a `-` list item, `B.tip`→a
+  `> **Tip:** …` blockquote) — every HelpManual article gets a KB counterpart, no exceptions,
+  so the two lists should always have the same members. If Rob edits a KB article directly in
+  Decap CMS (`/cms/`, bypassing Claude), the reverse sync back into `HelpManual.kt` doesn't
+  happen automatically — ask Claude to pull the latest KB content and convert it back into the
+  Kotlin block DSL next session.
 - **Statuses**: request lifecycle enum in `src/lib/types.ts` mirrors `request_status` in SQL —
   change both together (plus the workflows that PATCH statuses).
 - **Workflows**: `dispatch` edge function ↔ `repository_dispatch` event names ↔
