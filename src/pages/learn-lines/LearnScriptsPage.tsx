@@ -4,6 +4,8 @@ import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../auth/AuthContext";
 import type { LearnScriptSummary, PlayExport } from "../../lib/learnLines/types";
 import UploadDialog from "./components/UploadDialog";
+import ShareScriptDialog from "./components/ShareScriptDialog";
+import AdoptSharedDialog from "./components/AdoptSharedDialog";
 
 export default function LearnScriptsPage() {
   const { session } = useAuth();
@@ -11,6 +13,8 @@ export default function LearnScriptsPage() {
   const [scripts, setScripts] = useState<LearnScriptSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [adoptOpen, setAdoptOpen] = useState(false);
+  const [shareScriptId, setShareScriptId] = useState<number | null>(null);
 
   useEffect(() => {
     void loadScripts();
@@ -53,12 +57,20 @@ export default function LearnScriptsPage() {
     <div className="max-w-3xl mx-auto">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-brand">Learn Lines</h1>
-        <button
-          onClick={() => setUploadOpen(true)}
-          className="rounded-md bg-brand text-white px-4 py-2 text-sm font-semibold hover:bg-brand-light"
-        >
-          + Upload script
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setAdoptOpen(true)}
+            className="rounded-md bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-300"
+          >
+            Adopt shared script
+          </button>
+          <button
+            onClick={() => setUploadOpen(true)}
+            className="rounded-md bg-brand text-white px-4 py-2 text-sm font-semibold hover:bg-brand-light"
+          >
+            + Upload script
+          </button>
+        </div>
       </div>
       <p className="mt-2 text-sm text-gray-600">
         Import the same JSON file Actors Voice exports for cast distribution, then practice
@@ -84,6 +96,12 @@ export default function LearnScriptsPage() {
               </div>
             </Link>
             <button
+              onClick={() => setShareScriptId(s.id)}
+              className="text-xs text-gray-400 hover:text-brand px-2 py-1"
+            >
+              Share
+            </button>
+            <button
               onClick={() => handleDelete(s.id)}
               className="text-xs text-gray-400 hover:text-red-600 px-2 py-1"
             >
@@ -95,6 +113,12 @@ export default function LearnScriptsPage() {
 
       {uploadOpen && (
         <UploadDialog onClose={() => setUploadOpen(false)} onImport={handleImport} />
+      )}
+      {adoptOpen && (
+        <AdoptSharedDialog onClose={() => setAdoptOpen(false)} onImport={handleImport} />
+      )}
+      {shareScriptId !== null && (
+        <ShareScriptDialog scriptId={shareScriptId} onClose={() => setShareScriptId(null)} />
       )}
     </div>
   );
