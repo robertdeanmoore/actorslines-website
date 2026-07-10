@@ -26,6 +26,10 @@ never have to reach for the screen mid-flow.
 - "stop" — in Practice, shows your accuracy summary for what you've run so far; tap "Exit the
   Run" when you're ready to leave. In Rehearse it ends the run immediately.
 
+> **Tip:** On phones with on-device AI, a phrase that doesn't quite match one of the words above
+> — "can we stop there", "let's go again" — gets a second look before it's given up on, so you
+> don't have to remember the exact word while paused.
+
 ## Manual mode (Practice only)
 
 Practice's three-dot menu has an "Auto mode"/"Manual mode" toggle. Auto mode is the usual
@@ -46,6 +50,8 @@ after your line and waits for you to say (or tap) what happens next.
   Practice and Rehearse".
 - "After a pause, the button" sets whether Resume/continue picks up where you stopped or
   retakes the whole line — it also names the on-screen button (Resume or Restart).
+- The on-device AI paraphrase help above has its own switch there too, if you'd rather it only
+  ever match the exact command words.
 
 > **Tip:** The app understands close mishears ("paws", "promt"), so you don't have to
 > enunciate perfectly. If it isn't hearing you, the on-screen Pause/Resume buttons always work.
