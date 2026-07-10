@@ -6,6 +6,7 @@ import type { LearnScriptSummary, PlayExport } from "../../lib/learnLines/types"
 import UploadDialog from "./components/UploadDialog";
 import ShareScriptDialog from "./components/ShareScriptDialog";
 import AdoptSharedDialog from "./components/AdoptSharedDialog";
+import SharedWithDialog from "./components/SharedWithDialog";
 
 export default function LearnScriptsPage() {
   const { session } = useAuth();
@@ -15,6 +16,8 @@ export default function LearnScriptsPage() {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [adoptOpen, setAdoptOpen] = useState(false);
   const [shareScriptId, setShareScriptId] = useState<number | null>(null);
+  const [sharedWithScriptId, setSharedWithScriptId] = useState<number | null>(null);
+  const [sharedScriptIds, setSharedScriptIds] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     void loadScripts();
@@ -29,6 +32,16 @@ export default function LearnScriptsPage() {
       .order("updated_at", { ascending: false });
     setScripts((data as LearnScriptSummary[]) ?? []);
     setLoading(false);
+    void loadSharedScriptIds();
+  }
+
+  async function loadSharedScriptIds() {
+    if (!session) return;
+    const { data } = await supabase
+      .from("learn_script_shares")
+      .select("script_id")
+      .eq("shared_by", session.user.id);
+    setSharedScriptIds(new Set((data ?? []).map((r) => r.script_id as number)));
   }
 
   async function handleImport(data: PlayExport, myCharacterName: string) {
@@ -99,8 +112,16 @@ export default function LearnScriptsPage() {
               onClick={() => setShareScriptId(s.id)}
               className="text-xs text-gray-400 hover:text-brand px-2 py-1"
             >
-              Share
+              Share to
             </button>
+            {sharedScriptIds.has(s.id) && (
+              <button
+                onClick={() => setSharedWithScriptId(s.id)}
+                className="text-xs text-gray-400 hover:text-brand px-2 py-1"
+              >
+                Shared with
+              </button>
+            )}
             <button
               onClick={() => handleDelete(s.id)}
               className="text-xs text-gray-400 hover:text-red-600 px-2 py-1"
@@ -118,7 +139,20 @@ export default function LearnScriptsPage() {
         <AdoptSharedDialog onClose={() => setAdoptOpen(false)} onImport={handleImport} />
       )}
       {shareScriptId !== null && (
-        <ShareScriptDialog scriptId={shareScriptId} onClose={() => setShareScriptId(null)} />
+        <ShareScriptDialog
+          scriptId={shareScriptId}
+          onClose={() => {
+            setShareScriptId(null);
+            void loadSharedScriptIds();
+          }}
+        />
+      )}
+      {sharedWithScriptId !== null && (
+        <SharedWithDialog
+          scriptId={sharedWithScriptId}
+          onClose={() => setSharedWithScriptId(null)}
+          onChange={loadSharedScriptIds}
+        />
       )}
     </div>
   );
