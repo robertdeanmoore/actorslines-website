@@ -19,6 +19,7 @@ export default function Layout() {
           </Link>
           {session && profile && (
             <>
+              <NavLink to="/learn-lines" className={navLink}>Learn Lines</NavLink>
               <NavLink to="/kb" className={navLink}>Knowledge base</NavLink>
               <NavLink to="/board" className={navLink}>Enhancement board</NavLink>
               <NavLink to="/requests" className={navLink}>My requests</NavLink>

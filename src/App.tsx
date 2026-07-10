@@ -18,6 +18,8 @@ import BoardPage from "./pages/board/BoardPage";
 import BoardPostPage from "./pages/board/BoardPostPage";
 import AdminQueuePage from "./pages/admin/AdminQueuePage";
 import AdminRequestPage from "./pages/admin/AdminRequestPage";
+import LearnScriptsPage from "./pages/learn-lines/LearnScriptsPage";
+import LearnPracticePage from "./pages/learn-lines/LearnPracticePage";
 
 export default function App() {
   return (
@@ -40,6 +42,8 @@ export default function App() {
           <Route path="/requests/:id" element={<RequestDetailPage />} />
           <Route path="/board" element={<BoardPage />} />
           <Route path="/board/:id" element={<BoardPostPage />} />
+          <Route path="/learn-lines" element={<LearnScriptsPage />} />
+          <Route path="/learn-lines/:scriptId" element={<LearnPracticePage />} />
 
           <Route element={<RequireAdmin />}>
             <Route path="/admin" element={<AdminQueuePage />} />
