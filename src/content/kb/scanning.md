@@ -53,6 +53,9 @@ already created — it never invents them.
 - Each line's speaker is matched to your existing characters and given their ink colour.
 - Importing one scene drops you straight into a review list. Importing a whole play walks you
   through marking the start, the end and each scene boundary first.
+- Scene boundaries are usually spotted automatically from "ACT"/"SCENE" headings. On phones with
+  on-device AI, a badly scanned heading it would otherwise miss gets a second look — you still
+  confirm every boundary before it's used.
 - You always review before anything is saved: tap a line to edit or re-label it, reorder, skip,
   merge or split, or reassign an unknown speaker — so mistakes are quick to tidy.
 
