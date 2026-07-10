@@ -133,16 +133,37 @@ export default function LearnPracticePage() {
       )}
 
       <main className="flex-1 min-w-0">
-        <div className="md:hidden sticky top-0 z-30 flex items-center gap-3 px-4 py-3 mb-2 -mx-4 bg-white shadow-sm">
-          <button
-            onClick={() => setDrawerOpen(true)}
-            className="w-11 h-11 flex items-center justify-center rounded-md hover:bg-gray-100 text-xl"
-            aria-label="Scenes"
-          >
-            ☰
-          </button>
-          <div className="font-semibold text-sm truncate">
-            Act {scene.actNumber}, Scene {scene.sceneNumber}
+        {/* Sticky header: stays pinned at the top of the screen while the line list scrolls
+            beneath it — back link + (mobile) scene switcher, then the tap-zone legend. */}
+        <div className="sticky top-0 z-30 -mx-4 px-4 mb-2 bg-white shadow-sm">
+          <div className="flex items-center gap-3 py-2">
+            <Link
+              to="/learn-lines"
+              className="flex items-center gap-1 text-sm font-medium text-gray-700 hover:text-brand shrink-0"
+            >
+              <span aria-hidden="true">←</span> Scripts
+            </Link>
+            <button
+              onClick={() => setDrawerOpen(true)}
+              className="md:hidden w-11 h-11 flex items-center justify-center rounded-md hover:bg-gray-100 text-xl"
+              aria-label="Scenes"
+            >
+              ☰
+            </button>
+            <div className="md:hidden font-semibold text-sm truncate">
+              Act {scene.actNumber}, Scene {scene.sceneNumber}
+            </div>
+          </div>
+          <div className="flex items-center pb-2">
+            {["Show/Hide all", "First word", "First letters", "Random words"].map((label, i) => (
+              <span
+                key={label}
+                className={`flex-1 text-[11px] italic truncate paperkit-script ${i > 0 ? "border-l pl-2" : ""}`}
+                style={{ color: "var(--color-paperkit-graphite)", borderColor: "var(--color-paperkit-bg-deep)" }}
+              >
+                {label}
+              </span>
+            ))}
           </div>
         </div>
 
