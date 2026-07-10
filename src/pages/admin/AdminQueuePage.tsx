@@ -29,6 +29,12 @@ export default function AdminQueuePage() {
     <div className="max-w-4xl mx-auto">
       <div className="flex items-center gap-3">
         <h1 className="flex-1 text-2xl font-bold text-brand">Admin — request queue</h1>
+        <Link
+          to="/admin/invites"
+          className="rounded-md bg-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-300"
+        >
+          Invites →
+        </Link>
         <a
           href="/cms/"
           target="_blank" rel="noreferrer"

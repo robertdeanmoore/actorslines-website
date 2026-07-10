@@ -4,18 +4,19 @@ import { supabase } from "../../lib/supabase";
 import TurnstileWidget, { turnstileConfigured } from "../../components/TurnstileWidget";
 import type { TurnstileInstance } from "@marsidev/react-turnstile";
 
-// Registrations are closed while the site is still being finished. Flip to true
-// (and redeploy) when ready to open sign-ups.
+// Open self-serve registration is closed — accounts are invite-only for now (see
+// AdminInvitesPage / the `invite` edge function). Flip to true (and redeploy) if
+// self-serve sign-up is ever reopened.
 const REGISTRATION_ENABLED = false;
 
 export default function RegisterPage() {
   if (!REGISTRATION_ENABLED) {
     return (
       <div className="max-w-sm mx-auto bg-white rounded-xl shadow-sm p-8 text-center">
-        <h1 className="text-xl font-bold text-brand">Coming soon</h1>
+        <h1 className="text-xl font-bold text-brand">Invite only</h1>
         <p className="mt-3 text-sm text-gray-600">
-          Actors Lines is putting the finishing touches on things — account creation isn't
-          open yet. Check back soon.
+          Actors Lines is currently invite-only. If you've received an invite email,
+          use the link in it to create your account.
         </p>
         <Link to="/" className="mt-4 inline-block text-sm text-brand hover:underline">
           Back to home

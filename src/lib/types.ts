@@ -75,6 +75,16 @@ export interface Plan {
   created_at: string;
 }
 
+export interface Invite {
+  id: number;
+  email: string;
+  invited_by: string | null;
+  created_at: string;
+  expires_at: string;
+  accepted_at: string | null;
+  accepted_user_id: string | null;
+}
+
 export const STATUS_LABELS: Record<RequestStatus, string> = {
   submitted: "Submitted",
   reported: "AI report ready",
