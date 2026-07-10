@@ -14,10 +14,18 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const SITE_URL = "https://actorslines.app";
 
-const cors = {
-  "Access-Control-Allow-Origin": SITE_URL,
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+// The live site is reachable at both the bare and www domains (neither redirects to the
+// other), so CORS must allow whichever one the request actually came from.
+const ALLOWED_ORIGINS = new Set(["https://actorslines.app", "https://www.actorslines.app"]);
+
+function corsHeadersFor(req: Request): Record<string, string> {
+  const origin = req.headers.get("Origin") ?? "";
+  return {
+    "Access-Control-Allow-Origin": ALLOWED_ORIGINS.has(origin) ? origin : SITE_URL,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    Vary: "Origin",
+  };
+}
 
 async function sendEmail(to: string, subject: string, text: string): Promise<boolean> {
   const [fromName, fromEmail] =
@@ -61,6 +69,7 @@ async function verifyTurnstile(token: unknown, remoteip?: string): Promise<boole
 }
 
 Deno.serve(async (req) => {
+  const cors = corsHeadersFor(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   const fail = (status: number, message: string) => {
     console.error(`[invite] ${status} ${message}`);
