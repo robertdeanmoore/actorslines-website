@@ -26,63 +26,69 @@ export default function AdminQueuePage() {
   }, [filter]);
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="flex items-center gap-3">
-        <h1 className="flex-1 text-2xl font-bold text-brand">Admin — request queue</h1>
-        <Link
-          to="/admin/invites"
-          className="rounded-md bg-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-300"
-        >
-          Invites →
-        </Link>
-        <a
-          href="/cms/"
-          target="_blank" rel="noreferrer"
-          className="rounded-md bg-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-300"
-        >
-          Manage knowledge base (GitHub) →
-        </a>
-        <a
-          href="https://supabase.com/dashboard/project/dicywovaxxuwnkidinpn/auth/users"
-          target="_blank" rel="noreferrer"
-          className="rounded-md bg-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-300"
-        >
-          Manage users (Supabase) →
-        </a>
-      </div>
-      <p className="mt-1 text-xs text-gray-400">
-        Knowledge-base articles are edited via Decap CMS (signs in with GitHub) at{" "}
-        <code>/cms/</code>. User accounts (view, reset password, delete) are managed in
-        Supabase's own dashboard — neither can be embedded here (both block being framed for
-        security), so both open in a new tab.
-      </p>
-      <div className="mt-4 flex flex-wrap gap-2">
-        {FILTERS.map((f) => (
-          <button key={f} onClick={() => setFilter(f)}
-            className={`rounded-full px-3 py-1 text-xs font-medium ${
-              filter === f ? "bg-brand text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            }`}>
-            {f === "all" ? "All" : STATUS_LABELS[f]}
-          </button>
-        ))}
-      </div>
-      <div className="mt-6 space-y-2">
-        {loading && <p className="text-sm text-gray-500">Loading…</p>}
-        {!loading && requests.length === 0 && (
-          <p className="text-sm text-gray-500">No requests in this state.</p>
-        )}
-        {requests.map((r) => (
-          <Link key={r.id} to={`/admin/requests/${r.id}`}
-            className="flex items-center gap-3 bg-white rounded-lg shadow-sm px-4 py-3 hover:shadow-md transition-shadow">
-            <span className="text-xs text-gray-400 w-10">#{r.id}</span>
-            <span className="flex-1 text-sm font-medium text-gray-900">{r.title}</span>
-            <span className="text-xs text-gray-400">
-              {new Date(r.created_at).toLocaleDateString()}
-            </span>
-            <StatusBadge status={r.status} />
+    <div className="max-w-4xl mx-auto space-y-10">
+      <section>
+        <h1 className="text-2xl font-bold text-brand">Admin — request queue</h1>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {FILTERS.map((f) => (
+            <button key={f} onClick={() => setFilter(f)}
+              className={`rounded-full px-3 py-1 text-xs font-medium ${
+                filter === f ? "bg-brand text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}>
+              {f === "all" ? "All" : STATUS_LABELS[f]}
+            </button>
+          ))}
+        </div>
+        <div className="mt-6 space-y-2">
+          {loading && <p className="text-sm text-gray-500">Loading…</p>}
+          {!loading && requests.length === 0 && (
+            <p className="text-sm text-gray-500">No requests in this state.</p>
+          )}
+          {requests.map((r) => (
+            <Link key={r.id} to={`/admin/requests/${r.id}`}
+              className="flex items-center gap-3 bg-white rounded-lg shadow-sm px-4 py-3 hover:shadow-md transition-shadow">
+              <span className="text-xs text-gray-400 w-10">#{r.id}</span>
+              <span className="flex-1 text-sm font-medium text-gray-900">{r.title}</span>
+              <span className="text-xs text-gray-400">
+                {new Date(r.created_at).toLocaleDateString()}
+              </span>
+              <StatusBadge status={r.status} />
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <h2 className="text-2xl font-bold text-brand">Admin resources</h2>
+        <p className="mt-1 text-xs text-gray-400">
+          Knowledge-base articles are edited via Decap CMS (signs in with GitHub) at{" "}
+          <code>/cms/</code>. User accounts (view, reset password, delete) are managed in
+          Supabase's own dashboard — neither can be embedded here (both block being framed for
+          security), so both open in a new tab.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link
+            to="/admin/invites"
+            className="rounded-md bg-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-300"
+          >
+            Invites →
           </Link>
-        ))}
-      </div>
+          <a
+            href="/cms/"
+            target="_blank" rel="noreferrer"
+            className="rounded-md bg-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-300"
+          >
+            Manage knowledge base (GitHub) →
+          </a>
+          <a
+            href="https://supabase.com/dashboard/project/dicywovaxxuwnkidinpn/auth/users"
+            target="_blank" rel="noreferrer"
+            className="rounded-md bg-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-300"
+          >
+            Manage users (Supabase) →
+          </a>
+        </div>
+      </section>
     </div>
   );
 }
