@@ -23,14 +23,13 @@ export function parseImport(raw: string): ParseResult {
   }
   const obj = json as Record<string, unknown>;
 
+  // kotlinx.serialization's JSON encoder omits any field left at its declared default —
+  // and schemaVersion's default *is* "the app's current schema version" at export time, so
+  // it always matches and is always omitted from real files. A missing schemaVersion is
+  // therefore normal, not a sign of a malformed file; only reject it when present and
+  // explicitly higher than what this web renderer understands.
   const schemaVersion = obj.schemaVersion;
-  if (typeof schemaVersion !== "number") {
-    return {
-      ok: false,
-      error: "This file is missing expected script data — was it exported from Actors Voice's 'Export for cast' option?",
-    };
-  }
-  if (schemaVersion > CURRENT_SUPPORTED_SCHEMA_VERSION) {
+  if (typeof schemaVersion === "number" && schemaVersion > CURRENT_SUPPORTED_SCHEMA_VERSION) {
     return {
       ok: false,
       error: "This file was exported by a newer version of the app than this website supports yet.",
@@ -52,5 +51,9 @@ export function parseImport(raw: string): ParseResult {
     };
   }
 
-  return { ok: true, data: obj as unknown as PlayExport };
+  const normalized: PlayExport = {
+    ...(obj as unknown as PlayExport),
+    schemaVersion: typeof schemaVersion === "number" ? schemaVersion : CURRENT_SUPPORTED_SCHEMA_VERSION,
+  };
+  return { ok: true, data: normalized };
 }
