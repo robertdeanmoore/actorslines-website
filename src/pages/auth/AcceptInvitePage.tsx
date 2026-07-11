@@ -96,6 +96,9 @@ export default function AcceptInvitePage() {
       {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
       <form onSubmit={submit} className="mt-4 space-y-4">
         <input
+          name="name"
+          id="name"
+          autoComplete="name"
           required
           maxLength={40}
           placeholder="Display name (shown on comments)"
@@ -105,6 +108,9 @@ export default function AcceptInvitePage() {
         />
         <input
           type="password"
+          name="new-password"
+          id="new-password"
+          autoComplete="new-password"
           required
           minLength={8}
           placeholder="Choose a password (8+ characters)"

@@ -4,11 +4,13 @@ import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../auth/AuthContext";
 import TurnstileWidget, { turnstileConfigured } from "../../components/TurnstileWidget";
 import type { TurnstileInstance } from "@marsidev/react-turnstile";
+import { checkTrusted, issueTrustedDevice } from "../../auth/trustedDevice";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [mfaCode, setMfaCode] = useState("");
+  const [trustDevice, setTrustDevice] = useState(false);
   const [stage, setStage] = useState<"credentials" | "mfa">("credentials");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -32,7 +34,7 @@ export default function LoginPage() {
       return;
     }
     const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-    if (aal?.nextLevel === "aal2" && aal.currentLevel !== "aal2") {
+    if (aal?.nextLevel === "aal2" && aal.currentLevel !== "aal2" && !(await checkTrusted())) {
       setStage("mfa");
       setBusy(false);
     } else {
@@ -54,6 +56,7 @@ export default function LoginPage() {
       factorId: totp.id, challengeId: challenge.id, code: mfaCode.trim(),
     });
     if (vErr) { setError("That code wasn't right — try again."); setBusy(false); return; }
+    if (trustDevice) await issueTrustedDevice();
     await refreshProfile();
     navigate(dest, { replace: true });
   }
@@ -65,10 +68,10 @@ export default function LoginPage() {
 
       {stage === "credentials" ? (
         <form onSubmit={submitCredentials} className="mt-4 space-y-4">
-          <input type="email" required placeholder="Email" value={email}
+          <input type="email" name="email" id="email" autoComplete="username" required placeholder="Email" value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm" />
-          <input type="password" required placeholder="Password" value={password}
+          <input type="password" name="password" id="password" autoComplete="current-password" required placeholder="Password" value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm" />
           <TurnstileWidget ref={turnstileRef} onToken={setCaptchaToken} />
@@ -86,9 +89,14 @@ export default function LoginPage() {
           <p className="text-sm text-gray-600">
             Enter the 6-digit code from your authenticator app.
           </p>
-          <input inputMode="numeric" autoFocus required placeholder="123456" value={mfaCode}
+          <input inputMode="numeric" name="otp" id="otp" autoComplete="one-time-code" autoFocus required placeholder="123456" value={mfaCode}
             onChange={(e) => setMfaCode(e.target.value)}
             className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm tracking-widest text-center" />
+          <label className="flex items-center gap-2 text-sm text-gray-600">
+            <input type="checkbox" checked={trustDevice}
+              onChange={(e) => setTrustDevice(e.target.checked)} />
+            Trust this device for 30 days
+          </label>
           <button disabled={busy}
             className="w-full rounded-md bg-brand text-white py-2 font-semibold hover:bg-brand-light disabled:opacity-50">
             {busy ? "Checking…" : "Verify"}

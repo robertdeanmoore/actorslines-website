@@ -80,13 +80,13 @@ function RegisterForm() {
       </p>
       {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
       <form onSubmit={submit} className="mt-4 space-y-4">
-        <input required maxLength={40} placeholder="Display name (shown on comments)"
+        <input name="name" id="name" autoComplete="name" required maxLength={40} placeholder="Display name (shown on comments)"
           value={displayName} onChange={(e) => setDisplayName(e.target.value)}
           className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm" />
-        <input type="email" required placeholder="Email" value={email}
+        <input type="email" name="email" id="email" autoComplete="email" required placeholder="Email" value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm" />
-        <input type="password" required minLength={8} placeholder="Password (8+ characters)"
+        <input type="password" name="new-password" id="new-password" autoComplete="new-password" required minLength={8} placeholder="Password (8+ characters)"
           value={password} onChange={(e) => setPassword(e.target.value)}
           className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm" />
         <TurnstileWidget ref={turnstileRef} onToken={setCaptchaToken} />

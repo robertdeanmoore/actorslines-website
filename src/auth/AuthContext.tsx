@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase, supabaseConfigured } from "../lib/supabase";
 import type { Profile } from "../lib/types";
+import { checkTrusted, clearToken } from "./trustedDevice";
 
 interface AuthState {
   session: Session | null;
@@ -28,7 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function loadProfile(s: Session | null) {
     if (!s) { setProfile(null); setNeedsMfa(false); return; }
     const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-    const mfaPending = aal?.nextLevel === "aal2" && aal.currentLevel !== "aal2";
+    const mfaPending = aal?.nextLevel === "aal2" && aal.currentLevel !== "aal2" && !(await checkTrusted());
     setNeedsMfa(mfaPending);
     if (mfaPending) { setProfile(null); return; }
     const { data } = await supabase
@@ -56,7 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         session, profile, loading, needsMfa,
         refreshProfile: () => loadProfile(session),
-        signOut: async () => { await supabase.auth.signOut(); },
+        signOut: async () => { clearToken(); await supabase.auth.signOut(); },
       }}
     >
       {children}
