@@ -1,15 +1,19 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
-import type { LearnScript, LineExport, RevealMode } from "../../lib/learnLines/types";
+import type { LearnBookmark, LearnScript, LineExport, RevealMode } from "../../lib/learnLines/types";
 import { lineKey, resolveLineType } from "../../lib/learnLines/types";
 import { rollRandomWords } from "../../lib/learnLines/revealRanges";
 import { applyZoneTap } from "../../lib/learnLines/zoneTap";
 import { useRevealSync } from "../../lib/learnLines/useRevealSync";
+import { useBookmarks } from "../../lib/learnLines/useBookmarks";
 import SceneList from "./components/SceneList";
 import LineRow from "./components/LineRow";
 import StageDirectionRow from "./components/StageDirectionRow";
 import CueRow from "./components/CueRow";
+import BookmarkableRow from "./components/BookmarkableRow";
+import BookmarkMarker from "./components/BookmarkMarker";
+import BookmarkDialog from "./components/BookmarkDialog";
 
 export default function LearnPracticePage() {
   const { scriptId } = useParams<{ scriptId: string }>();
@@ -22,7 +26,25 @@ export default function LearnPracticePage() {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const sync = useRevealSync(scriptIdNum);
+  const bookmarksApi = useBookmarks(scriptIdNum);
   const randomWordsRef = useRef<Record<string, Set<number>>>({});
+  const lineRefs = useRef<Record<number, HTMLDivElement | null>>({});
+  const [pendingScrollLineIndex, setPendingScrollLineIndex] = useState<number | null>(null);
+  const [pendingBookmark, setPendingBookmark] = useState<{ sceneIndex: number; lineIndex: number } | null>(null);
+  const [managingBookmark, setManagingBookmark] = useState<LearnBookmark | null>(null);
+
+  useEffect(() => {
+    if (pendingScrollLineIndex == null) return;
+    const el = lineRefs.current[pendingScrollLineIndex];
+    el?.scrollIntoView({ behavior: "smooth", block: "center" });
+    setPendingScrollLineIndex(null);
+  }, [activeScene, pendingScrollLineIndex]);
+
+  function handleSelectBookmark(bookmark: LearnBookmark) {
+    setActiveScene(bookmark.scene_index);
+    setPendingScrollLineIndex(bookmark.line_index);
+    setDrawerOpen(false);
+  }
 
   useEffect(() => {
     if (!scriptIdNum) return;
@@ -109,7 +131,13 @@ export default function LearnPracticePage() {
         className="hidden md:block w-60 shrink-0 sticky top-4 self-start max-h-[calc(100vh-2rem)] overflow-y-auto rounded-xl p-3"
         style={{ backgroundColor: "var(--color-paperkit-bg)" }}
       >
-        <SceneList scenes={scenes} activeIndex={activeScene} onSelect={setActiveScene} />
+        <SceneList
+          scenes={scenes}
+          activeIndex={activeScene}
+          onSelect={setActiveScene}
+          bookmarks={bookmarksApi.bookmarks}
+          onSelectBookmark={handleSelectBookmark}
+        />
       </div>
 
       {/* Mobile drawer */}
@@ -127,6 +155,8 @@ export default function LearnPracticePage() {
                 setActiveScene(i);
                 setDrawerOpen(false);
               }}
+              bookmarks={bookmarksApi.bookmarks}
+              onSelectBookmark={handleSelectBookmark}
             />
           </div>
         </div>
@@ -184,31 +214,74 @@ export default function LearnPracticePage() {
             {scene.lines.map((line, li) => {
               const type = resolveLineType(line);
               if (type === "SKIP") return null;
-              if (type === "STAGE_DIRECTION") return <StageDirectionRow key={li} line={line} />;
-              if (type === "SOUND" || type === "LIGHT") return <CueRow key={li} line={line} kind={type} />;
 
-              const key = lineKey(activeScene, li);
-              const isUserLine = line.speaker === script.my_character_name;
-              const revealMode: RevealMode = isUserLine ? sync.revealByKey[key] ?? "VISIBLE" : "VISIBLE";
-              const shownWordIndices =
-                isUserLine && revealMode === "RANDOM" ? ensureRandomWords(key, line.text) : undefined;
+              const bookmarkHere = bookmarksApi.bookmarks.find(
+                (b) => b.scene_index === activeScene && b.line_index === li,
+              );
+
+              let rowContent: React.ReactNode;
+              if (type === "STAGE_DIRECTION") {
+                rowContent = <StageDirectionRow line={line} />;
+              } else if (type === "SOUND" || type === "LIGHT") {
+                rowContent = <CueRow line={line} kind={type} />;
+              } else {
+                const key = lineKey(activeScene, li);
+                const isUserLine = line.speaker === script.my_character_name;
+                const revealMode: RevealMode = isUserLine ? sync.revealByKey[key] ?? "VISIBLE" : "VISIBLE";
+                const shownWordIndices =
+                  isUserLine && revealMode === "RANDOM" ? ensureRandomWords(key, line.text) : undefined;
+                rowContent = (
+                  <LineRow
+                    line={line}
+                    lineKey={key}
+                    isUserLine={isUserLine}
+                    characterColorIndex={characterColorByName[line.speaker] ?? 0}
+                    revealMode={revealMode}
+                    shownWordIndices={shownWordIndices}
+                    onTap={(zoneMode) => handleTap(activeScene, li, line, zoneMode)}
+                  />
+                );
+              }
 
               return (
-                <LineRow
-                  key={li}
-                  line={line}
-                  lineKey={key}
-                  isUserLine={isUserLine}
-                  characterColorIndex={characterColorByName[line.speaker] ?? 0}
-                  revealMode={revealMode}
-                  shownWordIndices={shownWordIndices}
-                  onTap={(zoneMode) => handleTap(activeScene, li, line, zoneMode)}
-                />
+                <div key={li}>
+                  {bookmarkHere && (
+                    <BookmarkMarker label={bookmarkHere.label} onClick={() => setManagingBookmark(bookmarkHere)} />
+                  )}
+                  <BookmarkableRow
+                    innerRef={(el) => (lineRefs.current[li] = el)}
+                    onLongPress={() => setPendingBookmark({ sceneIndex: activeScene, lineIndex: li })}
+                  >
+                    {rowContent}
+                  </BookmarkableRow>
+                </div>
               );
             })}
           </div>
         </div>
       </main>
+
+      {pendingBookmark && (
+        <BookmarkDialog
+          mode="create"
+          onCancel={() => setPendingBookmark(null)}
+          onSave={(label) => {
+            bookmarksApi.addBookmark(pendingBookmark.sceneIndex, pendingBookmark.lineIndex, label);
+            setPendingBookmark(null);
+          }}
+        />
+      )}
+      {managingBookmark && (
+        <BookmarkDialog
+          mode="manage"
+          existingLabel={managingBookmark.label}
+          onCancel={() => setManagingBookmark(null)}
+          onDelete={() => {
+            bookmarksApi.deleteBookmark(managingBookmark.id);
+            setManagingBookmark(null);
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -87,3 +87,15 @@ export interface LearnLineState {
 export function lineKey(sceneIndex: number, lineIndex: number): string {
   return `${sceneIndex}:${lineIndex}`;
 }
+
+// A web-only proxy for the app's "sections" concept — not linked to it. Positional
+// (scene_index/line_index) rather than a stored line key, purely for simplicity of the nested
+// scene-list navigation, which needs the scene index up front to jump scenes.
+export interface LearnBookmark {
+  id: number;
+  script_id: number;
+  scene_index: number;
+  line_index: number;
+  label: string;
+  created_at: string;
+}
