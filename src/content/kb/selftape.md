@@ -20,7 +20,9 @@ a real voice.
   useful if you might switch which character is yours later, since every line ends up recorded
   either way.
 - "Play my recordings in runs" makes Practice, Rehearse and Timers actually use the recordings;
-  missing recordings always fall back to the synthesised voice.
+  missing recordings always fall back to the synthesised voice. Turning it off asks you to
+  confirm first, since a line originally entered by recording may have background-transcribed
+  text that's never been checked for accuracy.
 
 ## Recording your lines
 
@@ -37,8 +39,8 @@ a real voice.
   Practice for that scene — every character's line inside those sections, not just your own, so
   you can drill a whole exchange. It's greyed out until the scene has at least one Practice
   section, and ticking it un-ticks "Cue-to-cue only" (only one can be on at a time).
-- Each line shows Record, then Save (saves and closes) or Save & Next (saves and moves on) —
-  the same pair of buttons as Add Line's Save / Save & Add.
+- Each line shows Record, then Stop (saves and closes) or Stop & Next (saves and moves on) —
+  the same pair of buttons as Add Line's Stop / Stop & Add.
 - Each scene card shows a small status box: the top row ("All:") shows the whole scene's
   microphone and clock (Timers) status — red/amber/green, same as before. The second row
   ("C2C:") repeats both for just the Cue-to-cue-relevant lines, so you can tell at a glance
@@ -50,6 +52,11 @@ a real voice.
 In the Scene Editor's Add Line screen, tapping a character records your voice instead of
 listening for speech — the text is filled in automatically afterwards, in the background, so
 you don't have to wait for it before saving.
+
+Recordings save straight away, but typed or spoken lines get a quick review first: tapping
+Stop / Stop & Add finishes the transcript, then counts down 5 seconds (shown on the button)
+before saving, giving you a moment to check the words are right. Tap Save/Save & Add early to
+skip the wait, or tap Revise/Edit to cancel and fix the text before saving.
 
 > **Tip:** The first time you turn Selftape on, download the transcription model from
 > Settings → Selftape so recorded lines get their text automatically — until then, a fresh
