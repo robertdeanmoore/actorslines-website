@@ -11,10 +11,15 @@ pun, or a vivid image combining both.
 
 ## Getting a suggestion
 
-- Each of your lines in Practice is split into five tap columns (see the "Link | All | Word |
+- Each of your lines in Practice is split into five tap columns (see the "Memory | All | Word |
   Letters | Random" reminder row); the leftmost is the memory-link column. Long-press it to
   open the dialog — nothing is shown there until you've saved a hint, it's a blank touch
   target until then.
+
+> **Tip:** Tap any of the five reminder-row labels to toggle very faint vertical lines marking
+> where each tap column begins and ends — handy if you want to double-check a tap will land in
+> the memory column rather than nudging a reveal mode by mistake. Tap again to hide them.
+
 - The dialog shows the lines it gathered automatically, including your own earlier lines
   where relevant, not just the other character's cue. Tap the ✕ next to one to drop it, or
   "Add previous line" to pull in one more, before tapping "Get suggestions".
