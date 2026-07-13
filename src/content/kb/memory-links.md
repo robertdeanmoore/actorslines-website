@@ -21,12 +21,13 @@ pun, or a vivid image combining both.
 > the memory column rather than nudging a reveal mode by mistake. Tap again to hide them.
 
 - The dialog shows the lines it gathered automatically, including your own earlier lines
-  where relevant, not just the other character's cue. Tap the ✕ next to one to drop it, or
-  "Add previous line" to pull in one more, before tapping "Get suggestions".
-- While it's thinking, "Creating memories…" shows with a Cancel button if you change your
-  mind. Once ready, flick through the emoji + short-phrase candidate cards and tap the one
-  that clicks for you. "More ideas" asks for a fresh batch instead. None of them auto-apply —
-  you choose.
+  where relevant, not just the other character's cue. "Add previous line" (above the list)
+  pulls in one more; tap the minus next to any line to drop it — the last remaining line
+  can't be dropped, since there must always be something to work from.
+- Tap "Get suggestions" once you're happy with the context. While it's thinking, "Creating
+  memories…" shows with a Cancel button if you change your mind. Once ready, tap one of the
+  emoji + short-phrase ideas to put that memory link against the line. "More ideas" asks for
+  a fresh batch instead. None of them auto-apply — you choose.
 
 ## Managing a saved hint
 
