@@ -46,6 +46,9 @@ a real voice.
   ("C2C:") repeats both for just the Cue-to-cue-relevant lines, so you can tell at a glance
   whether you're done recording everything a Cue-to-cue run will need, even if the whole-scene
   row is still red.
+- Each recorded line in the Scene Editor's list also gets its own small mic icon next to the
+  clock icon, so you can tell which specific lines are recorded without opening Selftape mode's
+  own walk.
 
 ## Adding new lines while Selftape is on
 
