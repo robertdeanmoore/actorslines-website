@@ -62,3 +62,11 @@ listening for your trigger and responding.
 > **Tip:** Cue-to-cue is great once you know the shape of a scene and want to stress-test just
 > the moments where you need to pick up your cue. For building the shape in the first place,
 > run the full scene.
+
+## Filtering while editing
+
+- The Scene Editor has its own three-dot menu with a matching "Cue-to-cue mode" filter, plus
+  "Hide stage directions", "My character", "No timers" and "No selftape" — all independent and
+  combinable. There, non-matching lines simply disappear rather than folding into a grey card,
+  since the list stays fully editable; drag-to-reorder switches off while any filter is on, the
+  same as while searching.
