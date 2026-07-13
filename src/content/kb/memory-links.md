@@ -25,8 +25,9 @@ pun, or a vivid image combining both.
 
 ## Managing a saved hint
 
-- Once saved, the emoji shows in that same leftmost column every time you practice the line —
-  tap it to see the hint again, or long-press for "Change" (ask again) or "Remove" (delete it).
+- Once saved, the emoji shows in that same leftmost column every time you practice the line. A
+  single tap floats a small pop-up with the hint's text for a couple of seconds — a quick peek,
+  not the full dialog. Long-press instead for "Change" (ask again) or "Remove" (delete it).
 
 > **Tip:** Only available on phones with on-device AI (Gemini Nano); turn it off entirely
 > under Settings → "Suggest memory links with on-device AI" if you'd rather not see it.
