@@ -54,6 +54,10 @@ then a name.
   replaces every scene's Rehearse sections with Practice's, so it asks you to confirm first.
   Learn's sections stay separate either way.
 
+> **Tip:** While aligned, the Scene Editor also shows your Practice sections as light grey
+> "ghost" chips — start and end only, no colour, no actions — just so you can see where they
+> fall while editing lines. Turn off alignment and they disappear from the editor too.
+
 > **Tip:** In Practice and Rehearse, the scroll bar on the right edge is tinted with each
 > section's colour along the stretch it covers — a quick map of where your sections are as you
 > drag up and down.
