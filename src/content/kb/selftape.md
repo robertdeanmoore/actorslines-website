@@ -27,18 +27,18 @@ a real voice.
 ## Recording your lines
 
 - In Edit mode, the bottom row gains a "Selftape" button once Selftape mode is on, alongside
-  "Timers", "Import" and "+ Scene". Tap Selftape to arm it — it fills solid to show it's armed
-  — then tap any scene and choose "All lines" to walk through the whole scene, or "Missing
-  recordings only" to jump straight to the lines that still need one, or Cancel to back out.
-  Tap Selftape again to disarm it.
-- Tick "Cue-to-cue only" in that dialog to record just the lines a Cue-to-cue Practice/Rehearse
+  "Prepare scene" (Timers), "Import" and "+ Scene". Tap Selftape to arm it — it fills solid to
+  show it's armed — then tap any scene and choose "All lines" to walk through the whole scene,
+  or "Missing recordings only" to jump straight to the lines that still need one, or Cancel to
+  back out. Tap Selftape again to disarm it.
+- Tick "My lines only" in that dialog to record just the lines a Cue-to-cue Practice/Rehearse
   run will actually use, instead of the whole scene — handy once you know you'll always run
-  this scene in Cue-to-cue mode. The Timers "Choose teaching mode" dialog has the same checkbox
-  for teaching.
-- Tick "Sections only" instead to scope to whatever sections you've already marked out in
+  this scene in Cue-to-cue mode. "Prepare scene"'s own dialog has the same option, labelled
+  "My lines only" there too.
+- Tick "Just a section" instead to scope to whatever sections you've already marked out in
   Practice for that scene — every character's line inside those sections, not just your own, so
   you can drill a whole exchange. It's greyed out until the scene has at least one Practice
-  section, and ticking it un-ticks "Cue-to-cue only" (only one can be on at a time).
+  section, and ticking it un-ticks "My lines only" (only one can be on at a time).
 - Each line shows Record, then Stop (saves and closes) or Stop & Next (saves and moves on) —
   the same pair of buttons as Add Line's Stop / Stop & Add.
 - Each scene card shows a small status box: the top row ("All:") shows the whole scene's

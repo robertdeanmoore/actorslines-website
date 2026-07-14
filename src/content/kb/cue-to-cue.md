@@ -8,9 +8,9 @@ In a cue-to-cue rehearsal you only see the line (or lines) that cue into each of
 speeches, then your speech itself. Everything in between disappears — you stay focused on
 listening for your trigger and responding.
 
-> **Tip:** The same cue-to-cue lines can be pre-selected for recording or teaching, via the
-> "Cue-to-cue only" checkbox on Selftape's and Timers' "choose how to proceed" dialogs — see
-> the Selftape mode article.
+> **Tip:** The same cue-to-cue lines can be pre-selected for recording or preparing, via the
+> "My lines only" checkbox on Selftape's and "Prepare scene"'s "choose how to proceed" dialogs —
+> see the Selftape mode article.
 
 ## Turning it on
 
