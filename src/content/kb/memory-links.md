@@ -18,7 +18,10 @@ pun, or a vivid image combining both.
 
 > **Tip:** Tap any of the five reminder-row labels to toggle very faint vertical lines marking
 > where each tap column begins and ends — handy if you want to double-check a tap will land in
-> the memory column rather than nudging a reveal mode by mistake. Tap again to hide them.
+> the memory column rather than nudging a reveal mode by mistake. Tap again to hide them. They
+> start out visible for your first few taps as a discoverability aid, then default off — but
+> tapping a label always sets a permanent choice from then on, so if you always want them on
+> (or off), one tap locks that in for good.
 
 - The dialog shows the lines it gathered automatically, including your own earlier lines
   where relevant, not just the other character's cue. "Add previous line" (above the list)
