@@ -40,7 +40,9 @@ then a name.
 
 > **Tip:** In Practice and Rehearse, the "End of section N" (and "End of [speech]") row has a
 > "Go to top" chip — tap it to jump straight back to the start of that stretch for another
-> pass, without scrolling by hand.
+> pass, without scrolling by hand. If you've scrolled deep into a long section or speech, a
+> floating copy of the same chip fades in at the bottom of the screen so you don't have to
+> scroll all the way down to find it first.
 
 ## Several sections
 
