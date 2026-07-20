@@ -25,8 +25,15 @@ pun, or a vivid image combining both.
 
 - The dialog shows the lines it gathered automatically, including your own earlier lines
   where relevant, not just the other character's cue. "Add previous line" (above the list)
-  pulls in one more; tap the minus next to any line to drop it — the last remaining line
-  can't be dropped, since there must always be something to work from.
+  pulls in one more; tap the minus next to any line to drop it — normally the last remaining
+  line can't be dropped, since there must always be something to work from.
+- Exception: if your own line reads as more than one sentence, you can drop every context
+  line, right down to none. With no context left, the AI instead looks for where your line's
+  own subject changes — grouping any sentences that share a topic together — and links the
+  topic on one side of that change to the topic on the other. Useful when a line's sentences
+  aren't otherwise connected, e.g. "Yes I went to the shops for him. Did you see the match
+  last night?" might link "shops" to "a football match". Tap "Add previous line" again any
+  time to go back to linking against the preceding cue.
 - Tap "Get suggestions" once you're happy with the context. While it's thinking, "Creating
   memories…" shows with a Cancel button if you change your mind. Once ready, tap one of the
   emoji + short-phrase ideas to put that memory link against the line. "More ideas" asks for
