@@ -47,3 +47,20 @@ scrolling, however long the play is.
 - "View data" offers the same five windows, but as a display filter instead of a delete — both
   columns recompute to show only accuracy data from that window. Your choice sticks until you
   change it again, even after leaving the screen.
+
+## Offbook and Performance timelines
+
+Set a play's Start date, Off-book date and Performance from date (in the edit-play window) and
+a second row appears below the scene map: an "Offbook" timeline and a "Performance" timeline,
+each with its own date scale.
+
+- Two arrows point down each timeline — a dotted one for lines you've hidden in any Learn mode,
+  a solid one for lines fully hidden — reaching down to how far through the play that
+  represents. The dotted arrow is always at least as long as the solid one.
+- A line marks today's date on that timeline's start-to-target span, so you can see at a glance
+  whether the arrows are ahead of, on track with, or behind where today says you should be.
+- If the "hidden any way" arrow falls short of today's line, a "Catchup: N lines" label appears
+  just below its tip — the number of lines you'd need to hide right now to be back on track.
+- Below today's line sits "To learn: N lines" and "Learn N per day" — the total lines you
+  haven't hidden at all yet, and the daily pace that clears all of them by that timeline's
+  target date. Once nothing's left to learn, both are replaced by a single "Lines learned ✓".
