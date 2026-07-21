@@ -20,6 +20,7 @@ import BoardPostPage from "./pages/board/BoardPostPage";
 import AdminQueuePage from "./pages/admin/AdminQueuePage";
 import AdminRequestPage from "./pages/admin/AdminRequestPage";
 import AdminInvitesPage from "./pages/admin/AdminInvitesPage";
+import TelemetryPage from "./pages/admin/TelemetryPage";
 import LearnScriptsPage from "./pages/learn-lines/LearnScriptsPage";
 import LearnPracticePage from "./pages/learn-lines/LearnPracticePage";
 
@@ -52,6 +53,7 @@ export default function App() {
             <Route path="/admin" element={<AdminQueuePage />} />
             <Route path="/admin/requests/:id" element={<AdminRequestPage />} />
             <Route path="/admin/invites" element={<AdminInvitesPage />} />
+            <Route path="/admin/telemetry" element={<TelemetryPage />} />
           </Route>
         </Route>
       </Route>

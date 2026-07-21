@@ -73,6 +73,12 @@ export default function AdminQueuePage() {
           >
             Invites →
           </Link>
+          <Link
+            to="/admin/telemetry"
+            className="rounded-md bg-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-300"
+          >
+            Usage telemetry →
+          </Link>
           <a
             href="/cms/"
             target="_blank" rel="noreferrer"
