@@ -13,6 +13,8 @@ never have to reach for the screen mid-flow.
 - Say "pause" on its own to stop and gather yourself.
 - Say "prompt" (or just "line") to pause and have the start of your line read back to you in
   your character's voice.
+- There's also an on-screen "Continue" button next to Pause the whole time your line is live —
+  tap it to skip the rest of the countdown and move straight to scoring, no need to say anything.
 
 > **Tip:** These only fire when the word is said alone and you then stop — so they won't trip
 > just because a line happens to begin with "pause". If you keep reciting, nothing happens.
