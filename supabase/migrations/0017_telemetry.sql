@@ -91,3 +91,19 @@ group by event_name, item, value;
 
 revoke all on public.telemetry_value_counts from anon, public;
 grant select on public.telemetry_value_counts to authenticated;
+
+-- App-open and session-length rollup for the dashboard's engagement tiles. Durations come from the
+-- `session_end` event's params->>'duration_ms'; app-opens are counted from `app_open` events.
+create view public.telemetry_session_stats
+with (security_invoker = off) as
+select
+  (select count(*) from public.telemetry_events where event_name = 'app_open' and public.is_admin())            as app_opens,
+  (select count(distinct install_id) from public.telemetry_events where event_name = 'app_open' and public.is_admin()) as active_installs,
+  (select count(*) from public.telemetry_events where event_name = 'session_end' and public.is_admin())          as sessions,
+  (select avg((params ->> 'duration_ms')::bigint) from public.telemetry_events
+     where event_name = 'session_end' and params ? 'duration_ms' and public.is_admin())                          as avg_duration_ms,
+  (select max((params ->> 'duration_ms')::bigint) from public.telemetry_events
+     where event_name = 'session_end' and params ? 'duration_ms' and public.is_admin())                          as max_duration_ms;
+
+revoke all on public.telemetry_session_stats from anon, public;
+grant select on public.telemetry_session_stats to authenticated;

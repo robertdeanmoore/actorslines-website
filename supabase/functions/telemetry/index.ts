@@ -12,7 +12,12 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 // Usage-event names the app is allowed to send. Anything else is dropped on ingest.
-const ALLOWED_EVENTS = new Set(["setting_changed", "feature_used"]);
+const ALLOWED_EVENTS = new Set([
+  "setting_changed",
+  "feature_used",
+  "app_open",
+  "session_end",
+]);
 
 const MAX_EVENTS_PER_BATCH = 200;
 const MAX_PARAMS_PER_EVENT = 8;

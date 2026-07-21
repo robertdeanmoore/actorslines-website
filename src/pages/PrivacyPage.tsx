@@ -19,8 +19,9 @@ export default function PrivacyPage() {
         The Actors Lines app has an <strong>off-by-default</strong> setting, “Share
         anonymous usage data.” It stays off — and the app sends us nothing — unless
         you turn it on. When it is on, the app sends anonymous information about which
-        features and settings you use, the app version, and a rough device model (the
-        same detail a crash report already includes). A random identifier is attached
+        features and settings you use, how often and how long you use the app, the app
+        version, and a rough device model (the same detail a crash report already
+        includes). A random identifier is attached
         so events from one device can be grouped; it is <strong>not</strong> linked to
         your name, email, or any account — there is no account in the app — and you can
         reset it, or delete it entirely by turning the setting off, at any time.

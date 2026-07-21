@@ -15,8 +15,8 @@ parts you rely on get the attention.
 
 ## What is and isn't sent
 
-- Sent: which features you open and which settings you change, the app version, and a rough
-  device model (the same detail a crash report already includes).
+- Sent: which features you open, which settings you change, how often and how long you use the
+  app, the app version, and a rough device model (the same detail a crash report already includes).
 - A random ID is attached so events from one phone can be grouped together. It isn't linked to
   your name, email or any account — there's no account in this app — and you can reset it any
   time from Settings.

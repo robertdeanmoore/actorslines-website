@@ -11,6 +11,13 @@ type ValueCount = {
   total: number;
   installs: number;
 };
+type SessionStats = {
+  app_opens: number;
+  active_installs: number;
+  sessions: number;
+  avg_duration_ms: number | null;
+  max_duration_ms: number | null;
+};
 type ReportStatus = "new" | "triaged" | "resolved";
 type Report = {
   id: number;
@@ -29,14 +36,24 @@ type Report = {
 
 const card = "bg-white rounded-xl shadow-sm p-6";
 
+function formatDuration(ms: number | null): string {
+  if (ms == null || ms <= 0) return "—";
+  const s = Math.round(ms / 1000);
+  if (s < 60) return `${s}s`;
+  const m = Math.floor(s / 60);
+  if (m < 60) return `${m}m ${s % 60}s`;
+  return `${Math.floor(m / 60)}h ${m % 60}m`;
+}
+
 export default function TelemetryPage() {
   const [counts, setCounts] = useState<EventCount[]>([]);
   const [values, setValues] = useState<ValueCount[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
+  const [sessions, setSessions] = useState<SessionStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   async function load() {
-    const [c, v, r] = await Promise.all([
+    const [c, v, r, s] = await Promise.all([
       supabase.from("telemetry_event_counts").select("*"),
       supabase.from("telemetry_value_counts").select("*"),
       supabase
@@ -44,10 +61,12 @@ export default function TelemetryPage() {
         .select("*")
         .order("received_at", { ascending: false })
         .limit(200),
+      supabase.from("telemetry_session_stats").select("*").maybeSingle(),
     ]);
     setCounts((c.data as EventCount[]) ?? []);
     setValues((v.data as ValueCount[]) ?? []);
     setReports((r.data as Report[]) ?? []);
+    setSessions((s.data as SessionStats) ?? null);
     setLoading(false);
   }
   useEffect(() => {
@@ -100,9 +119,11 @@ export default function TelemetryPage() {
         <p className="text-sm text-gray-500">Loading…</p>
       ) : (
         <>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <StatTile label="Events" value={totalEvents.toLocaleString()} />
             <StatTile label="Devices seen" value={installs.toLocaleString()} />
+            <StatTile label="App opens" value={(sessions?.app_opens ?? 0).toLocaleString()} />
+            <StatTile label="Avg session" value={formatDuration(sessions?.avg_duration_ms ?? null)} />
             <StatTile label="Reports" value={reports.length.toLocaleString()} />
             <StatTile label="New reports" value={newReports.toLocaleString()} />
           </div>
