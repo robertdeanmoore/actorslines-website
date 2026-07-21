@@ -42,7 +42,7 @@ many rows the text wraps onto, the whole block counts.
   word, First letters, Random — as one-off actions for every line in the scene, each with a
   confirmation since it overrides any per-line choices you've made.
 - Tapping a section's "Start of section" label offers the same five options, scoped to just
-  that section.
+  that section (long-press the same label instead to delete the section).
 
 > **Tip:** Your choice for each line is saved as you go, survives leaving the screen or a
 > crash, and travels with a personal backup — but not with a copy shared to the rest of the

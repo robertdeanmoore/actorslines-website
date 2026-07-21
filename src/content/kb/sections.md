@@ -66,15 +66,16 @@ then a name.
 
 ## Section actions
 
-Tapping the "Start of section" label opens a small menu:
+- Tap the "Start of section" label to go straight to the same five reveal options described in
+  "Progressive line reveal" (Show All, Hide All, First word, First letters, Random), applied to
+  just this section's lines after a confirmation — works the same as the scene-wide kebab action
+  but scoped to the section. Nothing happens on tap if the section has no lines of your own.
+- Long-press the same label instead to delete the section — it leads to a confirmation; your
+  lines are untouched. Keeping delete behind a long-press means the tap you'll use most often
+  (show/hide) doesn't have to pass through a menu first.
 
-- Show/Hide All — the same five reveal options described in "Progressive line reveal" (Show
-  All, Hide All, First word, First letters, Random), applied to just this section's lines after
-  a confirmation. Works the same as the scene-wide kebab action but scoped to the section.
-- Delete section — leads to a confirmation; your lines are untouched.
-
-> **Tip:** Both actions are unavailable on a plain section in Rehearse while sections are
-> aligned with Practice — tapping delete there just explains where to go instead.
+> **Tip:** Both gestures are unavailable on a plain section in Rehearse while sections are
+> aligned with Practice — either one there just explains where to go instead.
 
 ## Moving a boundary
 
