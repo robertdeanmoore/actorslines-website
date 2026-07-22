@@ -12,6 +12,7 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const MONTH_MS = 30 * 24 * 60 * 60 * 1000;
 const FORTNIGHT_MS = 14 * 24 * 60 * 60 * 1000;
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 async function sendEmail(to: string, subject: string, text: string): Promise<boolean> {
   const [fromName, fromEmail] =
@@ -49,7 +50,11 @@ Deno.serve(async (req) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
   const now = Date.now();
-  const summary = { warned1: 0, warned2: 0, deleted: 0, errors: 0, compExtended: 0, compErrors: 0 };
+  const summary = {
+    warned1: 0, warned2: 0, deleted: 0, errors: 0,
+    compExtended: 0, compErrors: 0,
+    licence1moWarned: 0, licence1wkWarned: 0, licenceWarnErrors: 0,
+  };
 
   // Box Office: comp_rolling licences are rolling, not perpetual (golden principle #1, rules.md)
   // -- extend every active one to now + 1 year, every night, for as long as the holder remains
@@ -74,6 +79,54 @@ Deno.serve(async (req) => {
       summary.compErrors++;
     } else {
       summary.compExtended++;
+    }
+  }
+
+  // Box Office Phase 4: licence-expiry warnings -- distinct from the account-inactivity warnings
+  // below (those are about signing in at all; these are about a specific paid/trial licence
+  // lapsing). Each licence is warned at most once per milestone via warned_1mo_at/warned_1wk_at.
+  const { data: expiringLicences, error: expiringQueryErr } = await admin
+    .from("licences")
+    .select("id, user_id, starts_at, ends_at, warned_1mo_at, warned_1wk_at, product_code")
+    .eq("status", "active")
+    .lt("ends_at", new Date(now + 31 * DAY_MS).toISOString())
+    .gt("ends_at", new Date(now).toISOString());
+  if (expiringQueryErr) {
+    console.error("[lifecycle] failed to query expiring licences", expiringQueryErr);
+  }
+  for (const l of expiringLicences ?? []) {
+    const { data: { user } } = await admin.auth.admin.getUserById(l.user_id);
+    const email = user?.email;
+    if (!email) continue;
+    const endsAt = Date.parse(l.ends_at);
+    const termMs = endsAt - Date.parse(l.starts_at);
+    const accountLink = "https://actorslines.app/profile";
+    try {
+      // 1-month notice: skipped for terms under 31 days (e.g. trial_30d) -- "renews in a month"
+      // makes no sense when the whole term barely exceeds a month.
+      if (!l.warned_1mo_at && termMs > 31 * DAY_MS && endsAt - now <= 31 * DAY_MS) {
+        const ok = await sendEmail(email, "Your Actors Lines licence renews in about a month",
+          `Hello,\n\nYour ${l.product_code} licence is due to expire in about a month, on ` +
+          `${new Date(l.ends_at).toDateString()}.\n\nSee your account page for details: ${accountLink}\n\n` +
+          `Nothing is auto-billed -- if you'd like to continue, visit actorslines.app to renew.\n\n— Actors Lines`);
+        if (ok) {
+          await admin.from("licences").update({ warned_1mo_at: new Date().toISOString() }).eq("id", l.id);
+          summary.licence1moWarned++;
+        } else summary.licenceWarnErrors++;
+      } else if (!l.warned_1wk_at && endsAt - now <= 7 * DAY_MS) {
+        const ok = await sendEmail(email, "Your Actors Lines licence expires in about a week",
+          `Hello,\n\nYour ${l.product_code} licence expires in about a week, on ` +
+          `${new Date(l.ends_at).toDateString()}. After that you'll drop to the Free tier -- your ` +
+          `plays and data stay exactly where they are, you just lose import/scan, audio-driven ` +
+          `runs, and Selftape until you renew.\n\nSee your account page: ${accountLink}\n\n— Actors Lines`);
+        if (ok) {
+          await admin.from("licences").update({ warned_1wk_at: new Date().toISOString() }).eq("id", l.id);
+          summary.licence1wkWarned++;
+        } else summary.licenceWarnErrors++;
+      }
+    } catch (e) {
+      console.error(`[lifecycle] failed processing expiring licence id=${l.id}`, e);
+      summary.licenceWarnErrors++;
     }
   }
 
