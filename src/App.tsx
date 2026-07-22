@@ -9,6 +9,7 @@ import RegisterPage from "./pages/auth/RegisterPage";
 import AcceptInvitePage from "./pages/auth/AcceptInvitePage";
 import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
 import UpdatePasswordPage from "./pages/auth/UpdatePasswordPage";
+import MobileCaptchaPage from "./pages/auth/MobileCaptchaPage";
 import ProfilePage from "./pages/account/ProfilePage";
 import KbListPage from "./pages/kb/KbListPage";
 import KbArticlePage from "./pages/kb/KbArticlePage";
@@ -29,6 +30,7 @@ import LearnPracticePage from "./pages/learn-lines/LearnPracticePage";
 export default function App() {
   return (
     <Routes>
+      <Route path="/mobile-captcha" element={<MobileCaptchaPage />} />
       <Route element={<Layout />}>
         <Route path="/" element={<LandingPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
