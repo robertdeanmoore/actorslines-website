@@ -49,7 +49,33 @@ Deno.serve(async (req) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
   const now = Date.now();
-  const summary = { warned1: 0, warned2: 0, deleted: 0, errors: 0 };
+  const summary = { warned1: 0, warned2: 0, deleted: 0, errors: 0, compExtended: 0, compErrors: 0 };
+
+  // Box Office: comp_rolling licences are rolling, not perpetual (golden principle #1, rules.md)
+  // -- extend every active one to now + 1 year, every night, for as long as the holder remains
+  // nominated. Stop running this (or revoke the licence) and it lapses on its own within a year;
+  // nothing here re-grants a revoked or expired comp licence.
+  const { data: compLicences, error: compQueryErr } = await admin
+    .from("licences")
+    .select("id")
+    .eq("product_code", "comp_rolling")
+    .eq("status", "active")
+    .gt("ends_at", new Date(now).toISOString());
+  if (compQueryErr) {
+    console.error("[lifecycle] failed to query comp_rolling licences", compQueryErr);
+  }
+  for (const licence of compLicences ?? []) {
+    const { error: extendErr } = await admin
+      .from("licences")
+      .update({ ends_at: new Date(now + 365 * 24 * 60 * 60 * 1000).toISOString() })
+      .eq("id", licence.id);
+    if (extendErr) {
+      console.error(`[lifecycle] failed to extend comp_rolling licence id=${licence.id}`, extendErr);
+      summary.compErrors++;
+    } else {
+      summary.compExtended++;
+    }
+  }
 
   const { data: profiles, error: queryErr } = await admin
     .from("profiles")

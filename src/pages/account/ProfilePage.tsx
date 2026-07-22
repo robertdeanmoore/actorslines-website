@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../auth/AuthContext";
+import LicencePanel from "./LicencePanel";
 
 export default function ProfilePage() {
   const { session, profile, refreshProfile, signOut } = useAuth();
@@ -79,6 +80,8 @@ export default function ProfilePage() {
           </button>
         </form>
       </div>
+
+      <LicencePanel />
 
       <div className="bg-white rounded-xl shadow-sm p-6">
         <h2 className="font-semibold text-brand">Two-factor authentication</h2>

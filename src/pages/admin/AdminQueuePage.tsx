@@ -74,6 +74,12 @@ export default function AdminQueuePage() {
             Invites →
           </Link>
           <Link
+            to="/admin/licences"
+            className="rounded-md bg-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-300"
+          >
+            Box office →
+          </Link>
+          <Link
             to="/admin/telemetry"
             className="rounded-md bg-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-300"
           >

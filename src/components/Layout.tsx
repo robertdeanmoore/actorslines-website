@@ -24,7 +24,10 @@ export default function Layout() {
               <NavLink to="/board" className={navLink}>Enhancement board</NavLink>
               <NavLink to="/requests" className={navLink}>My requests</NavLink>
               {profile.role === "admin" && (
-                <NavLink to="/admin" className={navLink}>Admin</NavLink>
+                <>
+                  <NavLink to="/admin" className={navLink}>Admin</NavLink>
+                  <NavLink to="/admin/licences" className={navLink}>Box office</NavLink>
+                </>
               )}
             </>
           )}

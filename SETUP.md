@@ -174,3 +174,38 @@ Supabase step (10.5) before the code is deployed will lock you out of login.
 6. Test immediately: sign out and back in on the live site, then try "Forgot password".
    If you temporarily flip `REGISTRATION_ENABLED = true` to test signup, flip it back and
    redeploy afterwards.
+
+## S11 — Box Office signing key (~15 min, You) — before Phase 1 goes live
+
+The ES256 keypair that signs entitlement tokens and the sunset declaration. **The private key
+never touches any repo or CI** — it lives only in your password manager and as a Supabase secret.
+
+1. Generate the keypair (run locally, not in a shared shell — delete the files afterwards):
+   ```
+   openssl ecparam -name prime256v1 -genkey -noout -out entitlement-private.pem
+   openssl pkcs8 -topk8 -nocrypt -in entitlement-private.pem -out entitlement-private-pkcs8.pem
+   openssl ec -in entitlement-private.pem -pubout -out entitlement-public.pem
+   ```
+2. Base64-encode the PKCS8 private PEM onto one line (avoids multiline env var issues) and give
+   it to Claude Code to set as a secret — it's shown once, then delete the local files:
+   ```
+   openssl base64 -A -in entitlement-private-pkcs8.pem
+   ```
+   `supabase secrets set ENTITLEMENT_SIGNING_KEY_B64=<the base64 output> ENTITLEMENT_KEY_ID=al-2026-1`
+3. Copy `entitlement-public.pem`'s contents (the whole PEM, not base64'd) into the Android
+   repo's verifier — this one is **not secret**, it's committed to the app. Ask Claude Code to
+   wire it into `EntitlementManager`'s `PINNED_KEYS` list alongside `kid = "al-2026-1"`.
+4. **Store the private PEM in your password manager** (not just the terminal history) — losing it
+   means re-issuing as `al-2026-2` plus an app update, since there's no dual-key support yet.
+5. **Also store a short sunset runbook right beside it**: what to run (sign
+   `{"sunset": true, "iat": <now>}` with this same key), and where to publish it (the static
+   GitHub location the app polls for the sunset failsafe — see
+   `docs/monetization/entitlement-architecture.md` in the ActorsVoice repo). Tell one trusted
+   person this entry exists — otherwise the sunset failsafe has a bus-factor of one.
+6. `supabase db push` (applies `0018_box_office_phase1.sql` if not already applied), then
+   `supabase functions deploy entitlement-token redeem-code lifecycle`.
+7. Regenerate `docs/monetization/test-vectors.json` with the real key and re-commit it,
+   byte-identical, to both repos (it currently carries throwaway Phase 0 test-keypair vectors).
+8. Smoke test: sign in on the live site, open the browser console, and run
+   `await fetch(import.meta.env.VITE_SUPABASE_URL + "/functions/v1/entitlement-token", { method: "POST", headers: { Authorization: "Bearer " + (await supabase.auth.getSession()).data.session.access_token } }).then(r => r.json())`
+   — should return `{ token, ent, token_exp }` with no error.
