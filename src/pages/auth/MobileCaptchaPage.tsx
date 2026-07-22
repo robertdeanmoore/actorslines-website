@@ -23,7 +23,11 @@ export default function MobileCaptchaPage() {
   }, []);
 
   function reportToken(token: string | null) {
+    console.log(
+      `reportToken: token=${token ? "present" : "null"} bridge=${Boolean(window.AndroidTurnstile)}`,
+    );
     window.AndroidTurnstile?.onToken(token);
+    console.log("reportToken: bridge call returned");
   }
 
   if (!hasBridge) {
