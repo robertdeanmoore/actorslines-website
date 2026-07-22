@@ -46,7 +46,7 @@ export default function MobileCaptchaPage() {
   return (
     <div className="max-w-sm mx-auto mt-16 px-6 text-center">
       <p className="text-sm text-gray-500 mb-2">Completing sign-in check…</p>
-      <TurnstileWidget onToken={reportToken} />
+      <TurnstileWidget onToken={reportToken} size="compact" />
     </div>
   );
 }

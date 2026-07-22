@@ -1,12 +1,12 @@
 import { forwardRef } from "react";
-import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
+import { Turnstile, type TurnstileInstance, type WidgetSize } from "@marsidev/react-turnstile";
 
 const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined;
 
 /** True once VITE_TURNSTILE_SITE_KEY is set (see .env.example). */
 export const turnstileConfigured = Boolean(siteKey);
 
-type Props = { onToken: (token: string | null) => void };
+type Props = { onToken: (token: string | null) => void; size?: WidgetSize };
 
 /**
  * Renders the Cloudflare Turnstile challenge and reports the resulting token via
@@ -15,7 +15,7 @@ type Props = { onToken: (token: string | null) => void };
  * "requires a token" behind `turnstileConfigured` so forms keep working without one.
  */
 const TurnstileWidget = forwardRef<TurnstileInstance, Props>(function TurnstileWidget(
-  { onToken },
+  { onToken, size },
   ref,
 ) {
   if (!siteKey) return null;
@@ -24,6 +24,7 @@ const TurnstileWidget = forwardRef<TurnstileInstance, Props>(function TurnstileW
       <Turnstile
         ref={ref}
         siteKey={siteKey}
+        options={{ size: size ?? "normal" }}
         onSuccess={onToken}
         onExpire={() => onToken(null)}
         onError={() => onToken(null)}
