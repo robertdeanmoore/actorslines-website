@@ -29,5 +29,12 @@ small "Update available" note appears in the About screen with Update and Not no
 nothing ever pops up uninvited, and updating is always your choice. Turn this check off entirely
 from Settings → Updates.
 
+## Back up before you update
+
+Tapping Update shows one more prompt first, pointing you at "Create full backup (.zip)" in the
+menu (⋮) at the top of the Play List. Occasionally an update changes how your data is stored on
+your device — a fresh backup is what lets you get everything back if anything ever looks wrong
+afterwards.
+
 > **Tip:** Worth turning Play's auto-update back on once the show has closed, so future fixes and
 > improvements reach you normally.
