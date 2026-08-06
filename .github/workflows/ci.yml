@@ -17,5 +17,17 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm audit --omit=dev --audit-level=high
+
+      # Build first, so a type error is always reported. This used to sit *after*
+      # npm audit, which meant a newly-published advisory in someone else's package
+      # both failed an unrelated push and hid the type-check signal this workflow
+      # exists for (run 31109006954, 6 Aug 2026 -- a react-router advisory published
+      # overnight turned main red with no code change).
       - run: npm run build
+
+      # Advisories are reported but never gate the build: whether main is green must
+      # depend on our code, not on the advisory database's clock. The weekly
+      # security-audit workflow is what makes sure nothing here goes unnoticed.
+      - name: npm audit (advisory report, non-blocking)
+        run: npm audit --omit=dev --audit-level=high
+        continue-on-error: true

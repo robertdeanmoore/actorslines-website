@@ -1,0 +1,105 @@
+# Weekly dependency-advisory scan.
+#
+# The CI workflow reports `npm audit` but deliberately does not fail on it -- a
+# newly-published advisory in a transitive dependency must not turn main red on an
+# unrelated push. This is the other half of that trade: the advisories still get
+# looked at, on a schedule, and land in a GitHub issue instead of in a build log
+# nobody reads.
+#
+# Keeps exactly one open issue (matched by title) and rewrites its body each run,
+# so a long-lived advisory doesn't spawn a new issue every week. Closes it when
+# the tree comes back clean.
+
+name: Weekly security audit
+on:
+  schedule:
+    - cron: "23 7 * * 1"    # Mondays 07:23 UTC (odd minute avoids the on-the-hour rush)
+  workflow_dispatch: {}      # allow manual runs for testing
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      # `npm audit` exits non-zero when it finds something, which is the signal we
+      # want rather than a failure -- capture it instead of letting it stop the job.
+      - name: Run audit
+        id: audit
+        run: |
+          set +e
+          npm audit --omit=dev --audit-level=high > audit.txt 2>&1
+          echo "found=$?" >> "$GITHUB_OUTPUT"
+          cat audit.txt
+
+      - name: Open, update or close the advisory issue
+        uses: actions/github-script@v7
+        env:
+          FOUND: ${{ steps.audit.outputs.found }}
+        with:
+          script: |
+            const fs = require('fs');
+            const TITLE = 'Dependency advisories: production tree';
+            const found = process.env.FOUND !== '0';
+            const report = fs.readFileSync('audit.txt', 'utf8').slice(0, 55000);
+
+            const existing = (await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100,
+            })).data.find(i => i.title === TITLE && !i.pull_request);
+
+            if (!found) {
+              if (existing) {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner, repo: context.repo.repo,
+                  issue_number: existing.number,
+                  body: 'Production dependency tree is clean at `--audit-level=high`. Closing.',
+                });
+                await github.rest.issues.update({
+                  owner: context.repo.owner, repo: context.repo.repo,
+                  issue_number: existing.number, state: 'closed',
+                });
+              }
+              core.info('No high-severity advisories in the production tree.');
+              return;
+            }
+
+            const body = [
+              '`npm audit --omit=dev --audit-level=high` found advisories in the **production**',
+              'dependency tree. CI does not fail on these by design — triage them here.',
+              '',
+              'For each one, decide: is it actually reachable in this app, and is there a',
+              'non-breaking fix? Record the decision in a comment so the next run has context.',
+              '',
+              '```',
+              report.trim(),
+              '```',
+              '',
+              `_Updated by [${context.workflow}](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) on ${new Date().toISOString().slice(0, 10)}._`,
+            ].join('\n');
+
+            if (existing) {
+              await github.rest.issues.update({
+                owner: context.repo.owner, repo: context.repo.repo,
+                issue_number: existing.number, body,
+              });
+              core.info(`Updated issue #${existing.number}`);
+            } else {
+              const created = await github.rest.issues.create({
+                owner: context.repo.owner, repo: context.repo.repo,
+                title: TITLE, body,
+              });
+              core.info(`Opened issue #${created.data.number}`);
+            }
