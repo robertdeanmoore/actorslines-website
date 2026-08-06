@@ -19,20 +19,20 @@ Tap a marked word for a quick menu:
 
 - "I've got this" — you know it now; clears the word completely.
 - "Next time" — knocks its count down by one, so it won't flag again unless it slips again.
-- "Add to custom" — adds the word to this play's custom vocabulary (so the recogniser listens for it) and clears it.
+- "Improve recognition" — the first time you use this for a word, it's added to this play's custom vocabulary (so the recogniser listens for it) and cleared. If the same word flags again later, anywhere in the play, using it a second time escalates: the word is excluded from scoring everywhere instead, since the vocabulary nudge clearly isn't enough on its own.
 - "Edit line" — opens the line editor to correct the script text. This does not change the score; the word stays flagged until you use one of the other options.
-- "Ignore forever (this line)" — stop this word flagging here for good. It's still listened for, but a miss no longer dents your accuracy and it shows as recognised.
-- "Ignore everywhere in play" — the same, but for every scene at once — handy for a name the recogniser simply never gets.
-- "Ignore and report" — reserved for a future version; not active yet.
+
+## Word recognition (Play Settings)
+
+Every word you've nudged or excluded via "Improve recognition" is listed under Word recognition in this play's settings — amber for a vocabulary nudge, red for fully excluded from scoring. Tap a word there to move it between the two, or remove it entirely and start fresh.
 
 ## Word reset
 
 - The ⋮ menu also has "Word reset…" for bulk changes: "Ignore last run" undoes the fails your most recent run added, "Knock down" lowers every word's count by one, and "Reset all data" clears every count. If your last run was just a section, a tick box lets you apply the reset to only that section or the whole scene.
 
 > **Tip:** A word can be wrong for two very different reasons: you genuinely said the wrong word,
-> or the microphone just didn't hear you. For the second kind, "Add to custom" (to help the
-> recogniser) or "Ignore forever" is usually the right call, rather than drilling a word you
-> actually know.
+> or the microphone just didn't hear you. For the second kind, "Improve recognition" is usually
+> the right call, rather than drilling a word you actually know.
 
 > **Tip:** Counts are built from your own practice history, so trouble words appear from your very
 > first time in line review — no need to wait. A correct recognition in a later run also nudges a
