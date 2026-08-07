@@ -5,6 +5,7 @@ on:
   push:
     branches: [main]
   pull_request: {}
+  workflow_dispatch: {}   # re-run on demand (e.g. after a GitHub Actions outage eats a run)
 
 jobs:
   build:
