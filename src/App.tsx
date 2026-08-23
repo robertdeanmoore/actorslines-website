@@ -40,11 +40,13 @@ export default function App() {
         <Route path="/invite/:token" element={<AcceptInvitePage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/update-password" element={<UpdatePasswordPage />} />
+        {/* Public: the in-app Help deep-links here by slug (Actors Lines #49) — most app users
+            have no website account at all, so this must not require sign-in. */}
+        <Route path="/kb" element={<KbListPage />} />
+        <Route path="/kb/:slug" element={<KbArticlePage />} />
 
         <Route element={<RequireAuth />}>
           <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/kb" element={<KbListPage />} />
-          <Route path="/kb/:slug" element={<KbArticlePage />} />
           <Route path="/requests" element={<MyRequestsPage />} />
           <Route path="/requests/new" element={<NewRequestPage />} />
           <Route path="/requests/:id" element={<RequestDetailPage />} />

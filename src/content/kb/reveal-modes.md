@@ -27,8 +27,13 @@ many rows the text wraps onto, the whole block counts.
 
 > **Tip:** Tap the Hidden zone a second time to bring the line back to fully visible. Tap any
 > of the other three zones a second time and the line goes fully hidden instead — if the hint
-> wasn't enough, hide it outright rather than spoil it by fully revealing it. Tapping a
-> different zone always switches straight to that new level, whatever it was doing before.
+> wasn't enough, hide it outright rather than spoil it by fully revealing it.
+>
+> Tapping a *different* zone normally switches straight to that new level, whatever it was
+> doing before — with one deliberate exception: tapping the Hidden zone while a hint mode
+> (First word/First letters/Random) is already showing doesn't hide the line further. It reveals
+> the line fully instead, on the logic that if a hint wasn't enough, the next step is to just
+> show it, not obscure it more. (`PracticeViewModel.applyZoneTap()`.)
 
 > **Tip:** Hidden letters and words keep their exact place on the page — a pencil-guide mark
 > stands in for them — so the shape of the line never changes, only what's readable.

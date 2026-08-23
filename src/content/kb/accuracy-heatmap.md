@@ -35,6 +35,11 @@ scrolling, however long the play is.
   plus "Practice this scene", "Rehearse this scene" and "Edit this scene" buttons that jump
   straight to it — Practice and Rehearse pick up where you last left off in that scene, the
   same way they always do; Edit opens at the top.
+- Tapping *inside a section's own bracket* (the fine curly-bracket markers described above)
+  skips that scene-choice dialog entirely and launches straight into a Practice or Rehearsal run
+  of that section, in whichever mode the bracket belongs to — a shortcut for jumping straight
+  back into a stretch you're already drilling, rather than a plain tap elsewhere in the scene's
+  stretch, which always offers the dialog first.
 
 ## Clearing and viewing by time window
 

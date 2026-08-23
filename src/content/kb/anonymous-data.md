@@ -25,10 +25,16 @@ parts you rely on get the attention.
 
 ## Reporting a recognition problem
 
-When the app mis-reads a scanned line, or mishears a word you said, you can report it so
+When the app mis-reads a scanned line during script import review, you can report it so
 recognition improves. You'll always see exactly the short piece of text that will be sent and
 have to tap Send — nothing is sent behind your back. This is the only case where a small piece
 of script text is ever shared, and only with your per-report consent.
+
+> **Note:** An earlier version of the app also let you report a *misheard spoken* line, from
+> Practice's Line Review menu ("Ignore and report"). That option was removed from the UI in
+> v3.3.0 — only a mis-scanned *import* line can be reported now. The underlying reporting
+> infrastructure is shared with Scene Review, so this may return for spoken lines in future, but
+> it isn't reachable today.
 
 ## Turning it off
 

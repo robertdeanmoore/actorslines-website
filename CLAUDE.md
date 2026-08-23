@@ -11,18 +11,22 @@ edge functions); AI pipeline runs as GitHub Actions in the ActorsVoice repo.
   the board view `board_posts_with_stats` is deliberately security-definer.
 - **KB articles**: `src/content/kb/<slug>.md` with `title`/`summary`/`date` front-matter. A
   bare YouTube link on its own line renders as an embed.
-- **Every KB article must mirror an in-app Help article, word-for-word — full parity, not a
-  subset.** Matched **by slug/id**: `src/content/kb/<slug>.md` mirrors
-  `HelpManual.<CONST>` in the ActorsVoice repo wherever `HelpManual.<CONST> = "<slug>"` (e.g.
-  `src/content/kb/selftape.md` ↔ `HelpManual.SELFTAPE`). No automated sync exists — the
-  pairing is the shared filename, kept in sync by hand. **Whenever a `HelpManual.kt` article
-  is added or edited, add or update the matching KB file in the same piece of work**
-  (translate `B.h`→`##`, `B.p`→a plain paragraph, `B.b`→a `-` list item, `B.tip`→a
-  `> **Tip:** …` blockquote) — every HelpManual article gets a KB counterpart, no exceptions,
-  so the two lists should always have the same members. If Rob edits a KB article directly in
-  Decap CMS (`/cms/`, bypassing Claude), the reverse sync back into `HelpManual.kt` doesn't
-  happen automatically — ask Claude to pull the latest KB content and convert it back into the
-  Kotlin block DSL next session.
+- **Every KB article pairs with an in-app Help article, matched by slug/id — but as of Actors
+  Lines #49 (Aug 2026) this is a two-tier split, not word-for-word parity.** `src/content/kb/
+  <slug>.md` pairs with `HelpManual.<CONST>` in the ActorsVoice repo wherever
+  `HelpManual.<CONST> = "<slug>"` (e.g. `src/content/kb/selftape.md` ↔ `HelpManual.SELFTAPE`).
+  **This KB is the full-detail tier** — every option, every edge case, the reasoning behind a
+  design choice; the in-app article is a short quick-start only (summary + steps to get going +
+  at most a tip) that links out here for anyone who wants more. The full rule, with what
+  "abbreviated" vs "full" means in practice, is recorded in the ActorsVoice repo's root
+  `CLAUDE.md` — this is the copy of record for the KB side, not a duplicate ruleset. No
+  automated sync exists — the pairing is the shared filename, kept in sync by hand. **Every
+  `HelpManual.kt` article must have a KB counterpart, no exceptions** — when adding a new
+  feature, write both in the same piece of work; when editing an existing one, update whichever
+  tier(s) the change actually touches (a UI-only tweak may only need the in-app quick-start; new
+  detail usually needs the KB's fuller account too). If Rob edits a KB article directly in Decap
+  CMS (`/cms/`, bypassing Claude), pull the latest KB content before editing it further rather
+  than overwriting it blind.
 - **Statuses**: request lifecycle enum in `src/lib/types.ts` mirrors `request_status` in SQL —
   change both together (plus the workflows that PATCH statuses).
 - **Workflows**: `dispatch` edge function ↔ `repository_dispatch` event names ↔
