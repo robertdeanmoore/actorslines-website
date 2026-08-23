@@ -35,6 +35,19 @@ export default function KbArticlePage() {
               const isBare =
                 Array.isArray(children) ? children.join("") === href : children === href;
               if (id && isBare) return <YouTubeEmbed id={id} title={article.title} />;
+
+              // A relative "<slug>.md" link (how one KB article refers to another in its own
+              // "Related" section) resolves against the browser's current URL, not the kb
+              // route table — always 404s. Route it through /kb/<slug> instead.
+              const kbSlug = href ? /^\.?\/?([\w-]+)\.md$/.exec(href)?.[1] : null;
+              if (kbSlug) {
+                return (
+                  <Link to={`/kb/${kbSlug}`} className="text-brand hover:underline">
+                    {children}
+                  </Link>
+                );
+              }
+
               return (
                 <a href={href} target="_blank" rel="noreferrer"
                   className="text-brand hover:underline">{children}</a>
