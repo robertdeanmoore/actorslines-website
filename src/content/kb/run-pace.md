@@ -25,5 +25,9 @@ defaults to 150ms.
 > **Tip:** Skip markers always use a fixed, snappy 100ms gap of their own — the Pace setting
 > never affects how quickly a Skip card moves the run along.
 
+> **Tip:** A lighting cue shows on the page and takes up a Pace beat as the run passes it, but
+> is never read aloud — in any mode, Practice, Rehearsal or Teach. The voice performs character
+> dialogue only, not stage directions or cues for the lighting board.
+
 > **Tip:** Teach mode accepts the same -1000 to 1000 range but treats negative values as 0 — it
 > doesn't overlap audio yet.

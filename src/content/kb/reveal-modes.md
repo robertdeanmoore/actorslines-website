@@ -68,3 +68,27 @@ left them once the run ends.
 
 > **Tip:** "Practice Again" after finishing a whole-scene run skips this dialog and reuses
 > whichever run type you just used.
+
+## Revealing a line during a run
+
+If you blank on one of your own lines mid-run, you don't have to stop. The same four tap zones
+work during a run — tap **All** on the line to see the whole thing, or **First word** /
+**First letters** / **Random** for just a nudge. (The leftmost **Memory** zone still shows a
+saved memory link, same as always.)
+
+Taps made during a run are **temporary**. They last only until you next tap Resume, Restart or
+Continue, at which point every line goes back to the run's own reveal setting. Your saved
+per-line reveal levels — the ones you set outside a run — are never touched by a mid-run tap.
+
+The first tap of the **All** zone always does the useful thing for where the line is right now:
+
+- If the line is **hidden or showing only a hint**, the first **All** tap reveals it in full.
+- If the line is **already fully shown** (for example in an "All Shown" run), the first **All**
+  tap hides it.
+
+Tap **All** again to toggle back. Before an August 2026 fix, the first **All** tap in a run that
+started with lines hidden did nothing visible and you had to tap twice — that's resolved.
+
+> **Tip:** Pausing a run (rather than tapping a line) still shows every line in full while
+> you're paused, and hides them again when you resume — that's separate from these per-line
+> taps.
