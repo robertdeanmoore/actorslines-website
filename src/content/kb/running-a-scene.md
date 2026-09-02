@@ -25,8 +25,9 @@ filtering, and so on — have their own articles, linked below.
 Tap **"Run this scene"**, or a section's own **"Run section N"** chip (see
 [Sections — drilling part of a scene](sections.md)). A "Select run type" dialog asks how you want
 your own lines to appear for this run — **As-is** uses whatever you've already set per line
-individually; the other options (All Hidden, First Word, First Letters, Random Words, All Shown)
-apply uniformly for this run only, without changing your saved per-line choices. A 3-2-1 countdown
+individually; the other options (Blank — guide kept, All — blank space, First Word, First Letters,
+Random Words, All Shown) apply uniformly for this run only, without changing your saved per-line
+choices. A 3-2-1 countdown
 follows, during which the app finishes warming up text-to-speech and speech recognition so the
 run starts cleanly the moment the digits hit zero.
 
@@ -38,6 +39,10 @@ it starts listening: Practice scores what you say against the expected text as y
 Rehearsal listens for you to finish the line and simply moves on. A **Pause** button is always
 available; **Continue** skips ahead of whatever wait is currently happening (a cue line playing,
 your own countdown) without needing to say anything.
+
+Search is available when a run is **idle, complete or stopped** — not while it's actively running
+or paused, since re-pointing the active line mid-run would desync the run. The hide/reveal columns
+above the script stay usable throughout.
 
 ## Pausing, resuming and stopping
 

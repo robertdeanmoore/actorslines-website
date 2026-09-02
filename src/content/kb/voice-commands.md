@@ -34,9 +34,9 @@ never have to reach for the screen mid-flow.
 
 ## Manual mode (Practice only)
 
-Practice's three-dot menu has an "Auto mode"/"Manual mode" toggle. Auto mode is the usual
-behaviour — your line is scored and the run moves on by itself. Manual mode instead pauses
-after your line and waits for you to say (or tap) what happens next.
+Practice's three-dot menu has an **"Auto run"** toggle: ticked (the default) is the usual
+behaviour — your line is scored and the run moves on by itself. Untick it for manual mode,
+which pauses after your line and waits for you to say (or tap) what happens next.
 
 - "cue again" — replays the line that cued you, then gives you another go at it.
 - "continue" — scores your line and moves on, same as Auto mode does automatically.
