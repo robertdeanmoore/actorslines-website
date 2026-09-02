@@ -66,10 +66,11 @@ then a name.
 
 ## Section actions
 
-- Tap the "Start of section" label to go straight to the same five reveal options described in
-  "Progressive line reveal" (Show All, Hide All, First word, First letters, Random), applied to
-  just this section's lines after a confirmation — works the same as the scene-wide kebab action
-  but scoped to the section. Nothing happens on tap if the section has no lines of your own.
+- Tap the "Start of section" label to go straight to the same reveal options described in
+  "Progressive line reveal" (Show All, Blank — guide kept, All — blank space, First word, First
+  letters, Random), applied to just this section's lines after a confirmation — works the same as
+  the scene-wide kebab action but scoped to the section. Nothing happens on tap if the section has
+  no lines of your own.
 - Long-press the same label instead to delete the section — it leads to a confirmation; your
   lines are untouched. Keeping delete behind a long-press means the tap you'll use most often
   (show/hide) doesn't have to pass through a menu first.

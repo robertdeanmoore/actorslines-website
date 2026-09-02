@@ -15,9 +15,15 @@ listening for your trigger and responding.
 ## Turning it on
 
 - Open the three-dot menu (top right) in Practice or Rehearse.
-- Tap "Cue-to-cue mode". A tick appears and the scene is immediately filtered.
-- Tap again — or leave the screen — to go back to the full script. Either way the view stays
-  put on the line you were reading, rather than jumping to the top.
+- Tick "Cue-to-cue". The scene is immediately filtered. Untick it to go back to the full
+  script. Either way the view stays put on the line you were reading, rather than jumping to
+  the top.
+- **In Practice the setting sticks**: it stays on until you turn it off, even if you leave the
+  scene and come back later. A quiet "Cue-to-cue: showing your lines and their feeds only" line
+  sits just under the header while it's active, so a collapsed scene never takes you by
+  surprise. **In Rehearse** it still clears when you leave the screen.
+- The "Stage Directions", "Auto run" and "Loop" items in the same menu now keep a fixed label
+  and just show a tick for on/off, instead of rewording themselves.
 
 ## What you see
 
