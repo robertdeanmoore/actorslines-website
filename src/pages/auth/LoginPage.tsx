@@ -5,6 +5,7 @@ import { useAuth } from "../../auth/AuthContext";
 import TurnstileWidget, { turnstileConfigured } from "../../components/TurnstileWidget";
 import type { TurnstileInstance } from "@marsidev/react-turnstile";
 import { checkTrusted, issueTrustedDevice } from "../../auth/trustedDevice";
+import { verifyMfaCode, mfaRetryMessage } from "../../auth/mfaVerify";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -43,19 +44,24 @@ export default function LoginPage() {
     }
   }
 
+  // The actual challenge/verify calls now happen server-side, in the
+  // mfa-verify edge function -- this app had no mechanism to throttle
+  // mfa.verify() directly (it takes no captchaToken), so a small
+  // service-role-backed attempt counter needed a server hop to exist at all
+  // (RobLife WIP #103 Row 4, Holly's §5.1 finding). The function returns
+  // fresh session tokens on success, which setSession() adopts locally --
+  // the elevation to aal2 happened on the function's own ephemeral client,
+  // not this one.
   async function submitMfa(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true); setError("");
     const { data: factors } = await supabase.auth.mfa.listFactors();
     const totp = factors?.totp?.[0];
     if (!totp) { setError("No authenticator found on this account."); setBusy(false); return; }
-    const { data: challenge, error: cErr } =
-      await supabase.auth.mfa.challenge({ factorId: totp.id });
-    if (cErr || !challenge) { setError(cErr?.message ?? "Challenge failed"); setBusy(false); return; }
-    const { error: vErr } = await supabase.auth.mfa.verify({
-      factorId: totp.id, challengeId: challenge.id, code: mfaCode.trim(),
-    });
-    if (vErr) { setError("That code wasn't right — try again."); setBusy(false); return; }
+    const result = await verifyMfaCode(totp.id, mfaCode.trim());
+    if (!result.ok) { setError(mfaRetryMessage(result)); setBusy(false); return; }
+    const { error: sessionErr } = await supabase.auth.setSession(result.session);
+    if (sessionErr) { setError("Could not complete sign-in. Please try again."); setBusy(false); return; }
     if (trustDevice) await issueTrustedDevice();
     await refreshProfile();
     navigate(dest, { replace: true });

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../auth/AuthContext";
+import { verifyMfaCode, mfaRetryMessage } from "../../auth/mfaVerify";
 import LicencePanel from "./LicencePanel";
 
 export default function ProfilePage() {
@@ -36,16 +37,20 @@ export default function ProfilePage() {
     setEnrolFactorId(data.id);
   }
 
+  // Challenge/verify happen server-side via the mfa-verify edge function --
+  // same throttled path LoginPage's step-up uses (RobLife WIP #103 Row 4,
+  // Holly's §5.1 finding). This session is already signed in, so the
+  // returned session is only ever the same identity's own elevated (aal2)
+  // tokens -- adopting it via setSession() is what actually raises this
+  // browser's own session to aal2, the same way the login flow's step-up
+  // does.
   async function confirmEnrol(e: React.FormEvent) {
     e.preventDefault();
     if (!enrolFactorId) return;
-    const { data: challenge, error: cErr } =
-      await supabase.auth.mfa.challenge({ factorId: enrolFactorId });
-    if (cErr || !challenge) { setMessage(cErr?.message ?? "Challenge failed"); return; }
-    const { error } = await supabase.auth.mfa.verify({
-      factorId: enrolFactorId, challengeId: challenge.id, code: enrolCode.trim(),
-    });
-    if (error) { setMessage("That code wasn't right — try again."); return; }
+    const result = await verifyMfaCode(enrolFactorId, enrolCode.trim());
+    if (!result.ok) { setMessage(mfaRetryMessage(result)); return; }
+    const { error: sessionErr } = await supabase.auth.setSession(result.session);
+    if (sessionErr) { setMessage("Could not complete verification. Please try again."); return; }
     setFactorId(enrolFactorId);
     setEnrolQr(null); setEnrolFactorId(null); setEnrolCode("");
     setMessage("Two-factor authentication is now on.");
