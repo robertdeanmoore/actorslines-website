@@ -1,12 +1,16 @@
 ---
 title: Focus mode — silencing notifications during Rehearsal
 summary: A Rehearsal run puts your phone into Do Not Disturb for the run, then restores it automatically.
-date: 2026-07-21
+date: 2026-10-03
 ---
 
-Starting a Rehearsal run turns on Do Not Disturb so notifications don't interrupt you
-mid-scene — alarms and priority contacts still get through. It's Rehearsal-only; Practice and
-Teach never touch your phone's notification settings.
+Do Not Disturb is turned on while a Rehearsal run is actually live, so notifications don't
+interrupt you mid-scene — alarms and priority contacts still get through. It's Rehearsal-only;
+Practice and Teach never touch your phone's notification settings.
+
+- It's on only while a run is live, and a paused run still counts as live.
+- Locking your phone mid-run keeps it on.
+- While the screen just sits idle on a scene, with no run under way, it's off.
 
 ## Granting access
 

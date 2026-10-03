@@ -1,7 +1,7 @@
 ---
 title: Running a scene — Practice and Rehearsal basics
 summary: The everyday mechanics common to every Practice and Rehearsal run — starting, the countdown, pausing, scoring and finishing.
-date: 2026-08-23
+date: 2026-10-03
 ---
 
 Once a scene has been taught (see [Teach & Fill-in-Teach](teach-basics.md)), **Practice** and
@@ -20,6 +20,24 @@ filtering, and so on — have their own articles, linked below.
   them rather than being visible ahead of time — see
   [Rehearsal's line-by-line reveal](rehearsal-reveal.md).
 
+## The header and the ⋮ menu
+
+- The header over the script now reads just the scene, e.g. "Act 1, Scene 2" — no show name, no
+  page number and no "Practice"; Teach, Fill-in-Teach and Edit match (Edit also drops the company
+  line), while Rehearse and the scene-list cards are unchanged.
+- Where the round "?" help icon used to sit there is now a small grey page indicator: "p 56" when
+  the whole screen is one page, or "p 56/57" when the first and last pages on screen differ. It
+  hides if the scene has no page numbers and stays visible during a run. See
+  [Page breaks — keeping the printed page together](page-breaks.md).
+- The round help icon has moved into the ⋮ menu — "Help" is now its last item (Practice only).
+  Near the bottom the menu runs: … Sections / a divider / Share Diagnostics / Help. "Share
+  Diagnostics" is permanently greyed, since diagnostics are switched off, and the "Share
+  Diagnostics" button that used to appear while paused is gone.
+- The idle bottom bar keeps "Playing <character>" and the Total/Hidden/Ratio counts. "Run this
+  scene" is now half-width on the right; the left half shows the show name with the month and
+  year it opens underneath (from the play's performance "from" date, e.g. "October 2026") — blank
+  if no date is set.
+
 ## Starting a run
 
 Tap **"Run this scene"**, or a section's own **"Run section N"** chip (see
@@ -30,6 +48,10 @@ Random Words, All Shown) apply uniformly for this run only, without changing you
 choices. A 3-2-1 countdown
 follows, during which the app finishes warming up text-to-speech and speech recognition so the
 run starts cleanly the moment the digits hit zero.
+
+Both Practice and Rehearse also show a volume warning before a run: it flags the media volume
+being off, and/or the notification volume being on, which makes the speech recognizer beep on
+every line.
 
 ## While it's running
 

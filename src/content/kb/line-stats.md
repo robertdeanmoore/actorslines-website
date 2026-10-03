@@ -1,7 +1,7 @@
 ---
 title: Sections / Lines / Hidden / Ratio — your line stats at a glance
 summary: A small stats block on Scene and Play cards shows how much you have left to learn.
-date: 2026-07-08
+date: 2026-10-03
 ---
 
 Scene and Play cards each carry a tight little block of numbers so you can gauge your progress
@@ -12,8 +12,12 @@ without opening anything.
 - Sections — scene cards only: how many Learn, Practice and Rehearse boundary sections have
   been defined in that scene, added together (not counting speeches).
 - Lines — how many of your own lines are in that scene (or, on a Play card, the whole play).
+  Consecutive same-character lines the app listens to as one (because only silent stage business
+  separates them — a stage direction, pause, lighting cue, page break or silent sound cue) count
+  once.
 - Hidden — how many of those lines currently have some reveal mode other than fully visible
-  (Hidden, First word, First letters or Random — see "Progressive line reveal").
+  (Hidden, First word, First letters or Random — see "Progressive line reveal"). A merged
+  same-character line counts as hidden only if every one of its parts is hidden.
 - Ratio — Hidden ÷ Lines as a percentage: roughly how much of your material you've started
   testing yourself on.
 
@@ -30,6 +34,9 @@ without opening anything.
 
 > **Tip:** These are live: hide or reveal a line, or add or remove a section, and the count
 > updates the moment you back out to the scene or play list.
+
+> **Tip:** Only these stats merge same-character lines — the accuracy heat map and the scene
+> average still count every printed line separately.
 
 > **Tip:** The two lines just above a Play card's stats — "Days until books down" and "Days
 > until curtain up" — count down to the Offbook date and Performance from date you set in that
