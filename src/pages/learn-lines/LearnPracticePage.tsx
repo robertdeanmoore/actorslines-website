@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import type { LearnBookmark, LearnScript, LineExport, RevealMode } from "../../lib/learnLines/types";
-import { lineKey, resolveLineType } from "../../lib/learnLines/types";
+import { contentLineIndexes, lineKey, resolveLineType } from "../../lib/learnLines/types";
 import { rollRandomWords } from "../../lib/learnLines/revealRanges";
 import { applyZoneTap } from "../../lib/learnLines/zoneTap";
 import { useRevealSync } from "../../lib/learnLines/useRevealSync";
@@ -10,6 +10,7 @@ import { useBookmarks } from "../../lib/learnLines/useBookmarks";
 import SceneList from "./components/SceneList";
 import LineRow from "./components/LineRow";
 import StageDirectionRow from "./components/StageDirectionRow";
+import PageBreakRow from "./components/PageBreakRow";
 import CueRow from "./components/CueRow";
 import BookmarkableRow from "./components/BookmarkableRow";
 import BookmarkMarker from "./components/BookmarkMarker";
@@ -123,6 +124,7 @@ export default function LearnPracticePage() {
 
   const scenes = script.data.scenes;
   const scene = scenes[activeScene];
+  const contentIndexes = contentLineIndexes(scene.lines);
 
   return (
     <div className="flex gap-6 -mx-4 sm:mx-0">
@@ -214,9 +216,16 @@ export default function LearnPracticePage() {
             {scene.lines.map((line, li) => {
               const type = resolveLineType(line);
               if (type === "SKIP") return null;
+              if (type === "PAGE_BREAK") {
+                // Two breaks in a row say nothing one doesn't.
+                if (li > 0 && resolveLineType(scene.lines[li - 1]) === "PAGE_BREAK") return null;
+                return <PageBreakRow key={li} />;
+              }
+              // Position ignoring page breaks: what reveal states and bookmarks are keyed by.
+              const ci = contentIndexes[li];
 
               const bookmarkHere = bookmarksApi.bookmarks.find(
-                (b) => b.scene_index === activeScene && b.line_index === li,
+                (b) => b.scene_index === activeScene && b.line_index === ci,
               );
 
               let rowContent: React.ReactNode;
@@ -225,7 +234,7 @@ export default function LearnPracticePage() {
               } else if (type === "SOUND" || type === "LIGHT") {
                 rowContent = <CueRow line={line} kind={type} />;
               } else {
-                const key = lineKey(activeScene, li);
+                const key = lineKey(activeScene, ci);
                 const isUserLine = line.speaker === script.my_character_name;
                 const revealMode: RevealMode = isUserLine ? sync.revealByKey[key] ?? "VISIBLE" : "VISIBLE";
                 const shownWordIndices =
@@ -238,7 +247,7 @@ export default function LearnPracticePage() {
                     characterColorIndex={characterColorByName[line.speaker] ?? 0}
                     revealMode={revealMode}
                     shownWordIndices={shownWordIndices}
-                    onTap={(zoneMode) => handleTap(activeScene, li, line, zoneMode)}
+                    onTap={(zoneMode) => handleTap(activeScene, ci, line, zoneMode)}
                   />
                 );
               }
@@ -249,8 +258,8 @@ export default function LearnPracticePage() {
                     <BookmarkMarker label={bookmarkHere.label} onClick={() => setManagingBookmark(bookmarkHere)} />
                   )}
                   <BookmarkableRow
-                    innerRef={(el) => (lineRefs.current[li] = el)}
-                    onLongPress={() => setPendingBookmark({ sceneIndex: activeScene, lineIndex: li })}
+                    innerRef={(el) => (lineRefs.current[ci] = el)}
+                    onLongPress={() => setPendingBookmark({ sceneIndex: activeScene, lineIndex: ci })}
                   >
                     {rowContent}
                   </BookmarkableRow>

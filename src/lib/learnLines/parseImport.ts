@@ -23,11 +23,10 @@ export function parseImport(raw: string): ParseResult {
   }
   const obj = json as Record<string, unknown>;
 
-  // kotlinx.serialization's JSON encoder omits any field left at its declared default —
-  // and schemaVersion's default *is* "the app's current schema version" at export time, so
-  // it always matches and is always omitted from real files. A missing schemaVersion is
-  // therefore normal, not a sign of a malformed file; only reject it when present and
-  // explicitly higher than what this web renderer understands.
+  // Files from app schema 33 and earlier never carried schemaVersion (the app's serializer
+  // omitted it as a default); from 34 on it is always written. A missing schemaVersion is
+  // therefore normal for an older file; only reject it when present and explicitly higher than
+  // what this web renderer understands.
   const schemaVersion = obj.schemaVersion;
   if (typeof schemaVersion === "number" && schemaVersion > CURRENT_SUPPORTED_SCHEMA_VERSION) {
     return {
@@ -51,8 +50,12 @@ export function parseImport(raw: string): ParseResult {
     };
   }
 
+  // A personal backup carries the actor's accuracy history (app schema 34); the web renderer
+  // never uses it, so it is dropped here rather than stored with the uploaded script.
+  const { accuracyHistory: _personalHistory, ...rest } = obj;
+  void _personalHistory;
   const normalized: PlayExport = {
-    ...(obj as unknown as PlayExport),
+    ...(rest as unknown as PlayExport),
     schemaVersion: typeof schemaVersion === "number" ? schemaVersion : CURRENT_SUPPORTED_SCHEMA_VERSION,
   };
   return { ok: true, data: normalized };

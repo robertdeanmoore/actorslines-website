@@ -3,7 +3,7 @@
 // reviewedLineIndexes, cover geometry, blended voices, etc.) are omitted — they're always
 // empty/default in a cast-distribution file and unused by this renderer.
 
-export type LineType = "DIALOGUE" | "SKIP" | "SOUND" | "LIGHT" | "STAGE_DIRECTION";
+export type LineType = "DIALOGUE" | "SKIP" | "SOUND" | "LIGHT" | "STAGE_DIRECTION" | "PAGE_BREAK";
 
 export interface LineExport {
   speaker: string;
@@ -43,7 +43,8 @@ export interface PlayExport {
 
 // The schema version this web renderer understands. Mirrors the app's guard
 // (`schemaVersion <= CURRENT_SCHEMA_VERSION`) in PlayShareSerializer.kt.
-export const CURRENT_SUPPORTED_SCHEMA_VERSION = 26;
+// 34 (WIP #155): PAGE_BREAK line type; the app now always writes schemaVersion.
+export const CURRENT_SUPPORTED_SCHEMA_VERSION = 34;
 
 /** Resolves a line's effective type, replicating PlayRepository.importPlay's legacy fallback
  *  for pre-v11 files that predate the `lineType` field. */
@@ -82,6 +83,14 @@ export interface LearnLineState {
   line_key: string; // `${sceneIndex}:${lineIndex}`
   reveal_mode: RevealMode;
   updated_at: string;
+}
+
+/** Position of each line among the scene's lines that aren't page breaks, or -1 for a page break.
+ *  Saved reveal states and bookmarks are keyed by this position, so adding page breaks to a script
+ *  never shifts them onto a different line (WIP #155). */
+export function contentLineIndexes(lines: LineExport[]): number[] {
+  let next = 0;
+  return lines.map((l) => (resolveLineType(l) === "PAGE_BREAK" ? -1 : next++));
 }
 
 export function lineKey(sceneIndex: number, lineIndex: number): string {
