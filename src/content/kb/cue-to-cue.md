@@ -1,7 +1,7 @@
 ---
 title: Cue-to-cue mode
 summary: Drill just your lines and their feeds — the rest collapses out of the way.
-date: 2026-07-08
+date: 2026-10-03
 ---
 
 In a cue-to-cue rehearsal you only see the line (or lines) that cue into each of your
@@ -22,8 +22,15 @@ listening for your trigger and responding.
   scene and come back later. A quiet "Cue-to-cue: showing your lines and their feeds only" line
   sits just under the header while it's active, so a collapsed scene never takes you by
   surprise. **In Rehearse** it still clears when you leave the screen.
-- The "Stage Directions", "Auto run" and "Loop" items in the same menu now keep a fixed label
-  and just show a tick for on/off, instead of rewording themselves.
+- **My Lines Only** sits directly below it and does a similar-sounding but different job: it
+  removes the other characters' spoken lines entirely, with no "Skip" cards, rather than folding
+  them away. The two are mutually exclusive — ticking one unticks the other. See
+  [My Lines Only — running just your part](my-lines-only.md).
+- The menu's checkboxes — "Stage Directions", "Cue-to-cue", "My Lines Only", "Shorten long
+  lines", "Auto run" and "Loop" — keep a fixed label and just show a tick for on/off, instead of
+  rewording themselves. (My Lines Only and Shorten long lines are toggled in Practice, though
+  Shorten long lines also applies in Rehearse.) "Shorten long lines" and "My next line" are
+  greyed while My Lines Only is on.
 
 ## What you see
 
@@ -53,8 +60,8 @@ listening for your trigger and responding.
   boundary line itself would normally be folded away — so brackets, chips and "Run section N"
   keep working. Only the lines inside the section are filtered as normal.
 - You can't start defining a new section or speech while cue-to-cue is on — the menu shows a
-  warning with a one-tap option to turn cue-to-cue off first. Dragging or deleting an existing
-  section/speech is unaffected.
+  warning with a one-tap option to turn cue-to-cue off first (My Lines Only gives the same
+  warning). Dragging or deleting an existing section/speech is unaffected.
 
 ## Stage-direction pauses
 
@@ -72,7 +79,7 @@ listening for your trigger and responding.
 ## Filtering while editing
 
 - The Scene Editor has its own three-dot menu with a matching "Cue-to-cue mode" filter, plus
-  "Hide stage directions", "My character", "No timers" and "No selftape" — all independent and
+  "Hide stage directions", "My Lines Only", "No timers" and "No selftape" — all independent and
   combinable. There, non-matching lines simply disappear rather than folding into a grey card,
   since the list stays fully editable; drag-to-reorder switches off while any filter is on, the
   same as while searching.

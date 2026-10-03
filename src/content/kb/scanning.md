@@ -1,7 +1,7 @@
 ---
 title: Scanning & importing scripts
 summary: Page layouts, image types, and how to get a clean import.
-date: 2026-07-08
+date: 2026-10-03
 ---
 
 Actors Lines reads your script on the device — nothing is uploaded — and keeps the layout so
@@ -50,6 +50,9 @@ already created — it never invents them.
 ## What happens after it reads the pages
 
 - Italic text is treated as stage directions; sound and light cues are spotted too.
+- A page break is placed at every scanned sheet boundary — even where no page number is printed —
+  so the app can stay in step with the printed book. Never at the very start or the very end of a
+  scene. See [Page breaks — keeping the printed page together](page-breaks.md).
 - Each line's speaker is matched to your existing characters and given their ink colour.
 - Importing one scene drops you straight into a review list. Importing a whole play walks you
   through marking the start, the end and each scene boundary first.

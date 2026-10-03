@@ -1,7 +1,7 @@
 ---
 title: Score speech — running a whole speech start to finish
 summary: Perform a whole speech in one continuous take, with a live accuracy readout as you go.
-date: 2026-07-09
+date: 2026-10-03
 ---
 
 "Score speech" runs a whole speech as one continuous, listened-and-scored take, instead of the
@@ -47,6 +47,9 @@ perform it.
 
 - A finished speech run scores each original line exactly like a normal Practice run — it shows
   up in Accuracy Overview the same way, with no separate history to check.
+- Sworn words that the recogniser reports only as censored asterisks ("f***", "s***", "****")
+  count as correct when they match the script word's first letter and length; a bare "****"
+  matches any word. Practice and Rehearse score swears the same way.
 
 > **Tip:** The tracking follows you word by word and re-checks everything against the whole take
 > as it listens — so a word only ever turns red once you've clearly moved past it, and an early

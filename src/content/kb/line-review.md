@@ -1,12 +1,17 @@
 ---
 title: Line review — the words you keep getting wrong
 summary: A study mode that highlights the individual words you consistently miss, so you can drill them.
-date: 2026-07-15
+date: 2026-10-03
 ---
 
 As you practise, Actors Lines quietly keeps a per-word tally of the words you get wrong. Once a
 word has been missed three times it becomes a "trouble word". Line review is a study-only mode
 that marks those words on the page so you can find and swot up on them.
+
+Sworn words are counted fairly: when the recogniser reports a swear only as censored asterisks
+("f***", "s***", "****"), it still counts as correct if it matches the script word's first letter
+and length (a bare "****" matches any word), so a correctly spoken swear never becomes a trouble
+word.
 
 ## Turning it on
 

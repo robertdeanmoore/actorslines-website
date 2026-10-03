@@ -1,7 +1,7 @@
 ---
 title: Picking a voice for a character
 summary: Assign and preview a stock neural voice per character, for TTS playback in Teach, Practice and Rehearse.
-date: 2026-08-23
+date: 2026-10-03
 ---
 
 Every character in a play can have its own voice, used whenever they're spoken aloud by the app
@@ -31,6 +31,10 @@ time it's needed in a session. Actors Lines shares one engine across the whole a
 warming it up as soon as you open a play's scene list, so by the time you actually start a run
 the voice is usually already loaded; if it isn't, a short "Getting ready…" spinner covers the
 gap instead of leaving dead air.
+
+If the natural (Kokoro) voice fails to load altogether — for example when the phone is short of
+memory — the app now uses your phone's own voice for that playback and says so, instead of
+playing silence.
 
 Playback speed is a single, global setting (Settings → Voice → "Reading speed") rather than
 per-character — it applies to TTS voices and your own Selftape recordings alike.

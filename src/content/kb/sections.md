@@ -1,7 +1,7 @@
 ---
 title: Sections — drilling part of a scene
 summary: Mark a start and end line, then run just that stretch over and over.
-date: 2026-07-08
+date: 2026-10-03
 ---
 
 When you sit down to work, you usually run a chunk of a scene — a page, an exchange, one
@@ -25,6 +25,18 @@ without touching the rest of the scene.
 Open the kebab menu and tap "Define speech" to start. Unlike a section, a speech still asks
 for two taps: the first line, then the last (either order; tapping the first again cancels),
 then a name.
+
+You can't start defining a new section or speech while Cue-to-cue or My Lines Only is on — the
+menu warns you and offers to turn the filter off first. Dragging or deleting an existing
+section or speech is unaffected. See [Cue-to-cue mode](cue-to-cue.md) and
+[My Lines Only — running just your part](my-lines-only.md).
+
+## Jumping to a section
+
+The kebab menu now has a single "Sections" item instead of listing every section separately. It
+opens a dialog that lists your sections first, then any named speeches, each in its own colour —
+tap one to jump straight to it. Both the "Sections" item and the dialog are greyed when the scene
+has neither a section nor a named speech, and while a run is in progress.
 
 ## Running a section
 
