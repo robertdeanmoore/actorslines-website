@@ -1,9 +1,9 @@
 -- View privileges (RobLife WIP #160 row 28, Holly view ruling item 3).
 --
--- Supabase's default privileges grant ALL on every new public relation to anon and
--- authenticated. The views below were created with only a `grant select`, so they also
--- carried INSERT/UPDATE/DELETE/TRUNCATE (live check 2026-10-06), and public_profiles
--- also SELECT for anon. public_profiles is a simple, auto-updatable security-definer
+-- Supabase's default privileges give anon and authenticated every privilege on each
+-- new public relation. The views below were created with only a select grant, so they
+-- also carried every write privilege (live check 2026-10-06), and public_profiles also
+-- read access for anon. public_profiles is a simple, auto-updatable security-definer
 -- view, so a write through it runs as the view owner and skips profiles RLS: anyone
 -- holding the public anon key could rename or delete any profile (delete cascades to
 -- the user's content). Each view now carries exactly the privilege its pages need.
