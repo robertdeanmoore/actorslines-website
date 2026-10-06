@@ -8,7 +8,13 @@ edge functions); AI pipeline runs as GitHub Actions in the ActorsVoice repo.
   `docs/plans/actorslines-website-progress.md` in the ActorsVoice repo (what's built/pending).
 - **DB changes**: new numbered file in `supabase/migrations/` (never edit an applied one),
   then `supabase db push`. Keep RLS in mind: `ai_reports`/`dev_notes`/`plans` are admin-only;
-  the board view `board_posts_with_stats` is deliberately security-definer.
+  the views `board_posts_with_stats` and `public_profiles` are deliberately security-definer
+  (reasons in `0021_view_hardening.sql`).
+- **New views**: create with `security_invoker = true`, or record the definer reason in the
+  migration and revoke `select` from `anon`. Every new view must
+  `revoke all … from anon, authenticated, public`, then grant `select` explicitly: Supabase
+  default privileges otherwise grant writes. Any table or function a signed-out page must read
+  needs an explicit `grant … to anon`.
 - **KB articles**: `src/content/kb/<slug>.md` with `title`/`summary`/`date` front-matter. A
   bare YouTube link on its own line renders as an embed.
 - **Every KB article pairs with an in-app Help article, matched by slug/id — but as of Actors
