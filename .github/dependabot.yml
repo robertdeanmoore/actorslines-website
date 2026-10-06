@@ -1,3 +1,13 @@
+# Dependabot version updates. Same pattern as ActorsVoice and HelpOut
+# (RobLife WIP #160, 2026-10-06): weekly Monday 06:00 Europe/London, at most
+# 5 open package PRs, minor+patch grouped, majors one PR each.
+#
+# Grouping: a dependency joins the first group it matches. Major bumps are
+# never grouped (one PR each, evaluated on their own). Coupled pieces move
+# together so a half-bump never lands: React with its type packages, and the
+# Vite build toolchain (vite, its React plugin, Tailwind's Vite plugin).
+# Note: a vite major usually needs the matching @vitejs/plugin-react major;
+# evaluate those two PRs together.
 version: 2
 updates:
   - package-ecosystem: "npm"
@@ -5,9 +15,33 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-    open-pull-requests-limit: 10
+      time: "06:00"
+      timezone: "Europe/London"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(deps)"
     groups:
-      npm-minor-patch:
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+        update-types:
+          - "minor"
+          - "patch"
+      vite-toolchain:
+        patterns:
+          - "vite"
+          - "@vitejs/*"
+          - "tailwindcss"
+          - "@tailwindcss/*"
+        update-types:
+          - "minor"
+          - "patch"
+      minor-and-patch:
+        patterns:
+          - "*"
         update-types:
           - "minor"
           - "patch"
@@ -17,4 +51,12 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-    open-pull-requests-limit: 10
+      time: "06:00"
+      timezone: "Europe/London"
+    open-pull-requests-limit: 2
+    commit-message:
+      prefix: "ci"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
