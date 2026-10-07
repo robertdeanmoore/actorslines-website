@@ -13,6 +13,10 @@ options, in two pairs.
   image position) saved wherever you choose. Restoring it asks no questions. It now also includes
   your accuracy history (the heat map and Line Review history), so it survives moving to a new
   phone or restoring. Your [notes](notes.md) and memory links are included too.
+
+Android's own backup (to your Google account) and moving to a new phone also bring your plays
+and notes across. Your sign-in and licence are deliberately left out, so after a Google restore
+or a new-phone transfer you sign in again; your plays and notes are unaffected.
 - "Export for cast" — the same play stripped of your personal progress, so whoever imports it
   picks their own character. Use this to hand the script to a fellow cast member. It never
   includes your accuracy history, notes or memory links — they're yours alone.

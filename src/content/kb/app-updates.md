@@ -31,7 +31,7 @@ updating is always your choice. Turn this check off entirely from Settings → U
 ## "What's new" after an update
 
 The first time you open a new release that has release notes, a small box titled "New release ·
-3.10.0" (with the release date) lists up to five short points about what changed, with one **OK**
+3.11.0" (with the release date) lists up to five short points about what changed, with one **OK**
 button. It appears on the Play List after the loading screen, never over a scene or a run, and
 only once per release: tap OK and it won't come back for that version. It can only be closed with
 OK (not Back or a tap outside), so it isn't skipped by accident; if the app is closed before you tap

@@ -9,8 +9,9 @@ export default function PrivacyPage() {
         When you register we store your email address, a display name you choose,
         and the content you create on this site (enhancement requests, comments and
         votes). We record when you last signed in. We do not collect your scripts,
-        recordings or notes: they stay on your phone, and leave it only in a backup or
-        share file you create yourself.
+        recordings or notes: we never receive them. They are stored on your phone, in
+        backup or share files you create yourself, and (see below) in Android&apos;s own
+        backup to your Google account if you have that turned on.
       </p>
 
       <h2 className="mt-6 font-semibold">What the Actors Lines app sends</h2>
@@ -49,6 +50,20 @@ export default function PrivacyPage() {
       <p className="text-sm text-gray-700 mt-2">
         The app&apos;s AI features (such as memory links and import tidy-up) run on your
         phone&apos;s own on-device AI and send nothing to us.
+      </p>
+      <p className="text-sm text-gray-700 mt-2">
+        <strong>Google ML Kit.</strong> Document scanning, text recognition and the on-device
+        AI use Google&apos;s ML Kit libraries. Your scans and text are processed on the phone,
+        but ML Kit itself sends Google information such as device details, the app version,
+        performance and error data, and per-installation identifiers, as described on
+        Google&apos;s ML Kit data disclosure page.
+      </p>
+      <p className="text-sm text-gray-700 mt-2">
+        <strong>Android backup.</strong> If Android&apos;s backup is turned on for your phone,
+        Android copies the app&apos;s data (including your plays, scripts, notes and
+        recordings) to your own Google account, and restores it on a new phone. We cannot
+        see that backup. Your sign-in details and licence are left out of it, so after a
+        restore you sign in again.
       </p>
 
       <h2 className="mt-6 font-semibold">Anonymous app usage data (opt-in)</h2>
@@ -92,7 +107,7 @@ export default function PrivacyPage() {
       <p className="text-sm text-gray-700 mt-2">
         Accounts unused for 6 months are deleted, together with their data. We email
         a warning after about 5 months of inactivity and a final reminder 2 weeks
-        later; signing in at any point keeps your account active.
+        later; signing in on actorslines.app keeps your account active.
       </p>
 
       <h2 className="mt-6 font-semibold">Your rights</h2>
