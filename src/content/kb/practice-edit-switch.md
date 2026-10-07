@@ -10,24 +10,24 @@ between the two.
 
 ## From Practice to Edit
 
-- In Practice, open ⋮ and tap **Edit** (always the top item). The same scene opens in Edit with the
+- In Practice, open ⋮ and tap **Edit Mode** (always the top item). The same scene opens in Edit with the
   line you were looking at (the one in the middle of the screen) placed between Edit's small black
   corner markers. It glows for a moment so your eye finds it.
-- **Edit** works when the screen is idle or a run is **paused**. Mid-run it is greyed with a short
+- **Edit Mode** works when the screen is idle or a run is **paused**. Mid-run it is greyed with a short
   reason: "Pause first", "Not mid-run" (during the 3-2-1 countdown or while waiting for Continue),
   or "Exit the Run first" (once a run has finished or been stopped — tap "Exit the Run", then Edit).
   It's also unavailable while a Score Speech run is under way.
 
 ## From Edit to Practice
 
-- In Edit, open ⋮ and tap **Run** (always the top item). Practice opens on the line between the
+- In Edit, open ⋮ and tap **Run Mode** (always the top item). Practice opens on the line between the
   markers. If that line isn't shown in Practice (for example My Lines Only or Cue-to-cue is on, or
   stage directions are hidden), you land on the nearest shown line before it.
 - Back from either screen goes where it always did (the scene list), never to the other mode.
 
 ## A paused run waits for you
 
-- If you pause a run and tap **Edit**, the app remembers where the run was. Edit's **Run** item then
+- If you pause a run and tap **Edit Mode**, the app remembers where the run was. Edit's **Run Mode** item then
   reads "resumes p.N", and tapping it takes you back to Practice, still **paused at that line**,
   however far you scrolled in Edit and however many changes you made.
 - Your scores so far stay with the run: lines you've already said keep their accuracy, and the

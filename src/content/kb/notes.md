@@ -10,11 +10,12 @@ reminder of why you pause. They live on your phone, against the line you put the
 ## Adding a note
 
 - In Practice, the leftmost column of the script (headed **Notes**) is the Notes column. Press and
-  hold in it, on any line, and a small menu appears: **Add note** and **Add memory**. You can also
-  press and hold on the 📝 in the page margin.
-- **Add note** opens a large box over the script. The keyboard comes up straight away, so you can
-  type or use your keyboard's microphone to dictate. **Cancel** and **Save** are at the top of the
-  box, so the keyboard never covers them.
+  hold in it, on any line, and a small menu appears just above your finger (below it only for
+  lines near the top of the screen): **Add note** and **Add memory**. You can also press and hold
+  on the 📝 in the page margin.
+- **Add note** opens a note box in the top half of the screen, just big enough for a full note. The
+  keyboard comes up straight away below it, so you can type or use your keyboard's microphone to
+  dictate. **Cancel** and **Save** are at the top of the box, and the keyboard never covers it.
 - A note can be up to 255 characters (an emoji counts as one). The counter at the bottom tells you
   how many you have used; once you reach the limit, typing adds nothing, and pasted or dictated
   text is cut at the limit (you'll see "Shortened to 255 characters").
@@ -41,7 +42,8 @@ reminder of why you pause. They live on your phone, against the line you put the
 - A 📝 in the left margin marks a line with a note (a memory shows its own emoji there).
 - Press and hold **anywhere else on the line**: the note appears in a small paper slip just above
   your finger, with a pointer down to the line. It stays while your finger is down, even if your
-  finger slides about, and the script doesn't scroll. Lift your finger and it's gone. Near the top
+  finger slides about, and the script doesn't scroll. The line you're holding is highlighted
+  while you hold (this doesn't change where your next run starts). Lift your finger and it's gone. Near the top
   of the screen the slip appears below your finger, shifted to one side.
 - Holding a line with no note or memory does nothing.
 
