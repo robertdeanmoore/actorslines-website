@@ -30,8 +30,9 @@ you pick which four, and their order, in Settings (see "Choosing which columns y
 Picture your line's box split into five equal strips, left to right — it doesn't matter how many
 rows the text wraps onto, the whole block counts.
 
-- The **leftmost** strip is the **Memory** column: tap to reveal a saved memory link, long-press
-  to create or change one. It's not a reveal mode.
+- The **leftmost** strip is the **Notes** column. It's not a reveal mode: a tap there just selects
+  the line (it does nothing while a run is paused), and pressing and holding opens the menu to add
+  or edit a [note](notes.md) or a [memory link](memory-links.md).
 - The next **four** strips are your four chosen reveal modes, in your chosen order. By default:
   **Blank · Word · Letters · Random**.
 - A faint vertical line near the right edge marks where your columns end. The narrow strip beyond

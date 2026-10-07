@@ -29,6 +29,11 @@ filtering, and so on — have their own articles, linked below.
   the whole screen is one page, or "p 56/57" when the first and last pages on screen differ. It
   hides if the scene has no page numbers and stays visible during a run. See
   [Page breaks — keeping the printed page together](page-breaks.md).
+- The ⋮ menu's top item is now **Edit Mode**: it swaps this scene into the Edit screen at the line you're
+  looking at, and Edit's **Run Mode** brings you back. Pause a run first and the run waits for you while
+  you edit — see [Switching between Practice and Edit](practice-edit-switch.md). Changing a line
+  is done in Edit; Practice no longer has its own line editor, so pressing and holding a line now
+  reads its [note](notes.md) instead.
 - The round help icon has moved into the ⋮ menu — "Help" is now its last item (Practice only).
   Near the bottom the menu runs: … Sections / a divider / Share Diagnostics / Help. "Share
   Diagnostics" is permanently greyed, since diagnostics are switched off, and the "Share
@@ -76,8 +81,13 @@ hands-free by voice). A run ends itself once it reaches the scene's last line, o
 early — in Practice via "Exit the Run" (which first shows an accuracy summary for what you ran so
 far), in Rehearsal immediately.
 
+While paused you can switch to Edit (⋮ → Edit Mode) to fix the script; Run Mode (or "Back to run") returns
+you to the same paused line with your scores so far. Lines you hold in the Notes column or press
+and hold to read a note work while idle or paused, never mid-run.
+
 ## Related
 
 [Teach & Fill-in-Teach — preparing a scene](teach-basics.md) ·
 [Progressive line reveal](reveal-modes.md) · [Cue-to-cue mode](cue-to-cue.md) ·
-[Pace between lines](run-pace.md) · [Voice commands](voice-commands.md)
+[Pace between lines](run-pace.md) · [Voice commands](voice-commands.md) ·
+[Notes](notes.md) · [Switching between Practice and Edit](practice-edit-switch.md)

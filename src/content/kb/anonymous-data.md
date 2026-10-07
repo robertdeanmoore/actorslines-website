@@ -4,8 +4,10 @@ summary: Optionally share anonymous data about which features you use, so the ap
 date: 2026-07-21
 ---
 
-The app works entirely on your device and sends nothing anywhere unless you choose to turn on
-"Share anonymous usage data" in Settings. It's off by default.
+Usage data is only sent if you choose to turn on "Share anonymous usage data" in Settings. It's
+off by default. (The app does go online for other things, such as signing in, checking your
+licence, downloading voices, your phone's speech recognition service and Android's own backup:
+see the [privacy policy](https://actorslines.app/privacy) for the full list.)
 
 ## What it does
 
@@ -18,8 +20,7 @@ parts you rely on get the attention.
 - Sent: which features you open, which settings you change, how often and how long you use the
   app, the app version, and a rough device model (the same detail a crash report already includes).
 - A random ID is attached so events from one phone can be grouped together. It isn't linked to
-  your name, email or any account — there's no account in this app — and you can reset it any
-  time from Settings.
+  your name, email or account, and you can reset it any time from Settings.
 - Not sent: your scripts, your recordings, character names, or anything you type. None of your
   content ever leaves your device through usage data.
 
