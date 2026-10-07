@@ -26,8 +26,18 @@ Actors Lines can't touch it for you.
 Once a day at most, on opening the app, Actors Lines quietly asks Google Play whether a newer
 version has been published — no personal data is sent, just a version check. If one's found, a
 small "Update available" note appears in the About screen with Update and Not now buttons;
-nothing ever pops up uninvited, and updating is always your choice. Turn this check off entirely
-from Settings → Updates.
+updating is always your choice. Turn this check off entirely from Settings → Updates.
+
+## "What's new" after an update
+
+The first time you open a new release that has release notes, a small box titled "New release ·
+3.10.0" (with the release date) lists up to five short points about what changed, with one **OK**
+button. It appears on the Play List after the loading screen, never over a scene or a run, and
+only once per release: tap OK and it won't come back for that version. It can only be closed with
+OK (not Back or a tap outside), so it isn't skipped by accident; if the app is closed before you tap
+OK, you'll see it again next time. Builds without release notes show nothing, and a brand-new
+install (or an app whose data you've cleared) doesn't show it either. This is the only thing that
+appears on its own, and only straight after an update.
 
 ## Back up before you update
 

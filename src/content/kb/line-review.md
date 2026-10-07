@@ -25,7 +25,7 @@ Tap a marked word for a quick menu:
 - "I've got this" — you know it now; clears the word completely.
 - "Next time" — knocks its count down by one, so it won't flag again unless it slips again.
 - "Improve recognition" — the first time you use this for a word, it's added to this play's custom vocabulary (so the recogniser listens for it) and cleared. If the same word flags again later, anywhere in the play, using it a second time escalates: the word is excluded from scoring everywhere instead, since the vocabulary nudge clearly isn't enough on its own.
-- "Edit line" — opens the line editor to correct the script text. This does not change the score; the word stays flagged until you use one of the other options.
+- "Edit line" — switches to the Edit screen with that line between the markers, so you can correct the script text (see [Switching between Practice and Edit](practice-edit-switch.md)); "Run" brings you back. It works when idle or paused; after a finished or stopped run it is greyed ("Exit the Run first"). Changing a line's words clears that line's flagged words, since they were counted against the old wording; changes that don't touch the words leave them alone.
 
 ## Word recognition (Play Settings)
 

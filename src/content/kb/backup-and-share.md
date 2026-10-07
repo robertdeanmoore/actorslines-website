@@ -12,10 +12,10 @@ options, in two pairs.
 - "Back up this play" — a full-fidelity copy (your character, positions, Learn progress, cover
   image position) saved wherever you choose. Restoring it asks no questions. It now also includes
   your accuracy history (the heat map and Line Review history), so it survives moving to a new
-  phone or restoring.
+  phone or restoring. Your [notes](notes.md) and memory links are included too.
 - "Export for cast" — the same play stripped of your personal progress, so whoever imports it
   picks their own character. Use this to hand the script to a fellow cast member. It never
-  includes your accuracy history — that's yours alone.
+  includes your accuracy history, notes or memory links — they're yours alone.
 - Both open the system "Save" screen — pick a folder (including a cloud-backed one like Drive,
   if it's set up as a storage location) and the file is written there.
 

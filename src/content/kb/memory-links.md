@@ -1,6 +1,6 @@
 ---
 title: Memory links — AI cue associations (experimental)
-summary: Long-press the leftmost column of one of your lines for an AI-suggested mnemonic linking it to the cue.
+summary: Hold the Notes column on one of your lines and choose "Add memory" for an AI-suggested mnemonic linking it to the cue.
 date: 2026-07-13
 ---
 
@@ -11,14 +11,16 @@ pun, or a vivid image combining both.
 
 ## Getting a suggestion
 
-- Each of your lines in Practice is split into five tap columns (see the "Memory | All | Word |
-  Letters | Random" reminder row); the leftmost is the memory-link column. Long-press it to
-  open the dialog — nothing is shown there until you've saved a hint, it's a blank touch
-  target until then.
+- The leftmost column of the script in Practice is the **Notes** column (see the "Notes | Blank |
+  Word | Letters | Random" reminder row). Press and hold it on one of your own lines and choose
+  **Add memory** from the small menu. The memory box opens as a large pop-up over the script.
+- A line holds either a memory or a note, never both: if the line already has a
+  [note](notes.md), "Add memory" is greyed. Memories are only for your own spoken lines, not
+  other characters' lines, stage directions, sound or light cues (those can take a note).
 
 > **Tip:** Tap any of the five reminder-row labels to toggle very faint vertical lines marking
-> where each tap column begins and ends — handy if you want to double-check a tap will land in
-> the memory column rather than nudging a reveal mode by mistake. Tap again to hide them. They
+> where each tap column begins and ends — handy if you want to double-check a press will land in
+> the Notes column rather than nudging a reveal mode by mistake. Tap again to hide them. They
 > start out visible for your first few taps as a discoverability aid, then default off — but
 > tapping a label always sets a permanent choice from then on, so if you always want them on
 > (or off), one tap locks that in for good.
@@ -41,9 +43,13 @@ pun, or a vivid image combining both.
 
 ## Managing a saved hint
 
-- Once saved, the emoji shows in that same leftmost column every time you practice the line. A
-  single tap floats a small pop-up with the hint's text for a couple of seconds — a quick peek,
-  not the full dialog. Long-press instead for "Change" (ask again) or "Remove" (delete it).
+- Once saved, the emoji shows in the left margin of the line every time you practice it.
+- To read it, press and hold anywhere else on the line: the emoji and hint appear in a small slip
+  above your finger until you let go. (A quick tap in the Notes column no longer peeks; it is an
+  ordinary line tap.)
+- To change it, hold the Notes column and choose **Edit memory**: "Change" asks again, "Remove"
+  deletes it. Close the box with **Close**.
+- Memories, like notes, are in your own backups but never in cast files.
 
 > **Tip:** Only available on phones with on-device AI (Gemini Nano); turn it off entirely
 > under Settings → "Suggest memory links with on-device AI" if you'd rather not see it.
