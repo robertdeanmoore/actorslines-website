@@ -32,6 +32,10 @@ test("canonicalUrl strips trailing slash, keeps root", () => {
   assert.equal(canonicalUrl("/kb/"), "https://actorslines.app/kb");
 });
 
+test("canonicalUrl escapes ampersand for HTML attribute", () => {
+  assert.equal(canonicalUrl("/a&b"), "https://actorslines.app/a&amp;b");
+});
+
 function env(files: Record<string, string>) {
   return {
     ASSETS: {
@@ -60,6 +64,20 @@ test("unknown page route falls back to shell with 200", async () => {
 test("existing asset served", async () => {
   const r = await handle(new Request("https://actorslines.app/robots.txt"), env({ "/robots.txt": "ok" }));
   assert.equal(await r.text(), "ok");
+});
+test("conditional request on page route passes 304 through with no body", async () => {
+  const e = {
+    ASSETS: {
+      fetch: async (req: Request) => {
+        const p = new URL(req.url).pathname;
+        if (req.headers.has("if-none-match") && p === "/") return new Response(null, { status: 304 });
+        return new Response(null, { status: 404 });
+      },
+    },
+  };
+  const r = await handle(new Request("https://actorslines.app/privacy", { headers: { "if-none-match": '"abc"' } }), e);
+  assert.equal(r.status, 304);
+  assert.equal(await r.text(), "");
 });
 test("redirect is 301", async () => {
   const r = await handle(new Request("http://actorslines.app/x"), env({}));

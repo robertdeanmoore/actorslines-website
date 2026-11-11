@@ -141,7 +141,10 @@ Deno.serve(async (req) => {
       const used = await usage(admin, "telemetry_events", installId);
       if (!used) return new Response("try again later", { status: 503 });
       const room = allowedRows(rows.length, used.install, DAILY_EVENTS_PER_INSTALL, used.global, DAILY_EVENTS_GLOBAL);
-      if (room === 0) return json({ inserted: 0, dropped: "daily_cap" });
+      if (room === 0) {
+        if (used.global >= DAILY_EVENTS_GLOBAL) console.warn("[telemetry] global daily event cap hit");
+        return json({ inserted: 0, dropped: "daily_cap" });
+      }
       const { error } = await admin.from("telemetry_events").insert(rows.slice(0, room));
       if (error) {
         console.error("[telemetry] event insert failed", error);
@@ -157,6 +160,7 @@ Deno.serve(async (req) => {
       const used = await usage(admin, "recognition_reports", installId);
       if (!used) return new Response("try again later", { status: 503 });
       if (allowedRows(1, used.install, DAILY_REPORTS_PER_INSTALL, used.global, DAILY_REPORTS_GLOBAL) === 0) {
+        if (used.global >= DAILY_REPORTS_GLOBAL) console.warn("[telemetry] global daily report cap hit");
         return json({ inserted: 0, dropped: "daily_cap" });
       }
       const { error } = await admin.from("recognition_reports").insert({

@@ -38,7 +38,7 @@ export function isPageRoute(pathname: string): boolean {
 
 export function canonicalUrl(pathname: string): string {
   const path = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
-  return `https://${CANONICAL_HOST}${path || "/"}`;
+  return `https://${CANONICAL_HOST}${path || "/"}`.replace(/&/g, "&amp;");
 }
 
 function withCanonicalLink(res: Response, pathname: string): Response {
@@ -62,6 +62,8 @@ export async function handle(request: Request, env: Env): Promise<Response> {
 
   if ((request.method === "GET" || request.method === "HEAD") && isPageRoute(url.pathname)) {
     const shell = await env.ASSETS.fetch(new Request(new URL("/", url), request));
+    // Conditional request answered 304 (no body): pass it through, never rebuild it as a 200.
+    if (shell.status !== 200) return shell;
     return withCanonicalLink(new Response(shell.body, { status: 200, headers: shell.headers }), url.pathname);
   }
   return res;
