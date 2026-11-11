@@ -55,8 +55,10 @@ function withCanonicalLink(res: Response, pathname: string): Response {
 // Content-Security-Policy header, so a second /cms/* policy in public/_headers would be merged
 // with the site-wide one and the stricter script-src would block unpkg. The /cms policy lives
 // only here and replaces the site-wide header. Do not add a /cms/* CSP to public/_headers.
+// 'unsafe-eval' is here only because Decap 3.14.1 validates its config with ajv (new Function;
+// decap-cms issue #2138). It must never appear in the site-wide CSP.
 export const CMS_CSP =
-  "default-src 'self' https:; script-src 'self' https://unpkg.com; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; font-src 'self' https: data:; connect-src 'self' https:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'";
+  "default-src 'self' https:; script-src 'self' https://unpkg.com 'unsafe-eval'; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; font-src 'self' https: data:; connect-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'";
 
 export function isCmsPath(pathname: string): boolean {
   return pathname === "/cms" || pathname.startsWith("/cms/");

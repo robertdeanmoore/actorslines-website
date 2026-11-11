@@ -116,6 +116,11 @@ test("/cms/ and /cms/config.yml get exactly one CSP, the cms one, allowing unpkg
     const csp = r.headers.get("content-security-policy") ?? "";
     assert.equal(csp, CMS_CSP, p);
     assert.ok(csp.includes("https://unpkg.com"), p);
+    const script = csp.split(";").map((d) => d.trim()).find((d) => d.startsWith("script-src ")) ?? "";
+    assert.ok(script.includes("'unsafe-eval'"), p);
+    assert.ok(!script.includes("'unsafe-inline'"), `${p} no unsafe-inline on script-src`);
+    assert.ok(csp.includes("form-action 'self'"), p);
+    assert.ok(csp.includes("frame-ancestors 'none'"), p);
     assert.ok(!csp.includes("challenges.cloudflare.com"), p);
     assert.ok(!csp.includes(","), `${p} single, unmerged policy`);
     assert.equal(r.headers.get("x-frame-options"), "DENY", p);
@@ -128,9 +133,28 @@ test("non-cms paths keep site CSP and never allow unpkg", async () => {
     const csp = r.headers.get("content-security-policy") ?? "";
     assert.equal(csp, SITE_CSP, p);
     assert.ok(!csp.includes("unpkg.com"), p);
+    assert.ok(!csp.includes("unsafe-eval"), p);
   }
 });
 test("cms miss falling back to shell keeps site CSP", async () => {
   const r = await handle(new Request("https://actorslines.app/cms/nope"), envWithSiteHeaders({ "/": "shell" }));
   assert.equal(r.headers.get("content-security-policy"), SITE_CSP);
+});
+test("unsafe-eval only on exact /cms scope; look-alike and fallback paths stay on site CSP", async () => {
+  const e = envWithSiteHeaders({ "/": "shell", "/privacy": "p", "/cmsx": "x", "/CMS/": "u", "//cms/": "d" });
+  for (const p of ["/", "/privacy", "/cmsx", "/CMS/", "//cms/", "/cms/nope"]) {
+    const r = await handle(new Request("https://actorslines.app" + p), e);
+    const csp = r.headers.get("content-security-policy") ?? "";
+    assert.equal(csp, SITE_CSP, p);
+    assert.ok(!csp.includes("unsafe-eval"), p);
+    assert.ok(!csp.includes("unpkg"), p);
+  }
+});
+test("307 and 304 on look-alike cms paths pass through with site CSP", async () => {
+  for (const [p, status] of [["/CMS/", 307], ["//cms/", 307], ["/cmsx", 304]] as const) {
+    const env = { ASSETS: { fetch: async () => new Response(null, { status, headers: { "content-security-policy": SITE_CSP, location: "/x" } }) } };
+    const r = await handle(new Request("https://actorslines.app" + p), env);
+    assert.equal(r.status, status, p);
+    assert.equal(r.headers.get("content-security-policy"), SITE_CSP, p);
+  }
 });
