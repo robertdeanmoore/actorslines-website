@@ -51,6 +51,24 @@ function withCanonicalLink(res: Response, pathname: string): Response {
     .transform(res);
 }
 
+// Decap CMS needs a looser script/connect policy than the public site. Browsers enforce every
+// Content-Security-Policy header, so a second /cms/* policy in public/_headers would be merged
+// with the site-wide one and the stricter script-src would block unpkg. The /cms policy lives
+// only here and replaces the site-wide header. Do not add a /cms/* CSP to public/_headers.
+export const CMS_CSP =
+  "default-src 'self' https:; script-src 'self' https://unpkg.com; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; font-src 'self' https: data:; connect-src 'self' https:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'";
+
+export function isCmsPath(pathname: string): boolean {
+  return pathname === "/cms" || pathname.startsWith("/cms/");
+}
+
+function withCmsCsp(res: Response): Response {
+  const headers = new Headers(res.headers);
+  headers.delete("content-security-policy");
+  headers.set("content-security-policy", CMS_CSP);
+  return new Response(res.body, { status: res.status, statusText: res.statusText, headers });
+}
+
 export async function handle(request: Request, env: Env): Promise<Response> {
   const url = new URL(request.url);
 
@@ -58,7 +76,9 @@ export async function handle(request: Request, env: Env): Promise<Response> {
   if (target) return Response.redirect(target, 301);
 
   const res = await env.ASSETS.fetch(request);
-  if (res.status !== 404) return withCanonicalLink(res, url.pathname);
+  if (res.status !== 404) {
+    return withCanonicalLink(isCmsPath(url.pathname) ? withCmsCsp(res) : res, url.pathname);
+  }
 
   if ((request.method === "GET" || request.method === "HEAD") && isPageRoute(url.pathname)) {
     const shell = await env.ASSETS.fetch(new Request(new URL("/", url), request));
