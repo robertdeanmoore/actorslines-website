@@ -22,7 +22,7 @@ In Practice, open the ⋮ menu and tap **My Next…**. It offers forward jumps t
 entrance or exit. Choosing an entrance or exit moves you forward to the next one.
 
 - The jump only goes forward. It does not wrap round to the top of the scene.
-- If there is no later entrance or exit, a boundary toast says so.
+- If there is no later entrance or exit, the app shows a short message saying so.
 
 ## Setting an entrance or exit
 

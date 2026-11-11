@@ -61,8 +61,8 @@ has neither a section nor a named speech, and while a run is in progress.
 Once a section exists, you can fold it away so a long stretch of the scene is out of the way
 while you work on something else.
 
-- In Practice, long-press the section's "Start of section" row. Its chip reads "Run / Collapse
-  section".
+- In Practice, long-press the chip on the section's "Start of section" row. The chip reads
+  "Run / Collapse section".
 - You can add a summary of up to 200 characters. If you leave it blank, the collapsed block reads
   "Section N (collapsed)".
 - The collapsed block shows the section's line count and an "Expand" chip. Tap "Expand" to open
@@ -70,8 +70,7 @@ while you work on something else.
 - In a Practice run, a collapsed section counts as one silent beat of 1.5 seconds. Its lines are
   not spoken.
 
-> **Note:** The collapsed-section behaviour above is for Practice. This page does not describe how
-> Rehearse handles collapsed sections.
+> **Note:** Collapsing sections is a Practice feature.
 
 ## Several sections
 

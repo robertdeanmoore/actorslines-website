@@ -25,7 +25,7 @@ and set its volume while you edit.
   beginning.
 - **Play for (seconds)**: how long to play, to one decimal place. Leave it empty to play the
   whole sound. A longer value than the file just plays to the end.
-- When the play-for time runs out, the sound fades out over 250 ms, then Practice moves on.
+- When the play-for time runs out, the sound fades out over about a quarter of a second, then Practice moves on.
 - If the start point is past the end of the file, saving is blocked with "Start is past the end
   of the sound", as long as the file's length is known.
 - Empty, negative or non-numeric values are flagged as errors on that field.
@@ -35,10 +35,11 @@ and set its volume while you edit.
 
 - A slider runs from 0 to 200 percent. The centre is the file's own level, and the slider
   snaps to 100 when it is within 3 points.
-- Up to 100 percent lowers or keeps the level. Above 100 percent the app adds extra gain, about
-  +6 dB at 200 percent.
+- Up to 100 percent lowers or keeps the level. Above 100 percent the app makes the sound louder than the original, up to about
+  twice as loud at 200 percent.
 - A change is heard the next time you press Play.
-- Existing sound cues keep their previous behaviour: start 0, play-for 0 (whole sound), volume 100.
+- Sound cues you made before this feature play exactly as they used to: from the start, the whole
+  sound, at the file's own volume.
 
 ## Lighting cues
 
@@ -46,5 +47,5 @@ Lighting cues stay silent in a run. Only sound cues play audio.
 
 ## Backup and sharing
 
-Trim and volume settings travel with the scene in personal and cast exports. The audio file
+Trim and volume settings travel with the scene when you export or share it. The audio file
 itself goes only in the full `.zip` backup.
