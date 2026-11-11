@@ -1,7 +1,7 @@
 ---
 title: Sections — drilling part of a scene
 summary: Mark a start and end line, then run just that stretch over and over.
-date: 2026-10-03
+date: 2026-11-09
 ---
 
 When you sit down to work, you usually run a chunk of a scene — a page, an exchange, one
@@ -55,6 +55,23 @@ has neither a section nor a named speech, and while a run is in progress.
 > pass, without scrolling by hand. If you've scrolled deep into a long section or speech, a
 > floating copy of the same chip fades in at the bottom of the screen so you don't have to
 > scroll all the way down to find it first.
+
+## Collapsing a section
+
+Once a section exists, you can fold it away so a long stretch of the scene is out of the way
+while you work on something else.
+
+- In Practice, long-press the section's "Start of section" row. Its chip reads "Run / Collapse
+  section".
+- You can add a summary of up to 200 characters. If you leave it blank, the collapsed block reads
+  "Section N (collapsed)".
+- The collapsed block shows the section's line count and an "Expand" chip. Tap "Expand" to open
+  it again.
+- In a Practice run, a collapsed section counts as one silent beat of 1.5 seconds. Its lines are
+  not spoken.
+
+> **Note:** The collapsed-section behaviour above is for Practice. This page does not describe how
+> Rehearse handles collapsed sections.
 
 ## Several sections
 

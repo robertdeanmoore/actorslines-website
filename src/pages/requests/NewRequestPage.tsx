@@ -87,10 +87,10 @@ export default function NewRequestPage() {
           placeholder="e.g. When I'm first learning a scene the cue lines come too fast for me to think…" />
 
         <label className={label}>Where in the app would this fit? *</label>
-        <p className="text-xs text-gray-500 mb-1">Name the screen or moment — Practice, Rehearse, the scene list, importing…</p>
+        <p className="text-xs text-gray-500 mb-1">Name the screen or moment — Practice, the scene list, importing…</p>
         <input required minLength={10} maxLength={300} value={whereInApp}
           onChange={(e) => setWhereInApp(e.target.value)} className={field}
-          placeholder="e.g. Rehearse mode, while the other characters are speaking" />
+          placeholder="e.g. Practice mode, while the other characters are speaking" />
 
         <label className={label}>How might it work? *</label>
         <p className="text-xs text-gray-500 mb-1">Your best guess is fine — a slider? a button? something automatic?</p>
