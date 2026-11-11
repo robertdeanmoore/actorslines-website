@@ -4,12 +4,26 @@
 // Called directly by the app (no browser origin, no user login) with a shared secret header,
 // exactly like the `lifecycle` function. Treats every request as untrusted: verifies the secret,
 // then validates/clamps/allow-lists the payload before a service-role insert. The secret lives in
-// the APK and is therefore extractable — so the hardening here (caps, allow-list, length clamps) is
-// the real protection, not the secret.
+// the APK and is therefore extractable — so the hardening here (size/rate/daily caps in limits.ts, allow-list,
+// length clamps) is the real protection, not the secret.
 //
 // Secrets: TELEMETRY_SECRET (shared with the app's BuildConfig.TELEMETRY_SECRET).
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import {
+  allowedRows,
+  BURST_PER_INSTALL,
+  BURST_PER_IP,
+  BurstLimiter,
+  clientIp,
+  DAILY_EVENTS_GLOBAL,
+  DAILY_EVENTS_PER_INSTALL,
+  DAILY_REPORTS_GLOBAL,
+  DAILY_REPORTS_PER_INSTALL,
+  MAX_EVENTS_PER_BATCH,
+  readLimitedText,
+  validInstallId,
+} from "./limits.ts";
 
 // Usage-event names the app is allowed to send. Anything else is dropped on ingest.
 const ALLOWED_EVENTS = new Set([
@@ -19,11 +33,33 @@ const ALLOWED_EVENTS = new Set([
   "session_end",
 ]);
 
-const MAX_EVENTS_PER_BATCH = 200;
 const MAX_PARAMS_PER_EVENT = 8;
 const MAX_STR = 200; // generic short-string clamp (install id, names, values, device class)
 const MAX_TEXT = 2000; // recognised/expected script snippet clamp
 const MAX_NOTE = 500;
+
+const burst = new BurstLimiter();
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
+
+// Rows already stored in the last 24 h for one install and in total (served by the install_id and
+// received_at indexes from 0017_telemetry.sql). Returns null if the count could not be read.
+async function usage(
+  admin: ReturnType<typeof createClient>,
+  table: "telemetry_events" | "recognition_reports",
+  installId: string,
+): Promise<{ install: number; global: number } | null> {
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const [i, g] = await Promise.all([
+    admin.from(table).select("id", { count: "exact", head: true }).eq("install_id", installId).gte("received_at", since),
+    admin.from(table).select("id", { count: "exact", head: true }).gte("received_at", since),
+  ]);
+  if (i.error || g.error) {
+    console.error("[telemetry] usage count failed", i.error ?? g.error);
+    return null;
+  }
+  return { install: i.count ?? 0, global: g.count ?? 0 };
+}
 
 function clamp(v: unknown, max: number): string | null {
   if (typeof v !== "string") return null;
@@ -56,15 +92,27 @@ Deno.serve(async (req) => {
     return new Response("forbidden", { status: 403 });
   }
 
+  if (!burst.allow(`ip:${clientIp(req.headers)}`, BURST_PER_IP.limit, BURST_PER_IP.windowMs)) {
+    return new Response("too many requests", { status: 429, headers: { "Retry-After": "60" } });
+  }
+
+  const text = await readLimitedText(req);
+  if (text === null) return new Response("payload too large", { status: 413 });
+
   let body: Record<string, unknown>;
   try {
-    body = await req.json();
+    const parsed = JSON.parse(text);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("not an object");
+    body = parsed;
   } catch {
     return new Response("bad request", { status: 400 });
   }
 
   const installId = clamp(body.installId, 64);
-  if (!installId) return new Response("missing installId", { status: 400 });
+  if (!validInstallId(installId)) return new Response("missing or invalid installId", { status: 400 });
+  if (!burst.allow(`install:${installId}`, BURST_PER_INSTALL.limit, BURST_PER_INSTALL.windowMs)) {
+    return new Response("too many requests", { status: 429, headers: { "Retry-After": "60" } });
+  }
   const appVersion = clamp(body.appVersion, 32);
   const deviceClass = clamp(body.deviceClass, MAX_STR);
 
@@ -75,8 +123,9 @@ Deno.serve(async (req) => {
 
   try {
     if (body.type === "events") {
-      const raw = Array.isArray(body.events) ? body.events.slice(0, MAX_EVENTS_PER_BATCH) : [];
-      const rows = raw
+      const all = Array.isArray(body.events) ? body.events : [];
+      if (all.length > MAX_EVENTS_PER_BATCH) return new Response("too many events", { status: 413 });
+      const rows = all
         .map((e) => e as Record<string, unknown>)
         .filter((e) => ALLOWED_EVENTS.has(String(e?.name)))
         .map((e) => ({
@@ -86,21 +135,34 @@ Deno.serve(async (req) => {
           app_version: appVersion,
           device_class: deviceClass,
         }));
-      if (rows.length === 0) return new Response(JSON.stringify({ inserted: 0 }), { status: 200 });
-      const { error } = await admin.from("telemetry_events").insert(rows);
+      if (rows.length === 0) return json({ inserted: 0 });
+      // Over a daily cap: answer 200 with nothing stored, so the shipped app drops the batch
+      // instead of retrying it forever (it keeps rows queued on any non-2xx).
+      const used = await usage(admin, "telemetry_events", installId);
+      if (!used) return new Response("try again later", { status: 503 });
+      const room = allowedRows(rows.length, used.install, DAILY_EVENTS_PER_INSTALL, used.global, DAILY_EVENTS_GLOBAL);
+      if (room === 0) {
+        if (used.global >= DAILY_EVENTS_GLOBAL) console.warn("[telemetry] global daily event cap hit");
+        return json({ inserted: 0, dropped: "daily_cap" });
+      }
+      const { error } = await admin.from("telemetry_events").insert(rows.slice(0, room));
       if (error) {
         console.error("[telemetry] event insert failed", error);
         return new Response("insert failed", { status: 500 });
       }
-      return new Response(JSON.stringify({ inserted: rows.length }), {
-        headers: { "Content-Type": "application/json" },
-      });
+      return json({ inserted: room });
     }
 
     if (body.type === "recognition_report") {
       const kind = String(body.kind);
       if (kind !== "ocr" && kind !== "speech") return new Response("bad kind", { status: 400 });
-      const confidence = typeof body.confidence === "number" ? body.confidence : null;
+      const confidence = typeof body.confidence === "number" && Number.isFinite(body.confidence) ? body.confidence : null;
+      const used = await usage(admin, "recognition_reports", installId);
+      if (!used) return new Response("try again later", { status: 503 });
+      if (allowedRows(1, used.install, DAILY_REPORTS_PER_INSTALL, used.global, DAILY_REPORTS_GLOBAL) === 0) {
+        if (used.global >= DAILY_REPORTS_GLOBAL) console.warn("[telemetry] global daily report cap hit");
+        return json({ inserted: 0, dropped: "daily_cap" });
+      }
       const { error } = await admin.from("recognition_reports").insert({
         install_id: installId,
         kind,
@@ -116,9 +178,7 @@ Deno.serve(async (req) => {
         console.error("[telemetry] report insert failed", error);
         return new Response("insert failed", { status: 500 });
       }
-      return new Response(JSON.stringify({ inserted: 1 }), {
-        headers: { "Content-Type": "application/json" },
-      });
+      return json({ inserted: 1 });
     }
 
     return new Response("unknown type", { status: 400 });

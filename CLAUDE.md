@@ -38,4 +38,6 @@ edge functions); AI pipeline runs as GitHub Actions in the ActorsVoice repo.
 - **Workflows**: `dispatch` edge function ↔ `repository_dispatch` event names ↔
   `.github/workflows/*.yml` in ActorsVoice must stay in sync (`triage-report`,
   `implementation-plan`, `implement-pr`).
+- **Edge routing**: `worker/` (wrangler `main`, `run_worker_first`) 301s http/www/workers.dev to `https://actorslines.app`, returns real 404 for missing files (any extension, `/.well-known/*`; page routes keep the SPA fallback) and injects `<link rel="canonical">`. Logic in `worker/routing.ts`; a Worker entry may export only handlers. Tests: `npm run test:edge`.
+- **Telemetry limits**: `supabase/functions/telemetry/limits.ts` (body size, burst, daily caps counted in the DB). Over-cap batches get 200 `{inserted:0}` so the shipped app drops them.
 - Build check: `npm run build` (CI runs the same).
