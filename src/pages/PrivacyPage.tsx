@@ -94,17 +94,20 @@ export default function PrivacyPage() {
 
       <h2 className="mt-6 font-semibold">iPhone notify list (opt-in)</h2>
       <p className="text-sm text-gray-700 mt-2">
-        If you ask to be told when an iPhone version of Actors Lines is available, we
-        keep your email address for that one purpose: to send you a single email when
-        it is. We only add you if you tick the box and then confirm by clicking the
-        link in an email we send you (double opt-in). The list is stored with Supabase
-        and the emails are sent via Brevo, which process it only on our instructions.
+        An iPhone version of Actors Lines is being explored, and nothing is promised.
+        If you ask to be told if one becomes available, we keep your email address for
+        that one purpose. We send you a confirmation email first, and we only keep you
+        on the list once you have ticked the box and clicked the link in it (double
+        opt-in). If an iPhone version does become available, we will email you once
+        about it. The list is stored with Supabase and the emails are sent via Brevo,
+        which process it only on our instructions.
       </p>
       <p className="text-sm text-gray-700 mt-2">
-        We delete your address after that one email is sent, and in any case no later
-        than 12 months after you signed up. If you never confirm, it is deleted after
-        30 days. You can withdraw at any time: every email we send you has an
-        unsubscribe link, and unsubscribing deletes your address straight away.
+        We delete your address no later than 12 months after you signed up. If you
+        never confirm, it is deleted after 30 days. You can withdraw at any time: the
+        emails we send you have an unsubscribe link, and unsubscribing deletes your
+        address straight away. You can also ask us to delete it by writing to
+        hello@actorslines.app.
       </p>
 
       <h2 className="mt-6 font-semibold">How we use it</h2>
@@ -128,8 +131,8 @@ export default function PrivacyPage() {
       <h2 className="mt-6 font-semibold">Your rights</h2>
       <p className="text-sm text-gray-700 mt-2">
         You can delete your account (and all its data) yourself at any time from
-        your profile page. For access or correction requests, contact us at
-        hello@actorslines.app.
+        your profile page. For access, correction or deletion requests (including for the iPhone
+        notify list), contact us at hello@actorslines.app.
       </p>
 
       <h2 className="mt-6 font-semibold">Where your data lives</h2>

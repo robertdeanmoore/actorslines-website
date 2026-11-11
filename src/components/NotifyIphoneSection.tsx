@@ -5,7 +5,7 @@ import TurnstileWidget, { turnstileConfigured } from "./TurnstileWidget";
 
 // Must match CONSENT_TEXT in supabase/functions/notify-list/index.ts (stored as the consent record).
 const CONSENT_LABEL =
-  "Email me once when an iPhone version of Actors Lines is available. No other emails. Unsubscribe any time.";
+  "Email me a confirmation link now, then one email if an iPhone version of Actors Lines becomes available. No other emails. Unsubscribe any time.";
 
 const EMAIL_RE = /^[^\s@<>()[\]\\,;:"]+@[^\s@<>()[\]\\,;:"]+\.[A-Za-z]{2,}$/;
 
@@ -81,8 +81,8 @@ export default function NotifyIphoneSection() {
             {busy ? "Sending…" : "Notify me"}
           </button>
           <p className="mt-3 text-xs text-gray-500">
-            We store your email only for this one message and send a confirmation link first. Every
-            email has an unsubscribe link. See our <a href="/privacy" className="underline">privacy policy</a>.
+            We use your email only for this, and send a confirmation link first. You can
+            unsubscribe at any time, which deletes your address. See our <a href="/privacy" className="underline">privacy policy</a>.
           </p>
         </form>
       )}

@@ -49,6 +49,7 @@ export default function NewRequestPage() {
       if (res && typeof res.json === "function") {
         const detail = await res.json().catch(() => null);
         if (detail?.error) msg = detail.error;
+        if (/^Field "/.test(msg)) msg = "Please check the form: one of your answers is too short or too long.";
       }
       setError(msg);
       turnstileRef.current?.reset();
