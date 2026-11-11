@@ -30,7 +30,7 @@ export default function NotifyLinkPage() {
         ? "One moment…"
         : state === "ok"
           ? action === "confirm"
-            ? "Thanks, you are confirmed. We will email you once if an iPhone version becomes available. You can unsubscribe at any time using the link in our confirmation email."
+            ? "Thanks, you are confirmed. We will email you once if an iPhone version becomes available. You can unsubscribe at any time using the link in our emails. We keep your address for no more than 12 months from sign-up."
             : "You are unsubscribed and your address has been deleted. We will not email you about iPhone again."
           : action === "confirm"
             ? "Please confirm that you want to be told if an iPhone version of Actors Lines becomes available."

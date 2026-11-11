@@ -81,7 +81,7 @@ export default function NotifyIphoneSection() {
             {busy ? "Sending…" : "Notify me"}
           </button>
           <p className="mt-3 text-xs text-gray-500">
-            We use your email only for this, and send a confirmation link first. You can
+            We use your email only for this, and send a confirmation link first. If you do not confirm, we delete it after 30 days. Otherwise we keep it for up to 12 months, then delete it. You can
             unsubscribe at any time, which deletes your address. See our <a href="/privacy" className="underline">privacy policy</a>.
           </p>
         </form>
