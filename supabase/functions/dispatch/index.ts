@@ -62,8 +62,7 @@ async function sendEmail(to: string, subject: string, text: string): Promise<boo
     }),
   });
   if (!resp.ok) {
-    const detail = await resp.text().catch(() => "");
-    console.error(`[dispatch] brevo send failed subject="${subject}" status=${resp.status} body=${detail.slice(0, 300)}`);
+    console.error(`[dispatch] brevo send failed subject="${subject}" status=${resp.status}`);
   }
   return resp.ok;
 }
@@ -143,7 +142,8 @@ Deno.serve(async (req) => {
   let request_id: number | undefined;
 
   try {
-    const body = await req.json();
+    const body = await req.json().catch(() => null);
+    if (!body || typeof body !== "object") return fail(400, "Invalid request body");
     action = body.action;
     request_id = body.request_id;
     const { prompt, iteration, plan_path, turnstileToken } = body;
@@ -190,7 +190,7 @@ Deno.serve(async (req) => {
       const { data: created, error: insErr } = await admin
         .from("enhancement_requests").insert({ author_id: user.id, ...clean }).select("id").single();
       if (insErr || !created) {
-        console.error("[dispatch] request insert failed", insErr);
+        console.error(`[dispatch] request insert failed code=${insErr?.code ?? "unknown"}`);
         return fail(500, "Could not save your suggestion");
       }
 

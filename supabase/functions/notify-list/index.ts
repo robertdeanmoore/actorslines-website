@@ -18,7 +18,7 @@ const ALLOWED_ORIGINS = new Set(["https://actorslines.app", "https://www.actorsl
 
 // The exact wording shown beside the form; stored with each row as the record of consent.
 const CONSENT_TEXT =
-  "Email me once when an iPhone version of Actors Lines is available. No other emails. Unsubscribe any time.";
+  "Email me a confirmation link now, then one email if an iPhone version of Actors Lines becomes available. No other emails. Unsubscribe any time.";
 
 const MAX_EMAIL = 254;
 // Pragmatic format check; the confirmation email is the real proof the address works.
@@ -105,7 +105,8 @@ Deno.serve(async (req) => {
   if (req.method !== "POST") return fail(405, "Method not allowed");
 
   try {
-    const body = await req.json();
+    const body = await req.json().catch(() => null);
+    if (!body || typeof body !== "object") return fail(400, "Invalid request body");
     const admin = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,

@@ -28,7 +28,7 @@ grant select on public.notify_signups to authenticated;      -- policy above lim
 -- Housekeeping (Arch-Std 47). PROPOSED retention, awaiting Robert's confirmation: unconfirmed
 -- sign-ups deleted after 30 days; any address deleted no later than 12 months after sign-up
 -- (the announcement-sent deletion is done by the announcement job, not here).
--- Service-role only; scheduling from the daily `lifecycle` job is a separate follow-up row.
+-- Service-role only; scheduled from the daily `lifecycle` job (redeploy it after this migration).
 create function public.purge_notify_signups()
 returns integer language plpgsql security definer set search_path = '' as $$
 declare n integer;

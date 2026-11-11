@@ -54,6 +54,7 @@ Deno.serve(async (req) => {
     warned1: 0, warned2: 0, deleted: 0, errors: 0,
     compExtended: 0, compErrors: 0,
     licence1moWarned: 0, licence1wkWarned: 0, licenceWarnErrors: 0,
+    notifyPurged: 0, notifyPurgeErrors: 0,
   };
 
   // Box Office: comp_rolling licences are rolling, not perpetual (golden principle #1, rules.md)
@@ -172,6 +173,16 @@ Deno.serve(async (req) => {
       console.error(`[lifecycle] failed processing profile id=${p.id} email=${email}`, e);
       summary.errors++;
     }
+  }
+
+  // iPhone notify list (WIP #257): delete signups past their retention window
+  // (12 months, or 30 days if never confirmed). public.purge_notify_signups() is service_role only.
+  const { data: purged, error: purgeErr } = await admin.rpc("purge_notify_signups");
+  if (purgeErr) {
+    console.error(`[lifecycle] notify purge failed code=${purgeErr.code ?? "unknown"}`);
+    summary.notifyPurgeErrors++;
+  } else {
+    summary.notifyPurged = typeof purged === "number" ? purged : 0;
   }
 
   console.log("[lifecycle] run complete", summary);
