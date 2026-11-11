@@ -212,20 +212,52 @@ never touches any repo or CI** — it lives only in your password manager and as
 
 ---
 
-## WIP #257 Phase 1 additions (enhancement-intake hardening, iPhone notify list)
+## WIP #257 Phase 1 additions: enhancement-intake hardening and iPhone notify list (backend, PR-A)
 
-Migrations `0024_request_intake_hardening.sql` and `0025_notify_signups.sql` are written but
-NOT applied: gated review (Holly) and Robert's sign-off first. Apply 0024 and 0025 together
-with the function deploys, in this order: `supabase db push`, then
-`supabase functions deploy dispatch notify-list`.
+**Merging this PR to `main` deploys the website** (Cloudflare builds `main`). PR-A has no site
+changes, so the live site does not change. The migrations and functions are NOT deployed by the
+merge; they are separate gated steps, in this exact order. Holly/Slog review and Robert's
+sign-off come first (data-risk sign-off for the migrations).
 
-New Supabase function secrets (`supabase secrets set NAME=...`; values never in git):
-- `REQUEST_NOTIFY_EMAIL`: inbox that receives "new enhancement request" emails. If unset the
-  email is skipped (logged) and requests still save.
-- `IP_HASH_SALT`: random string; salts the stored IP hash for the notify list rate limit.
-- Already present and reused: `TURNSTILE_SECRET_KEY`, `BREVO_API_KEY`, `MAIL_FROM`,
-  `GH_DISPATCH_TOKEN`, `GH_REPO`.
+1. **Set the secrets first** (`supabase secrets set NAME=value`; values never in git). Both are
+   required before the functions are deployed:
+   - `REQUEST_NOTIFY_EMAIL`: inbox that receives "new enhancement request" emails (Robert to
+     name it). If unset, `dispatch` skips the email (logged) and the request still saves.
+   - `IP_HASH_SALT`: long random string. Salts the IP hash used only as a rate-limit bucket
+     name. If unset, `notify-list` fails closed to one shared bucket (a stricter, global limit);
+     it never hashes without a salt.
+   - Already present and reused: `TURNSTILE_SECRET_KEY`, `BREVO_API_KEY`, `MAIL_FROM`,
+     `GH_DISPATCH_TOKEN`, `GH_REPO`.
+2. **Apply migrations** `0024_request_intake_hardening.sql` then `0025_notify_signups.sql`:
+   `supabase db push`. Both are additive. The existing client insert policy `requests_insert`
+   is NOT touched here, so the live "new request" form keeps working.
+3. **Deploy the functions**: `supabase functions deploy dispatch` (existing function; the old
+   actions and the old direct-insert path behave as before, `submit-request` is new), then
+   `supabase functions deploy notify-list`. The FIRST deploy of `notify-list` must be this CLI
+   route, not the dashboard. Explicit `verify_jwt` decision: leave it ON (the default; do not pass
+   `--no-verify-jwt`). The site calls it with `supabase.functions.invoke`, which sends the anon
+   key as the bearer token, so signed-out visitors pass and random internet traffic is dropped
+   at the gateway. The function itself still enforces Turnstile, rate limits and tokens.
+4. **Slog checks** (read-only unless noted; against live after step 3):
+   - S1: `dispatch` `submit-request` without a Turnstile token returns 403 and saves nothing.
+   - S2: `submit-request` with a valid token and valid fields saves one row, sends the email to
+     `REQUEST_NOTIFY_EMAIL`, and starts triage.
+   - S3: a 4th `submit-request` inside an hour (non-admin) returns 429.
+   - S4: `notify-list` `subscribe` for a new and an already-listed address returns the same
+     response and timing class (no probing); invalid email 400; no consent 400.
+   - S5: the confirmation email arrives; `confirm` sets `confirmed_at`; a malformed or unknown
+     token returns 400/404.
+   - S6: `unsubscribe` DELETES the row (row count for that token is 0 afterwards).
+   - S7: `notify_signups` has no IP column and no row holds an IP; anon/authenticated cannot
+     read or write it (only admins can select).
+   - S8: with `IP_HASH_SALT` unset in a test project, `subscribe` still works and uses the
+     shared bucket (`notify-ip:shared` in `rate_limit_events`), never an unsalted hash.
+   - S9: read-only check, rows over any length limit (must return 0 before `0026` is pushed by
+     the site PR): `select count(*) from public.enhancement_requests where char_length(goal) > 2000 or char_length(where_in_app) > 300 or char_length(how_it_works) > 2000 or char_length(usage_frequency) > 100 or char_length(extra_notes) > 2000;`
+   (S1-S9 here are Derek's reconstruction of Holly's list; Holly to confirm or replace.)
 
-Follow-ups: call `select public.purge_unconfirmed_notify()` from the daily `lifecycle` job;
-privacy policy must mention the notify list (WIP #257 row 3.5); then run the
-`VALIDATE CONSTRAINT` statements commented in 0024.
+Follow-ups, not in this PR: scheduling `select public.purge_notify_signups()` from the daily
+`lifecycle` job (separate Holly-tier row); the site PR-B (`feature/wip257-intake-notify-site`),
+which switches the form to `submit-request`, adds the notify-list UI and privacy paragraph, and
+carries migration `0026` that drops `requests_insert` and validates the length constraints.
+Merge PR-B only after steps 1-3 are live and Slog's S1-S9 pass.

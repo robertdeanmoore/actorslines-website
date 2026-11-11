@@ -24,7 +24,6 @@ import AdminInvitesPage from "./pages/admin/AdminInvitesPage";
 import AdminLicencesPage from "./pages/admin/AdminLicencesPage";
 import AdminUserLicencesPage from "./pages/admin/AdminUserLicencesPage";
 import TelemetryPage from "./pages/admin/TelemetryPage";
-import NotifyLinkPage from "./pages/NotifyLinkPage";
 import LearnScriptsPage from "./pages/learn-lines/LearnScriptsPage";
 import LearnPracticePage from "./pages/learn-lines/LearnPracticePage";
 
@@ -38,7 +37,6 @@ export default function App() {
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/notify/:action/:token" element={<NotifyLinkPage />} />
         <Route path="/invite/:token" element={<AcceptInvitePage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/update-password" element={<UpdatePasswordPage />} />

@@ -263,6 +263,6 @@ Deno.serve(async (req) => {
     });
   } catch (e) {
     console.error(`[dispatch] unhandled error action=${action ?? "unknown"} request_id=${request_id ?? "unknown"}`, e);
-    return fail(500, e instanceof Error ? e.message : "Unexpected error");
+    return fail(500, "Unexpected error");
   }
 });

@@ -5,10 +5,11 @@
 //        Stores an UNCONFIRMED row and emails a confirm link (double opt-in). The response is the
 //        same whether or not the address was already known, so it cannot be used to probe the list.
 //   { "action": "confirm",     "token": "<uuid>" }       link in the confirmation email
-//   { "action": "unsubscribe", "token": "<uuid>" }       link in the confirmation email
+//   { "action": "unsubscribe", "token": "<uuid>" }       link in the confirmation email; DELETES the row
 //
 // Secrets: TURNSTILE_SECRET_KEY, BREVO_API_KEY, MAIL_FROM (as invite/lifecycle),
-//          IP_HASH_SALT (random string; salts the stored IP hash).
+//          IP_HASH_SALT (random string; salts the IP hash used only as a rate-limit bucket name,
+//          never stored on a sign-up row). If unset the per-IP limit fails closed to one shared bucket.
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
@@ -74,14 +75,20 @@ async function sendEmail(to: string, subject: string, text: string): Promise<boo
     }),
   });
   if (!resp.ok) {
-    const detail = await resp.text().catch(() => "");
-    console.error(`[notify-list] brevo send failed status=${resp.status} body=${detail.slice(0, 300)}`);
+    // Status only: the provider's response body can echo the recipient address.
+    console.error(`[notify-list] brevo send failed status=${resp.status}`);
   }
   return resp.ok;
 }
 
-async function hashIp(ip: string): Promise<string> {
-  const data = new TextEncoder().encode(`${Deno.env.get("IP_HASH_SALT") ?? ""}|${ip}`);
+/** Salted IP hash for the rate-limit bucket name. Without a salt, never hash (fixed shared bucket). */
+async function ipBucketKey(ip: string): Promise<string> {
+  const salt = Deno.env.get("IP_HASH_SALT");
+  if (!salt || !ip) {
+    if (!salt) console.error("[notify-list] IP_HASH_SALT not configured: using one shared rate-limit bucket");
+    return "shared";
+  }
+  const data = new TextEncoder().encode(`${salt}|${ip}`);
   const digest = await crypto.subtle.digest("SHA-256", data);
   return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
@@ -107,12 +114,14 @@ Deno.serve(async (req) => {
     if (body.action === "confirm" || body.action === "unsubscribe") {
       const token = typeof body.token === "string" ? body.token : "";
       if (!UUID_RE.test(token)) return fail(400, "Invalid link");
-      const patch = body.action === "confirm"
-        ? { confirmed_at: new Date().toISOString(), unsubscribed_at: null }
-        : { unsubscribed_at: new Date().toISOString() };
-      const { data, error } = await admin
-        .from("notify_signups").update(patch).eq("token", token).select("id");
-      if (error) return fail(500, "Could not update");
+      const { data, error } = body.action === "confirm"
+        ? await admin.from("notify_signups").update({ confirmed_at: new Date().toISOString() })
+          .eq("token", token).select("id")
+        : await admin.from("notify_signups").delete().eq("token", token).select("id");
+      if (error) {
+        console.error(`[notify-list] ${body.action} failed code=${error.code ?? "unknown"}`);
+        return fail(500, "Could not update");
+      }
       if (!data || data.length === 0) return fail(404, "This link is not valid any more");
       return json(200, { ok: true });
     }
@@ -130,29 +139,31 @@ Deno.serve(async (req) => {
       return fail(403, "Captcha verification failed");
     }
 
-    const ipHash = ip ? await hashIp(ip) : "unknown";
+    const ipKey = await ipBucketKey(ip);
     const limitOk = async (bucket: string, max: number) => {
       const { data, error } = await admin.rpc("rate_limit_hit", { p_bucket: bucket, p_max: max, p_window: "1 hour" });
       if (error) console.error("[notify-list] rate_limit_hit failed", error);
       return !error && data === true;
     };
-    if (!(await limitOk(`notify-ip:${ipHash}`, PER_IP_PER_HOUR)) || !(await limitOk("notify-global", GLOBAL_PER_HOUR))) {
+    if (!(await limitOk(`notify-ip:${ipKey}`, PER_IP_PER_HOUR)) || !(await limitOk("notify-global", GLOBAL_PER_HOUR))) {
       return fail(429, "Too many sign-ups right now. Please try again later.");
     }
 
     // Insert; if the address is already on the list, do nothing visible (no probing).
     const { data: inserted, error: insErr } = await admin
       .from("notify_signups")
-      .insert({ email, consent_text: CONSENT_TEXT, ip_hash: ipHash })
+      .insert({ email, consent_text: CONSENT_TEXT })
       .select("token")
       .single();
     if (insErr && insErr.code !== "23505") {
-      console.error("[notify-list] insert failed", insErr);
+      console.error(`[notify-list] insert failed code=${insErr.code ?? "unknown"}`);
       return fail(500, "Could not save your address");
     }
     if (inserted) {
       const base = `${SITE_URL}/notify`;
-      await sendEmail(
+      // Not awaited (so a new and an already-known address answer in the same time);
+      // waitUntil keeps the isolate alive until the send finishes.
+      const send = sendEmail(
         email,
         "Confirm: tell me when Actors Lines is on iPhone",
         `Someone (hopefully you) asked to be told when Actors Lines is available on iPhone.\n\n` +
@@ -160,11 +171,12 @@ Deno.serve(async (req) => {
         `To confirm, open: ${base}/confirm/${inserted.token}\n\n` +
         `If this was not you, ignore this email and nothing more will be sent.\n` +
         `To remove your address at any time: ${base}/unsubscribe/${inserted.token}\n\n- Actors Lines`,
-      ).catch((e) => console.error("[notify-list] confirm email threw", e));
+      ).catch(() => console.error("[notify-list] confirm email threw"));
+      (globalThis as { EdgeRuntime?: { waitUntil(p: Promise<unknown>): void } }).EdgeRuntime?.waitUntil(send);
     }
     return json(200, { ok: true });
   } catch (e) {
-    console.error("[notify-list] unhandled error", e);
+    console.error("[notify-list] unhandled error", e instanceof Error ? e.name : "unknown");
     return fail(500, "Unexpected error");
   }
 });
