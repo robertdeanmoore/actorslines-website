@@ -209,3 +209,23 @@ never touches any repo or CI** — it lives only in your password manager and as
 8. Smoke test: sign in on the live site, open the browser console, and run
    `await fetch(import.meta.env.VITE_SUPABASE_URL + "/functions/v1/entitlement-token", { method: "POST", headers: { Authorization: "Bearer " + (await supabase.auth.getSession()).data.session.access_token } }).then(r => r.json())`
    — should return `{ token, ent, token_exp }` with no error.
+
+---
+
+## WIP #257 Phase 1 additions (enhancement-intake hardening, iPhone notify list)
+
+Migrations `0024_request_intake_hardening.sql` and `0025_notify_signups.sql` are written but
+NOT applied: gated review (Holly) and Robert's sign-off first. Apply 0024 and 0025 together
+with the function deploys, in this order: `supabase db push`, then
+`supabase functions deploy dispatch notify-list`.
+
+New Supabase function secrets (`supabase secrets set NAME=...`; values never in git):
+- `REQUEST_NOTIFY_EMAIL`: inbox that receives "new enhancement request" emails. If unset the
+  email is skipped (logged) and requests still save.
+- `IP_HASH_SALT`: random string; salts the stored IP hash for the notify list rate limit.
+- Already present and reused: `TURNSTILE_SECRET_KEY`, `BREVO_API_KEY`, `MAIL_FROM`,
+  `GH_DISPATCH_TOKEN`, `GH_REPO`.
+
+Follow-ups: call `select public.purge_unconfirmed_notify()` from the daily `lifecycle` job;
+privacy policy must mention the notify list (WIP #257 row 3.5); then run the
+`VALIDATE CONSTRAINT` statements commented in 0024.
