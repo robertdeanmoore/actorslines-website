@@ -94,3 +94,24 @@ test("/callback success pins postMessage to the allowlisted origin", async () =>
     globalThis.fetch = realFetch;
   }
 });
+
+test("/callback with malformed percent-encoding in origin cookie returns 403, not a throw", async () => {
+  const r = await worker.fetch(
+    new Request(`${base}/callback?code=c&state=s1`, {
+      headers: { Cookie: "__Host-oauth_state=s1; __Host-oauth_origin=%E0%A4%A" },
+    }),
+    env,
+  );
+  assert.equal(r.status, 403);
+});
+
+test("/callback error responses clear both flow cookies", async () => {
+  const r = await worker.fetch(
+    new Request(`${base}/callback?code=c&state=bbb`, { headers: { Cookie: "__Host-oauth_state=aaa" } }),
+    env,
+  );
+  assert.equal(r.status, 400);
+  const cookies = r.headers.getSetCookie().join("\n");
+  assert.match(cookies, /__Host-oauth_state=; .*Max-Age=0/);
+  assert.match(cookies, /__Host-oauth_origin=; .*Max-Age=0/);
+});

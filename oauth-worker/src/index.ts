@@ -1,4 +1,4 @@
-// GitHub OAuth proxy for Decap CMS (public/admin/config.yml's `backend.base_url`).
+// GitHub OAuth proxy for Decap CMS (public/cms/config.yml's `backend.base_url`).
 // Decap's GitHub backend needs a server to hold the OAuth client secret and complete
 // the authorization-code exchange — this is that server, deployed as its own small
 // Cloudflare Worker (kept separate from the main site's asset-only Worker).
@@ -60,6 +60,13 @@ function clearCookies(headers: Headers): void {
   }
 }
 
+/** Callback failure: plain-text body, and both flow cookies cleared so a retry starts clean. */
+function callbackError(message: string, status: number): Response {
+  const headers = new Headers({ "Content-Type": "text/plain; charset=utf-8" });
+  clearCookies(headers);
+  return new Response(message, { status, headers });
+}
+
 function readCookie(request: Request, name: string): string | null {
   const match = request.headers.get("Cookie")?.match(new RegExp(`(?:^|; )${name}=([^;]+)`));
   return match ? match[1] : null;
@@ -98,14 +105,19 @@ export default {
       const state = url.searchParams.get("state");
       const expectedState = readCookie(request, STATE_COOKIE);
       if (!code || !state || !expectedState || !timingSafeEqual(state, expectedState)) {
-        return new Response("Invalid or missing OAuth state.", { status: 400 });
+        return callbackError("Invalid or missing OAuth state.", 400);
       }
       // Origin was validated at /auth and travels in a Host-bound cookie; re-check it
       // against the allowlist before any token is requested or sent.
       const cookieOrigin = readCookie(request, ORIGIN_COOKIE);
-      const targetOrigin = cookieOrigin ? decodeURIComponent(cookieOrigin) : null;
+      let targetOrigin: string | null = null;
+      try {
+        targetOrigin = cookieOrigin ? decodeURIComponent(cookieOrigin) : null;
+      } catch {
+        // malformed percent-encoding in the cookie: treat as a forbidden origin
+      }
       if (!targetOrigin || !ALLOWED_ORIGINS.includes(targetOrigin)) {
-        return new Response("Forbidden origin.", { status: 403 });
+        return callbackError("Forbidden origin.", 403);
       }
 
       const tokenResp = await fetch("https://github.com/login/oauth/access_token", {
@@ -119,9 +131,9 @@ export default {
       });
       const tokenData = (await tokenResp.json()) as TokenResponse;
       if (!tokenData.access_token) {
-        return new Response(
+        return callbackError(
           `GitHub token exchange failed: ${tokenData.error_description ?? tokenData.error ?? "unknown error"}`,
-          { status: 502 },
+          502,
         );
       }
 
