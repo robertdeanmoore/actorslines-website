@@ -6,7 +6,7 @@ enhancement-request pipeline backed by AI triage.
 
 - **Frontend**: React + Vite + TypeScript + Tailwind, deployed as static assets on
   Cloudflare Workers (`wrangler.jsonc`) — live at
-  https://actorslines-website.robertdeanmoore.workers.dev, moving to actorslines.app.
+  https://actorslines.app (also reachable at https://actorslines-website.robertdeanmoore.workers.dev).
 - **Backend**: Supabase (auth incl. TOTP 2FA, Postgres with row-level security,
   edge functions).
 - **AI pipeline**: GitHub Actions in the (private) ActorsVoice app repository run

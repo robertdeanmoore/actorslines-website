@@ -1,7 +1,7 @@
 # CLAUDE.md
 
 Website for the Actors Lines Android app (repo: `../ActorsVoice`). React + Vite + TS +
-Tailwind SPA on Cloudflare Pages; Supabase backend (auth with TOTP 2FA, Postgres + RLS,
+Tailwind SPA on Cloudflare Workers (static assets, `wrangler.jsonc`); Supabase backend (auth with TOTP 2FA, Postgres + RLS,
 edge functions); AI pipeline runs as GitHub Actions in the ActorsVoice repo.
 
 - **The setup state of truth** is `SETUP.md` (which external services are wired yet) and
