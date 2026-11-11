@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
+import NotifyIphoneSection from "../components/NotifyIphoneSection";
 
 const features = [
   ["Import any script", "Scan a paper script with your camera or import a PDF — Actors Lines reads it on your device and builds your scenes, characters and lines automatically."],
@@ -58,6 +59,8 @@ export default function LandingPage() {
           and watch the best ones get built.
         </p>
       </section>
+
+      <NotifyIphoneSection />
     </div>
   );
 }
