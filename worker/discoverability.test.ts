@@ -92,6 +92,9 @@ test("llms.txt: no claims the website contradicts (scripts on device only, on-de
   assert.doesNotMatch(txt, /synthetic/i);
   assert.match(txt, /Learn Lines[^.]*server/i);
   assert.match(txt, /speech service/i);
+  assert.match(txt, /Scripts you add in the app stay on your phone/);
+  assert.doesNotMatch(txt, /natural voices/i);
+  assert.match(txt, /computer-generated voices/);
 });
 
 test("routeMeta: /privacy, /terms, /login, /register have their own description", () => {

@@ -1,10 +1,10 @@
 # Actors Lines
 
-> Actors Lines is an Android app for actors learning their lines. You scan or import your script and practise on your phone, and in the app your scripts are stored on your phone. The website's Learn Lines tool stores the scripts you upload on our server.
+> Actors Lines is an Android app for actors learning their lines. You scan or import your script and practise on your phone. Scripts you add in the app stay on your phone. The website's Learn Lines tool stores scripts you upload on our server.
 
 What the app does:
 - Imports a script by scanning paper pages with the camera or from a PDF, and builds the scenes, characters and lines.
-- Practise a scene with the other parts read aloud in natural voices, or in recordings of your own, while you play your part. Hide your lines until you say them.
+- Practise a scene with the other parts read aloud by computer-generated voices, or in recordings of your own, while you play your part. Hide your lines until you say them.
 - Run cue to cue, loop difficult sections, and see an accuracy score for each line you say. Speech may be processed by your phone's speech service.
 - Selftape mode: record cue lines in your own voice for self-tapes and practice runs.
 - Progress tracking: accuracy heat-maps by line and scene.
