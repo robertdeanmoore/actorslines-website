@@ -1,5 +1,4 @@
-/* Fonts in /fonts are self-hosted OFL (see public/fonts/README.md).
-   Inert until a rule uses the "Sora"/"Inter" families; the Google imports in index.css stay until slice 1. */
+/* Fonts in /fonts are self-hosted OFL (see public/fonts/README.md). No third-party font request is made. */
 @font-face {
   font-family: "Sora";
   src: url("/fonts/sora-latin-wght.woff2") format("woff2");
@@ -43,4 +42,43 @@
   font-display: swap;
   font-weight: 400 500;
   unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+/* Literata: Learn Lines script text only (.paperkit-script). Never preloaded. */
+@font-face {
+  font-family: "Literata";
+  src: url("/fonts/literata-latin-wght.woff2") format("woff2");
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400 600;
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+@font-face {
+  font-family: "Literata";
+  src: url("/fonts/literata-latin-italic-wght.woff2") format("woff2");
+  font-style: italic;
+  font-display: swap;
+  font-weight: 400;
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+/* Fallback faces: a local Arial-metric face scaled to match Inter / Sora, so the swap to the web
+   font does not shift layout. Numbers and method: public/fonts/README.md "Fallback metrics". */
+@font-face {
+  font-family: "Inter Fallback";
+  src: local("Arial"), local("Liberation Sans"), local("Arimo");
+  size-adjust: 107.12%;
+  ascent-override: 90.44%;
+  descent-override: 22.52%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Sora Fallback";
+  src: local("Arial"), local("Liberation Sans"), local("Arimo");
+  size-adjust: 115.97%;
+  ascent-override: 83.64%;
+  descent-override: 25.01%;
+  line-gap-override: 0%;
 }
