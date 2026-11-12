@@ -7,6 +7,16 @@ export const VIDEO_PRIVACY_NOTE = "Plays from YouTube when you press play. YouTu
 const VIDEO_ID = /^[A-Za-z0-9_-]{11}$/;
 const LOAD_TIMEOUT_MS = 10000;
 
+/**
+ * Minimal iframe sandbox for the YouTube player (Holly C-1). The player needs scripts and its own
+ * origin (allow-same-origin); allow-presentation covers the player's presentation controls; the two
+ * popup tokens let the "YouTube" logo and share links open a tab that is not itself sandboxed.
+ * Omitted on purpose: top-navigation, forms, modals, downloads, pointer-lock. Fullscreen is granted by
+ * the allow/allowFullScreen attributes, not by sandbox tokens.
+ */
+export const PLAYER_SANDBOX =
+  "allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox";
+
 export function isValidVideoId(id: string): boolean {
   return VIDEO_ID.test(id);
 }
@@ -60,6 +70,7 @@ export default function LiteYouTube({
             className="al-lite__iframe"
             src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0`}
             title={title}
+            sandbox={PLAYER_SANDBOX}
             allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
             allowFullScreen
             referrerPolicy="strict-origin-when-cross-origin"

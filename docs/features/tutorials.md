@@ -7,7 +7,7 @@
 **Key files**
 - `src/content/tutorials.ts`: the typed `TUTORIALS` array. One object per video; this is the only file to edit to add a video.
 - `src/pages/TutorialsPage.tsx`: list/grid, optional category groups, empty state.
-- `src/components/tutorials/LiteYouTube.tsx`: click-to-load player. No request to YouTube until the play button is pressed; only `youtube-nocookie.com` is used; poster is self-hosted.
+- `src/components/tutorials/LiteYouTube.tsx`: click-to-load player. No request to YouTube until the play button is pressed; only `youtube-nocookie.com` is used; poster is self-hosted. The player iframe is sandboxed (`PLAYER_SANDBOX`: scripts, same-origin, presentation, popups only; no top navigation, forms or downloads).
 - `src/styles/tutorials.css`, `src/styles/lite-youtube.css`: styling, tokens only.
 - `src/components/Layout.tsx`: night-only nav entry.
 
