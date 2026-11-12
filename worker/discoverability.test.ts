@@ -85,6 +85,25 @@ test("llms.txt: plain description, no prices, no version, no Rehearse, only cano
   for (const u of urls) assert.ok(sitemap.includes(`<loc>${u}</loc>`), `${u} is a sitemap page`);
 });
 
+test("llms.txt: no claims the website contradicts (scripts on device only, on-device speech, synthetic cast)", () => {
+  const txt = pub("llms.txt");
+  assert.doesNotMatch(txt, /scripts stay on your phone/i);
+  assert.doesNotMatch(txt, /on-device speech/i);
+  assert.doesNotMatch(txt, /synthetic/i);
+  assert.match(txt, /Learn Lines[^.]*server/i);
+  assert.match(txt, /speech service/i);
+});
+
+test("routeMeta: /privacy, /terms, /login, /register have their own description", () => {
+  const kb = () => undefined;
+  for (const p of ["/privacy", "/terms", "/login", "/register"]) {
+    const m = routeMeta(p, kb);
+    assert.notEqual(m.description, DEFAULT_DESCRIPTION, p);
+    assert.ok(m.description.length > 10, p);
+    assert.doesNotMatch(m.description, /[£$€]\s?\d|rehears/i, p);
+  }
+});
+
 test("routeMeta: site defaults, static routes, KB articles", () => {
   const kb = (slug: string) => (slug === "demo" ? { title: "Demo article", summary: "A summary." } : undefined);
   assert.deepEqual(routeMeta("/", kb), { title: DEFAULT_TITLE, description: DEFAULT_DESCRIPTION });

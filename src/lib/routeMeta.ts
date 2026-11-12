@@ -19,10 +19,22 @@ const STATIC_META: Record<string, Partial<RouteMeta>> = {
     title: `Knowledge base${SUFFIX}`,
     description: "Line-learning technique, and getting the most from Actors Lines.",
   },
-  "/privacy": { title: `Privacy Policy${SUFFIX}` },
-  "/terms": { title: `Terms of Use${SUFFIX}` },
-  "/login": { title: `Sign in${SUFFIX}` },
-  "/register": { title: `Create your account${SUFFIX}` },
+  "/privacy": {
+    title: `Privacy Policy${SUFFIX}`,
+    description: "What information Actors Lines collects, how it is used, and the choices you have.",
+  },
+  "/terms": {
+    title: `Terms of Use${SUFFIX}`,
+    description: "The terms for using the Actors Lines app and website.",
+  },
+  "/login": {
+    title: `Sign in${SUFFIX}`,
+    description: "Sign in to your Actors Lines account.",
+  },
+  "/register": {
+    title: `Create your account${SUFFIX}`,
+    description: "Create an Actors Lines account.",
+  },
   "/tutorials": { title: `Tutorials${SUFFIX}` },
 };
 
