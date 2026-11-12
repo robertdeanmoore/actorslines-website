@@ -14,8 +14,9 @@ export function nightThemeRequested(
   search: string,
   envTheme: string | undefined,
 ): boolean {
-  if (envTheme === "night") return true;
+  // Production hosts never go night, whatever the build env or query says (checked first).
   if (PRODUCTION_HOSTS.has(hostname.toLowerCase())) return false;
+  if (envTheme === "night") return true;
   return new URLSearchParams(search).get("theme") === "night";
 }
 
