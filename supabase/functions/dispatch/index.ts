@@ -21,6 +21,7 @@
 //                          the email is skipped with a log line; the request still saves.
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { captchaRequired, TRIAGE_REQUEST_WINDOW, triageRequestBucket } from "./policy.ts";
 
 const ALLOWED_ACTIONS = ["submit-request", "triage-report", "implementation-plan", "implement-pr"];
 const SITE_URL = "https://actorslines.app";
@@ -227,13 +228,20 @@ Deno.serve(async (req) => {
     if (action === "triage-report") {
       // The submitting user may trigger triage on their own request; admin on any.
       if (!isAdmin && request.author_id !== user.id) return fail(403, "Not your request");
-      const captchaOk = await verifyTurnstile(
-        turnstileToken,
-        req.headers.get("cf-connecting-ip") ?? undefined,
-      );
-      if (!captchaOk) return fail(403, "Captcha verification failed");
+      // Admins are authenticated by JWT plus the server-side role lookup above, so they skip
+      // the captcha here (the admin page has no Turnstile widget). Everyone else still needs it.
+      if (captchaRequired(action!, isAdmin)) {
+        const captchaOk = await verifyTurnstile(
+          turnstileToken,
+          req.headers.get("cf-connecting-ip") ?? undefined,
+        );
+        if (!captchaOk) return fail(403, "Captcha verification failed");
+      }
       if (!isAdmin && !(await rateLimitOk(admin, `triage-h:${user.id}`, TRIAGE_PER_HOUR, "1 hour")))
         return fail(429, "Too many triage requests. Please try again later.");
+      // Duplicate-run guard: one manual run per request per window. Released below if GitHub refuses.
+      if (!(await rateLimitOk(admin, triageRequestBucket(request_id!), 1, TRIAGE_REQUEST_WINDOW)))
+        return fail(429, "A triage run was started for this request a few minutes ago. Wait 5 minutes, then try again.");
     } else {
       if (!isAdmin) return fail(403, "Admin only");
     }
@@ -254,6 +262,11 @@ Deno.serve(async (req) => {
     if (!ghResp.ok) {
       const detail = await ghResp.text().catch(() => "");
       console.error(`[dispatch] github dispatch failed action=${action} request_id=${request_id} status=${ghResp.status} body=${detail.slice(0, 500)}`);
+      if (action === "triage-report") {
+        // The run never started, so free the duplicate-guard slot for an immediate retry.
+        await admin.from("rate_limit_events").delete().eq("bucket", triageRequestBucket(request_id!))
+          .then(({ error }) => { if (error) console.error("[dispatch] guard release failed", error); });
+      }
       return fail(502, `GitHub dispatch failed: ${ghResp.status}`);
     }
 

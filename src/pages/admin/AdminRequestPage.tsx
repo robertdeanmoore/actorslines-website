@@ -21,6 +21,13 @@ export default function AdminRequestPage() {
   const [planPrompt, setPlanPrompt] = useState("");
   const [adminReply, setAdminReply] = useState("");
   const [flash, setFlash] = useState("");
+  const [flashIsError, setFlashIsError] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  function showFlash(msg: string, isError = false) {
+    setFlash(msg);
+    setFlashIsError(isError);
+  }
 
   async function load() {
     const rid = Number(id);
@@ -51,20 +58,35 @@ export default function AdminRequestPage() {
   }
 
   async function dispatch(body: Record<string, unknown>) {
-    setFlash("Dispatching to GitHub…");
-    const { error } = await supabase.functions.invoke("dispatch", { body });
-    setFlash(error ? `Dispatch failed: ${error.message}` : "Workflow started — results appear here in a few minutes.");
+    if (busy) return;
+    setBusy(true);
+    showFlash("Starting...");
+    try {
+      const { error } = await supabase.functions.invoke("dispatch", { body });
+      if (error) {
+        let msg = error.message;
+        try {
+          const j = await (error as { context?: Response }).context?.json();
+          if (j?.error) msg = j.error;
+        } catch {}
+        showFlash(`Dispatch failed: ${msg}`, true);
+      } else {
+        showFlash("Started: the report will appear in a few minutes. Refresh this page to see it.");
+      }
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function publishSummary() {
     if (!summaryDraft.trim()) return;
     if (post) {
       await supabase.from("board_posts").update({ summary: summaryDraft.trim() }).eq("id", post.id);
-      setFlash("Board summary updated.");
+      showFlash("Board summary updated.");
     } else {
       await supabase.from("board_posts").insert({ request_id: Number(id), summary: summaryDraft.trim() });
       await setStatus("published");
-      setFlash("Published to the board.");
+      showFlash("Published to the board.");
     }
     await load();
   }
@@ -123,7 +145,11 @@ export default function AdminRequestPage() {
           <h1 className="flex-1 text-xl font-bold">#{request.id} {request.title}</h1>
           <StatusBadge status={request.status} />
         </div>
-        {flash && <p className="mt-2 text-sm text-brand">{flash}</p>}
+        {flash && (
+          <p role="status" className={`mt-2 text-sm ${flashIsError ? "text-red-700" : "text-brand"}`}>
+            {flash}
+          </p>
+        )}
         <dl className="mt-4 space-y-2 text-sm">
           {([["Goal", request.goal], ["Where", request.where_in_app],
              ["How", request.how_it_works], ["Frequency", request.usage_frequency],
@@ -136,8 +162,9 @@ export default function AdminRequestPage() {
         </dl>
         <div className="mt-4 flex flex-wrap gap-2">
           <button onClick={() => dispatch({ action: "triage-report", request_id: Number(id) })}
-            className={`${btn} bg-blue-100 text-blue-800 hover:bg-blue-200`}>
-            {report ? "Re-run AI report" : "Run AI report"}
+            disabled={busy}
+            className={`${btn} bg-blue-100 text-blue-800 hover:bg-blue-200 disabled:opacity-50 disabled:cursor-not-allowed`}>
+            {busy ? "Starting..." : report ? "Re-run AI report" : "Run AI report"}
           </button>
           <button onClick={() => setStatus("closed")} className={`${btn} bg-gray-200 hover:bg-gray-300`}>Close</button>
           <button onClick={() => setStatus("rejected")} className={`${btn} bg-red-100 text-red-800 hover:bg-red-200`}>Reject</button>

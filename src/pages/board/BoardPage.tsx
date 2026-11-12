@@ -37,7 +37,7 @@ export default function BoardPage() {
         <h1 className="text-2xl font-bold text-brand">Enhancement board</h1>
         <Link to="/requests/new"
           className="rounded-md bg-brand text-white px-4 py-2 text-sm font-semibold hover:bg-brand-light">
-          + Suggest one
+          + New suggestion
         </Link>
       </div>
       <p className="mt-2 text-sm text-gray-600">
