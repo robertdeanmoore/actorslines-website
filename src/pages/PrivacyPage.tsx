@@ -2,7 +2,7 @@ export default function PrivacyPage() {
   return (
     <article className="prose max-w-3xl mx-auto bg-white rounded-xl shadow-sm p-8">
       <h1 className="text-2xl font-bold text-brand">Privacy Policy</h1>
-      <p className="text-sm text-gray-500">Last updated: 11 November 2026</p>
+      <p className="text-sm text-gray-500">Last updated: 12 November 2026</p>
 
       <h2 className="mt-6 font-semibold">Who we are</h2>
       <p className="text-sm text-gray-700 mt-2">
@@ -13,10 +13,15 @@ export default function PrivacyPage() {
       <p className="text-sm text-gray-700 mt-2">
         When you register we store your email address, a display name you choose,
         and the content you create on this site (enhancement requests, comments and
-        votes). We record when you last signed in. We do not collect your scripts,
-        recordings or notes: we never receive them. They are stored on your phone, in
-        backup or share files you create yourself, and (see below) in Android&apos;s own
-        backup to your Google account if you have that turned on.
+        votes). We record when you last signed in. The Actors Lines <strong>app</strong> does not upload your scripts,
+        recordings or notes: they stay on your phone, in backup or share files you create
+        yourself, and (see below) in Android&apos;s own backup to your Google account if you
+        have that turned on. The <strong>website&apos;s Learn Lines page is different</strong>:
+        if you upload a script there, we store it on our server (in our account service,
+        Supabase) with your character name, your progress and any bookmarks. Only you can
+        see it, unless you choose to share it with another registered member by email, in
+        which case that member can view and copy it. It is deleted when you delete the
+        script or your account.
       </p>
 
       <h2 className="mt-6 font-semibold">What the Actors Lines app sends</h2>
@@ -84,8 +89,8 @@ export default function PrivacyPage() {
         by turning the setting off, at any time.
       </p>
       <p className="text-sm text-gray-700 mt-2">
-        We do <strong>not</strong> receive your scripts, recordings, character names,
-        or anything you type through this usage data. The one exception is a
+        The app&apos;s usage data never contains your scripts, recordings, character names,
+        or anything you type. The one exception is a
         “recognition problem” report: if the app mis-reads a scanned line or mishears a
         word, you can choose to report it — and you are always shown the exact short
         snippet of text before it is sent, and must tap Send. Nothing is sent without
