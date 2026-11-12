@@ -116,8 +116,8 @@
 /* ---------- 4. Non-colour tokens ---------- */
 :root {
   /* Fonts use the --al-font-* primitives to avoid self-referencing custom properties. */
-  --al-font-display: "Sora", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --al-font-body: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --al-font-display: "Sora", "Sora Fallback", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --al-font-body: "Inter", "Inter Fallback", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --al-font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;   /* system only, no web font */
   --al-font-script: "Literata", Georgia, serif;                                 /* Learn Lines script surface only; see 04 */
 
@@ -153,6 +153,9 @@
   --al-shadow-card: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 12px 32px -14px rgb(5 2 24 / 0.7);
   --al-shadow-pop: 0 18px 48px -12px rgb(5 2 24 / 0.8);
   --glow-copper: 0 -30px 90px -10px rgb(242 183 124 / 0.28);   /* behind the phone, from mock */
+  --bezel: var(--al-deep);                                      /* phone frame: always dark, also on the paper theme */
+  --bezel-edge: rgb(183 156 242 / 0.35);                        /* decorative lilac hairline on the bezel */
+  --screen-edge: rgb(0 0 0 / 0.35);                             /* keeps the light screenshot edge crisp */
   --ring-width: 3px;
   --ring-offset: 3px;
 

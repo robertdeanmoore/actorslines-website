@@ -1,0 +1,93 @@
+/* Hero + placeholders (design spec 03). Colours come only from the semantic tokens in tokens.css, so
+   the same rules render the paper look today and the night look under <html data-theme="night">.
+   Selectors use :where() inside @layer components so Tailwind utilities override them (LL0071). */
+
+@layer components {
+  :where(.al-hero) {
+    background-image: var(--glow-hero);
+    background-repeat: no-repeat;
+    text-align: center;
+    padding-inline: var(--gutter);
+    padding-block: 3rem 3.5rem;
+  }
+  @media (min-width: 48rem) {
+    :where(.al-hero) {
+      padding-block: 4.5rem 5rem;
+    }
+  }
+  :where(.al-hero__inner) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: var(--container);
+    margin-inline: auto;
+  }
+  :where(.al-hero__title) {
+    font-family: var(--al-font-display);
+    font-weight: 700;
+    font-size: var(--text-display);
+    line-height: var(--leading-display);
+    letter-spacing: var(--track-display);
+    max-width: var(--measure-hero-h1);
+    color: var(--fg);
+    margin: 0;
+    text-wrap: balance;
+  }
+  :where(.al-hero__accent) {
+    color: var(--accent);
+  }
+  :where(.al-hero__lead) {
+    font-size: var(--text-lead);
+    line-height: 1.55;
+    color: var(--fg-muted);
+    max-width: 52ch;
+    margin-top: 1.25rem;
+  }
+  :where(.al-hero__cta) {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  /* Device placeholder (hero phone with "screenshot to come"); replaced in slice 6. */
+  :where(.al-device) {
+    position: relative;
+    width: min(18.75rem, 78%);
+    margin: 3rem auto 0;
+  }
+  @media (min-width: 48rem) {
+    :where(.al-device) {
+      width: 20rem;
+    }
+  }
+  :where(.al-device__bezel) {
+    padding: 0.625rem;
+    background: var(--bezel);
+    border-radius: var(--r-phone);
+    box-shadow: 0 0 0 1px var(--bezel-edge), var(--glow-copper);
+  }
+  :where(.al-device__screen) {
+    display: grid;
+    place-content: center;
+    gap: 0.5rem;
+    padding: 1.5rem;
+    overflow: hidden;
+    aspect-ratio: 9 / 19.5;
+    border-radius: calc(var(--r-phone) - 0.625rem);
+    background: var(--surface-raised);
+    color: var(--fg);
+    text-align: center;
+    box-shadow: 0 0 0 1px var(--screen-edge);
+  }
+  :where(.al-device__title) {
+    font-family: var(--al-font-display);
+    font-weight: 600;
+    font-size: var(--text-h3);
+  }
+  :where(.al-device__note) {
+    font-size: var(--text-small);
+    color: var(--fg-muted);
+  }
+}
