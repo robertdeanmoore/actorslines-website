@@ -1,0 +1,102 @@
+/* Tutorials page. Colours come only from the semantic tokens in tokens.css; selectors use
+   :where() inside @layer components so Tailwind utilities override them (LL0071). */
+
+@layer components {
+  :where(.al-tut) {
+    max-width: var(--container);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+    padding-block: 2rem 4rem;
+  }
+  :where(.al-tut h1) {
+    font-family: var(--al-font-display);
+    font-weight: 700;
+    font-size: var(--text-h1);
+    letter-spacing: var(--track-heading);
+    color: var(--fg);
+    margin: 0;
+  }
+  :where(.al-tut-lead) {
+    margin-top: 1rem;
+    max-width: var(--measure-lead);
+    font-size: var(--text-lead);
+    color: var(--fg-muted);
+  }
+  :where(.al-tut-note) {
+    margin-top: 1.5rem;
+    font-size: var(--text-small);
+    color: var(--fg-muted);
+    max-width: var(--measure-card);
+  }
+  :where(.al-tut-empty) {
+    margin-top: 2.5rem;
+    padding: 1.5rem;
+    border-radius: var(--r-lg);
+    background: var(--surface);
+    box-shadow: var(--al-shadow-card), inset 0 0 0 1px var(--line);
+  }
+  @media (min-width: 48rem) {
+    :where(.al-tut-empty) {
+      padding: 2rem;
+    }
+  }
+  :where(.al-tut-empty h2) {
+    font-family: var(--al-font-display);
+    font-weight: 600;
+    font-size: var(--text-h3);
+    color: var(--fg);
+  }
+  :where(.al-tut-empty p) {
+    color: var(--fg-muted);
+    max-width: var(--measure-card);
+  }
+  :where(.al-tut-empty__actions) {
+    margin-top: 1.5rem;
+  }
+  :where(.al-tut-group h2) {
+    font-family: var(--al-font-display);
+    font-weight: 600;
+    font-size: var(--text-h2);
+    letter-spacing: var(--track-heading);
+    margin-top: 3rem;
+    color: var(--fg);
+  }
+  :where(.al-tut-grid) {
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 2rem 1.5rem;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 40rem) {
+    :where(.al-tut-grid) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 64rem) {
+    :where(.al-tut-grid) {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  :where(.al-tut-title) {
+    margin: 0.75rem 0 0;
+    font-family: var(--al-font-display);
+    font-weight: 600;
+    font-size: 1.125rem;
+    line-height: var(--leading-heading);
+    color: var(--fg);
+  }
+  :where(.al-tut-duration) {
+    margin: 0.25rem 0 0;
+    font-size: 0.875rem;
+    color: var(--fg-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  :where(.al-tut-desc) {
+    margin: 0.5rem 0 0;
+    font-size: var(--text-small);
+    color: var(--fg-muted);
+    max-width: var(--measure-card);
+  }
+}
