@@ -48,7 +48,7 @@ export default function Layout() {
         <div className="al-header__row">
           <div className="al-header__bar">
             <Link to="/" className="al-brand" aria-label="Actors Lines, home">
-              <img src="/assets/logo-mark.png" alt="" width={36} height={36} />
+              <img src="/assets/logo-mark.png" alt="" width={37} height={36} />
               <span>Actors Lines</span>
             </Link>
 

@@ -129,8 +129,9 @@
     text-decoration: none;
   }
   :where(.al-brand img) {
-    width: 2.25rem;
+    width: auto;
     height: 2.25rem;
+    object-fit: contain;
     border-radius: 0.625rem;
   }
   :where(.al-nav) {

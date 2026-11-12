@@ -20,7 +20,7 @@ const TurnstileWidget = forwardRef<TurnstileInstance, Props>(function TurnstileW
 ) {
   if (!siteKey) return null;
   return (
-    <div className="mt-4">
+    <div className="mt-4 min-h-[65px]">
       <Turnstile
         ref={ref}
         siteKey={siteKey}
