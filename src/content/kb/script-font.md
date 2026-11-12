@@ -1,6 +1,6 @@
 ---
 title: Choosing a script font
-summary: Pick your own reading font for Practice, Rehearse and every line screen.
+summary: Pick your own reading font for Practice and every line screen.
 date: 2026-07-08
 ---
 

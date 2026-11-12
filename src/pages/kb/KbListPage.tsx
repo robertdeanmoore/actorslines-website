@@ -17,7 +17,7 @@ export default function KbListPage() {
     <div className="max-w-3xl mx-auto">
       <h1 className="text-2xl font-bold text-brand">Knowledge base</h1>
       <p className="mt-2 text-sm text-gray-600">
-        Rehearsal craft, line-learning technique, and getting the most from Actors Lines.
+        Line-learning technique, and getting the most from Actors Lines.
       </p>
       <input
         type="search"

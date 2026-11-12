@@ -1,6 +1,6 @@
 ---
 title: Getting started with Actors Lines
-summary: From a paper script to your first rehearsal run in ten minutes.
+summary: From a paper script to your first practice run in ten minutes.
 date: 2026-07-05
 ---
 
@@ -26,9 +26,8 @@ right; you can even blend voices to create new ones.
 
 ## 4. Run the scene
 
-Start with **Practice** to read along and hide your lines as you learn them, then
-graduate to **Rehearse**: the app speaks everyone else's lines and listens to yours,
-scoring your accuracy line by line.
+Start with **Practice** to read along and hide your lines as you learn them: the app
+speaks everyone else's lines and listens to yours, scoring your accuracy line by line.
 
 > Tip: the accuracy heat-map on each play card shows exactly where you need work.
 

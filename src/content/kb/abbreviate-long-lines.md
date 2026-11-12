@@ -7,9 +7,8 @@ date: 2026-10-03
 Some scenes have another character speak at length before your cue. Once you know the gist,
 listening to the whole speech on every practice pass wastes time. Turn it on from the Practice ⋮
 menu — tick **"Shorten long lines"** — and set a word limit in Settings; any other character's
-line longer than that limit is shortened during TTS playback in Practice and Rehearse.
+line longer than that limit is shortened during TTS playback in Practice.
 
-- It's a single app-wide setting, so turning it on in Practice also applies in Rehearse.
 - In Settings, only the word limit remains, under the heading "Shorten long lines", with the note
   "Turn on from the Practice menu".
 - The checkbox is greyed while My Lines Only is on, since there are no other-character lines left

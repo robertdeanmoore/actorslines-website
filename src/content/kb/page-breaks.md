@@ -21,7 +21,6 @@ an italic centred "Page" between two lines — visually much like a stage direct
 
 - Shown wherever stage directions are shown: **Edit**, **Practice**, **Teach**, **Fill-in-Teach**
   and the scan review screen.
-- Not shown in **Rehearse**.
 - Turning "Stage Directions" off in Practice (or "Hide stage directions" in Edit) hides page
   breaks too, together with stage directions, sound cues and lighting cues. If a filter leaves two
   page breaks next to each other, they show as one.

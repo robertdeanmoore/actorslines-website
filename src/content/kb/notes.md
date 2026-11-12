@@ -57,8 +57,8 @@ is paused it does nothing, so a tap that lifts too early can't restart your run.
 ## Privacy, backups and sharing
 
 Notes are personal. They are included in your own backups ("Back up this play" and the full .zip)
-and come back on restore, but "Export for cast" never includes them. Notes aren't shown in
-Rehearse. See [Backing up and sharing a play](backup-and-share.md).
+and come back on restore, but "Export for cast" never includes them. See
+[Backing up and sharing a play](backup-and-share.md).
 
 > **Tip:** With TalkBack, a line with a note says "Has a note"; its actions include "Read note",
 > "Edit note" and "Edit in Edit screen".

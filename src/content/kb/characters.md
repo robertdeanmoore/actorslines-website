@@ -55,7 +55,7 @@ doing it unless that's genuinely what you want.
 ## Colour and voice
 
 Each character gets an ink colour used to attribute their lines throughout the reading view, and
-an optional voice used for TTS playback in Teach, Practice and Rehearsal. See
+an optional voice used for TTS playback in Teach and Practice. See
 [Picking a voice for a character](voice-picking.md) for assigning and previewing a stock voice,
 and [Blending voices](blended-voices.md) if none of the stock voices fit.
 

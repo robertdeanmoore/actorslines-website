@@ -1,6 +1,6 @@
 ---
 title: Voice commands — a hands-free reader
-summary: Say "pause", "prompt", "resume" and more in Practice and Rehearse.
+summary: Say "pause", "prompt", "resume" and more in Practice.
 date: 2026-07-08
 ---
 
@@ -26,7 +26,7 @@ never have to reach for the screen mid-flow.
 - "continue" (or "carry on") — follow your Restart/Resume preference from Settings.
 - "prompt" / "line" — hear the opening of the line again.
 - "stop" — in Practice, shows your accuracy summary for what you've run so far; tap "Exit the
-  Run" when you're ready to leave. In Rehearse it ends the run immediately.
+  Run" when you're ready to leave.
 
 > **Tip:** On phones with on-device AI, a phrase that doesn't quite match one of the words above
 > — "can we stop there", "let's go again" — gets a second look before it's given up on, so you
@@ -42,14 +42,14 @@ which pauses after your line and waits for you to say (or tap) what happens next
 - "continue" — scores your line and moves on, same as Auto mode does automatically.
 - "stop" — ends the run, as above.
 
-> **Tip:** Manual mode is only in Practice — Rehearse doesn't have it. Use it for a slower,
+> **Tip:** Manual mode is in Practice. Use it for a slower,
 > deliberate pass where you want to retry picking up a cue on demand instead of racing a
 > countdown.
 
 ## Setting it up
 
 - Turn it on (and choose how many words a prompt reads) under Settings → "Voice commands in
-  Practice and Rehearse".
+  Practice".
 - "After a pause, the button" sets whether Resume/continue picks up where you stopped or
   retakes the whole line — it also names the on-screen button (Resume or Restart).
 - The on-device AI paraphrase help above has its own switch there too, if you'd rather it only

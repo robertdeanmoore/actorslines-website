@@ -21,7 +21,7 @@ deeper English female voice.
 ## Using and managing blends
 
 - A blend works exactly like a stock voice: assign it to characters in any play, and it speaks
-  their lines in Teach, Practice and Rehearse.
+  their lines in Teach and Practice.
 - Rename or delete blends via "Manage blends…" in the voice picker. Deleting one reverts any
   characters using it to the default voice.
 - Blends travel with your plays: backups and cast exports carry the recipe (it's tiny), and the

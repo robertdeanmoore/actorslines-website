@@ -19,7 +19,7 @@ export default function CharacterPickerDialog({ characters, onConfirm, onCancel,
       <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm max-h-[80vh] overflow-y-auto">
         <h2 className="text-lg font-bold text-brand">Who are you playing?</h2>
         <p className="text-xs text-gray-500 mt-1">
-          Required — pick the character you'll be rehearsing.
+          Required — pick the character you'll be learning.
         </p>
         <div className="mt-4 space-y-1">
           {characters.map((c) => (

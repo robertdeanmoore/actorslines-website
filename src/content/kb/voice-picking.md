@@ -1,11 +1,11 @@
 ---
 title: Picking a voice for a character
-summary: Assign and preview a stock neural voice per character, for TTS playback in Teach, Practice and Rehearse.
+summary: Assign and preview a stock neural voice per character, for TTS playback in Teach and Practice.
 date: 2026-10-03
 ---
 
 Every character in a play can have its own voice, used whenever they're spoken aloud by the app
-— in Teach, Fill-in-Teach and Rehearsal, and for other characters' cue lines in Practice.
+— in Teach and Fill-in-Teach, and for other characters' cue lines in Practice.
 
 ## The voice pack
 

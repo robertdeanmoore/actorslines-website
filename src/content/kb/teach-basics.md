@@ -1,12 +1,12 @@
 ---
 title: Teach & Fill-in-Teach — preparing a scene
-summary: The two ways to record timing for your lines before Practice or Rehearsal can run a scene.
+summary: The two ways to record timing for your lines before Practice can run a scene.
 date: 2026-08-23
 ---
 
-Practice and Rehearsal both need to know how long your own lines normally take to say, so they
+Practice needs to know how long your own lines normally take to say, so it
 can time the countdown before your cue and pace the run correctly. **Teach** and **Fill-in-Teach**
-are the two ways to record that timing, line by line, before either run mode can run a scene —
+are the two ways to record that timing, line by line, before Practice can run a scene —
 in the app's own on-screen language this step is called "Prepare scene"; "Teach"/"Timers" are the
 internal/developer names still used in these help articles.
 
@@ -21,7 +21,7 @@ From a scene's "Prepare scene" button (Edit mode's bottom row), pick "Missing li
   into it for context — a faster pass once a scene is already partly taught and you just need to
   fill in a handful of missing timers.
 
-Tapping an untaught scene from Practice or Rehearse offers a one-tap "This scene needs a quick
+Tapping an untaught scene from Practice offers a one-tap "This scene needs a quick
 set-up first — do it now?" shortcut straight into the right one of these (Fill-in-Teach if the
 scene's partly taught already, otherwise the full Teach flow) rather than a dead end.
 
@@ -53,4 +53,4 @@ lines aloud once and estimates timers for the rest of the scene from your readin
 ## Related
 
 [Fast Path — timing a whole scene from one short read](fast-path-timing.md) ·
-[Running a scene — Practice and Rehearsal basics](running-a-scene.md)
+[Running a scene — Practice basics](running-a-scene.md)

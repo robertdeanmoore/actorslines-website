@@ -38,7 +38,7 @@ export default function PrivacyPage() {
           Only the download request is sent.
         </li>
         <li>
-          <strong>Speech recognition.</strong> Practice and Rehearse listen to your lines
+          <strong>Speech recognition.</strong> Practice listens to your lines
           using your phone&apos;s speech-recognition service. Depending on your phone and
           that service&apos;s settings, your speech may be processed by the service&apos;s
           provider (for example Google) rather than on the phone itself.

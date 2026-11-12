@@ -4,7 +4,7 @@ summary: Drill just your lines and their feeds — the rest collapses out of the
 date: 2026-10-03
 ---
 
-In a cue-to-cue rehearsal you only see the line (or lines) that cue into each of your
+In a cue-to-cue run you only see the line (or lines) that cue into each of your
 speeches, then your speech itself. Everything in between disappears — you stay focused on
 listening for your trigger and responding.
 
@@ -14,23 +14,22 @@ listening for your trigger and responding.
 
 ## Turning it on
 
-- Open the three-dot menu (top right) in Practice or Rehearse.
+- Open the three-dot menu (top right) in Practice.
 - Tick "Cue-to-cue". The scene is immediately filtered. Untick it to go back to the full
   script. Either way the view stays put on the line you were reading, rather than jumping to
   the top.
 - **In Practice the setting sticks**: it stays on until you turn it off, even if you leave the
   scene and come back later. A quiet "Cue-to-cue: showing your lines and their feeds only" line
   sits just under the header while it's active, so a collapsed scene never takes you by
-  surprise. **In Rehearse** it still clears when you leave the screen.
+  surprise.
 - **My Lines Only** sits directly below it and does a similar-sounding but different job: it
   removes the other characters' spoken lines entirely, with no "Skip" cards, rather than folding
   them away. The two are mutually exclusive — ticking one unticks the other. See
   [My Lines Only — running just your part](my-lines-only.md).
 - The menu's checkboxes — "Stage Directions", "Cue-to-cue", "My Lines Only", "Shorten long
   lines", "Auto run" and "Loop" — keep a fixed label and just show a tick for on/off, instead of
-  rewording themselves. (My Lines Only and Shorten long lines are toggled in Practice, though
-  Shorten long lines also applies in Rehearse.) "Shorten long lines" and "My next line" are
-  greyed while My Lines Only is on.
+  rewording themselves. (My Lines Only and Shorten long lines are toggled in Practice.)
+  "Shorten long lines" and "My next line" are greyed while My Lines Only is on.
 
 ## What you see
 
@@ -67,7 +66,7 @@ listening for your trigger and responding.
 
 - A stage direction (e.g. "(pause)" or "(long silence)") can be given an optional pause time in
   the editor, just like a line's Speak Time. It shows a small clock icon when a time is set.
-- In Practice and Rehearsal, the run goes quiet for that many seconds before the next cue — it
+- In Practice, the run goes quiet for that many seconds before the next cue — it
   isn't shown as a countdown and it's never scored.
 - If cue-to-cue has folded that stretch of the scene away, the direction's pause is skipped
   too, since it never plays for you in the filtered view.

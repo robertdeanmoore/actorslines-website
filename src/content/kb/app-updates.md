@@ -1,11 +1,11 @@
 ---
-title: Updates — staying in control during a rehearsal period
+title: Updates — staying in control during a show run
 summary: Why the app can't stop Play Store's own auto-update for you, how to turn it off yourself, and how the app's own low-key update notice works.
 date: 2026-07-21
 ---
 
 In the weeks before a show you don't want anything about this app to change without warning —
-even a good update landing silently mid-rehearsal can throw off muscle memory you've built
+even a good update landing silently mid-run can throw off muscle memory you've built
 around how a screen behaves.
 
 ## Why the app can't block this itself
