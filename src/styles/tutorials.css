@@ -2,11 +2,9 @@
    :where() inside @layer components so Tailwind utilities override them (LL0071). */
 
 @layer components {
+  /* The shell (Layout) already supplies the page column and gutters. */
   :where(.al-tut) {
-    max-width: var(--container);
-    margin-inline: auto;
-    padding-inline: var(--gutter);
-    padding-block: 2rem 4rem;
+    padding-bottom: 3rem;
   }
   :where(.al-tut h1) {
     font-family: var(--al-font-display);
@@ -47,6 +45,7 @@
     color: var(--fg);
   }
   :where(.al-tut-empty p) {
+    margin-top: 0.75rem;
     color: var(--fg-muted);
     max-width: var(--measure-card);
   }
