@@ -159,6 +159,11 @@
   --ring-width: 3px;
   --ring-offset: 3px;
 
+  /* Destructive button (same on night and paper): white text 6.54:1 on fill, 9.31:1 on hover */
+  --destructive: #B3261E;
+  --destructive-hi: #8B1A14;
+  --on-destructive: #FFFFFF;
+
   /* Layers */
   --z-header: 40; --z-menu: 50; --z-modal: 60; --z-toast: 70; --z-skip: 100;
 
