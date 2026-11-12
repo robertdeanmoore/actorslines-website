@@ -26,7 +26,7 @@ export default function LandingPage() {
               Learn your lines. <span className="al-hero__accent">Your way.</span>
             </h1>
             <p className="al-hero__lead">
-              Actors Lines is the on-device rehearsal companion for actors — from a
+              Actors Lines is the on-device line-learning companion for actors — from a
               scanned script to a word-perfect performance, with a full synthetic cast
               in your pocket.
             </p>
@@ -57,7 +57,7 @@ export default function LandingPage() {
             Learn your lines. Your way.
           </h1>
           <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
-            Actors Lines is the on-device rehearsal companion for actors — from a
+            Actors Lines is the on-device line-learning companion for actors — from a
             scanned script to a word-perfect performance, with a full synthetic cast
             in your pocket.
           </p>
@@ -93,7 +93,7 @@ export default function LandingPage() {
         <section className="bg-white rounded-xl shadow-sm p-8 text-center">
           <h2 className="text-2xl font-bold text-brand">Help shape Actors Lines</h2>
           <p className="mt-3 text-gray-600 max-w-2xl mx-auto">
-            Registered members get our rehearsal-craft knowledge base and a direct
+            Registered members get our line-learning knowledge base and a direct
             line to development: suggest enhancements, vote on other actors' ideas,
             and watch the best ones get built.
           </p>
