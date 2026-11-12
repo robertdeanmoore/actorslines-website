@@ -1,0 +1,222 @@
+/* Actors Lines website design tokens, values from the Actors Lines design spec.
+   Dark-launched: the night theme is opt-in via <html data-theme="night">. */
+
+/* ---------- 1. Primitives (raw values; components never use these directly) ---------- */
+:root {
+  --al-night: #120845;     /* page */
+  --al-deep: #0B0530;      /* inputs, code, phone bezel */
+  --al-card: #1C1060;      /* cards */
+  --al-raised: #2A1A7A;    /* hover, raised chips, table header */
+  --al-line: #35288A;      /* decorative hairlines only (1.4 to 1.6:1, NOT for control edges) */
+  --al-control: #7C6FBF;   /* control edges: 4.53 on deep, 4.26 on night, 3.78 on card */
+  --al-text: #F1EAFB;
+  --al-muted: #B9ACD9;
+  --al-faint: #9C90C8;
+  --al-copper: #F2B77C;
+  --al-copper-hi: #F8C99A;
+  --al-copper-lo: #E5A267;
+  --al-lilac: #B79CF2;
+  --al-brand: #5C1BAD;     /* brand purple: fills and logo, paper-set buttons. NEVER text on night */
+  --al-brand-hi: #4A1590;  /* paper-set button hover */
+  --al-tile-hero: linear-gradient(160deg, #3A1B8F, #1C1060);  /* bento tile 1; lightest stop #3A1B8F: fg 10.33, muted 5.75, copper 6.83, lilac 5.22 */
+  --al-glow: #4A1F9A;      /* spotlight centre */
+  --al-paper: #FBF7EF;
+  --al-paper-deep: #F1E9DA;
+  --al-paper-ink: #2B2A26;
+  --al-paper-muted: #5A544C;
+  --al-paper-control: #7A736A;
+  --al-paper-line: #CFC3AC;
+}
+
+/* ---------- 2. Semantic tokens: LEGACY/PAPER values on :root (look until the flag flips) ---------- */
+:root,
+[data-surface="paper"] {
+  color-scheme: light;
+  --page: var(--al-paper);
+  --surface: #FFFFFF;
+  --surface-raised: var(--al-paper-deep);
+  --field: #FFFFFF;
+  --line: var(--al-paper-line);
+  --line-control: var(--al-paper-control);
+  --fg: var(--al-paper-ink);
+  --fg-muted: var(--al-paper-muted);
+  --fg-faint: #6B645B;
+  --accent: var(--al-brand);          /* primary button fill */
+  --accent-hi: var(--al-brand-hi);
+  --accent-lo: #3F1280;
+  --on-accent: #FFFFFF;
+  --link: var(--al-brand);
+  --link-hi: var(--al-brand-hi);
+  --eyebrow: var(--al-brand);
+  --ring: var(--al-brand);
+  --danger: #B3261E;  --danger-bg: #FDECEA;  --on-danger-solid: #FFFFFF;
+  --warn: #7A4B00;    --warn-bg: #FFF4DB;
+  --ok: #1B6B3A;      --ok-bg: #E4F4EA;
+  --info: #1D4F9A;    --info-bg: #E6EEFB;
+  --scrim: rgb(18 8 69 / 0.55);
+  --glow-hero: none;
+}
+
+/* ---------- 3. Semantic tokens: NIGHT (option B). Flag: <html data-theme="night"> ---------- */
+[data-theme="night"] {
+  color-scheme: dark;
+  --page: var(--al-night);
+  --surface: var(--al-card);
+  --surface-raised: var(--al-raised);
+  --field: var(--al-deep);
+  --line: var(--al-line);
+  --line-control: var(--al-control);
+  --fg: var(--al-text);
+  --fg-muted: var(--al-muted);
+  --fg-faint: var(--al-faint);
+  --accent: var(--al-copper);
+  --accent-hi: var(--al-copper-hi);
+  --accent-lo: var(--al-copper-lo);
+  --on-accent: var(--al-night);
+  --link: var(--al-lilac);
+  --link-hi: var(--al-copper);
+  --eyebrow: var(--al-lilac);
+  --ring: var(--al-copper);
+  --danger: #FF9AA2;  --danger-bg: #4A1230;  --on-danger-solid: #FFFFFF;
+  --warn: #FFD27A;    --warn-bg: #3D2A08;
+  --ok: #7FDDA8;      --ok-bg: #0F3A2A;
+  --info: #8EC5FF;    --info-bg: #0F2A55;
+  --scrim: rgb(11 5 48 / 0.72);
+  --glow-hero: radial-gradient(ellipse 60% 70% at 50% 0, var(--al-glow) 0, rgb(74 31 154 / 0.35) 40%, transparent 70%);
+}
+/* A paper panel inside the night page re-binds the same names to the paper values (section 2 block
+   is already scoped to [data-surface="paper"]); nested specificity: attribute selectors tie, source
+   order wins, so keep the [data-surface="paper"] rule AFTER the [data-theme="night"] rule in the file
+   (it is repeated here for that reason). */
+[data-theme="night"] [data-surface="paper"] {
+  color-scheme: light;
+  --page: var(--al-paper);
+  --surface: #FFFFFF;
+  --surface-raised: var(--al-paper-deep);
+  --field: #FFFFFF;
+  --line: var(--al-paper-line);
+  --line-control: var(--al-paper-control);
+  --fg: var(--al-paper-ink);
+  --fg-muted: var(--al-paper-muted);
+  --fg-faint: #6B645B;
+  --accent: var(--al-brand);
+  --accent-hi: var(--al-brand-hi);
+  --accent-lo: #3F1280;
+  --on-accent: #FFFFFF;
+  --link: var(--al-brand);
+  --link-hi: var(--al-brand-hi);
+  --eyebrow: var(--al-brand);
+  --ring: var(--al-brand);
+  --danger: #B3261E;  --danger-bg: #FDECEA;
+  --warn: #7A4B00;    --warn-bg: #FFF4DB;
+  --ok: #1B6B3A;      --ok-bg: #E4F4EA;
+  --info: #1D4F9A;    --info-bg: #E6EEFB;
+}
+
+/* ---------- 4. Non-colour tokens ---------- */
+:root {
+  /* Fonts use the --al-font-* primitives to avoid self-referencing custom properties. */
+  --al-font-display: "Sora", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --al-font-body: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --al-font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;   /* system only, no web font */
+  --al-font-script: "Literata", Georgia, serif;                                 /* Learn Lines script surface only; see 04 */
+
+  --track-display: -0.035em;
+  --track-heading: -0.02em;
+
+  /* Measure (line length) */
+  --measure-prose: 68ch;
+  --measure-lead: 56ch;
+  --measure-hero-h1: 14ch;
+  --measure-card: 60ch;
+
+  /* Space: Tailwind v4 keeps --spacing: 0.25rem (4px base). Named rhythm on top of it */
+  --gutter: 1.25rem;                              /* 20px at 390; 32px from md */
+  --section-y: clamp(3.5rem, 2rem + 6vw, 6rem);
+  --stack-sm: 0.5rem;  --stack-md: 1rem;  --stack-lg: 1.5rem;  --stack-xl: 2.5rem;
+  --container: 72rem;          /* 1152px, mock used 1120 + padding */
+  --container-form: 28rem;
+  --container-form-wide: 40rem;
+  --container-detail: 48rem;
+  --target: 3rem;              /* 48px preferred touch target */
+  --target-min: 2.75rem;       /* 44px floor */
+
+  /* Radii */
+  --r-sm: 0.5rem;   /* chips inner, code */
+  --r-md: 0.75rem;  /* inputs, images */
+  --r-lg: 1.125rem; /* cards (18px, per mock) */
+  --r-xl: 1.75rem;  /* hero panels, video */
+  --r-pill: 999px;  /* buttons, badges, nav CTA */
+  --r-phone: 2.25rem;
+
+  /* Shadow / glow */
+  --al-shadow-card: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 12px 32px -14px rgb(5 2 24 / 0.7);
+  --al-shadow-pop: 0 18px 48px -12px rgb(5 2 24 / 0.8);
+  --glow-copper: 0 -30px 90px -10px rgb(242 183 124 / 0.28);   /* behind the phone, from mock */
+  --ring-width: 3px;
+  --ring-offset: 3px;
+
+  /* Layers */
+  --z-header: 40; --z-menu: 50; --z-modal: 60; --z-toast: 70; --z-skip: 100;
+
+  /* Motion (durations are tokens so reduced-motion can zero them) */
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 400ms;
+  --al-ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);   /* no bounce, no elastic */
+}
+
+@media (min-width: 48rem) { :root { --gutter: 2rem; } }
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-fast: 0.01ms; --dur-base: 0.01ms; --dur-slow: 0.01ms; }
+}
+
+/* ---------- 5. Tailwind v4 mapping: utilities that follow the runtime variables ---------- */
+/* `inline` makes utilities emit var(--page) (resolved at the element), so a paper panel rebinding works. */
+/* Deliberately not mapped yet (collide with existing .bg-accent/.text-accent, rounded-*, font-sans/mono, ease-out): mapped in later slices. */
+@theme inline {
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-raised: var(--surface-raised);
+  --color-field: var(--field);
+  --color-line: var(--line);
+  --color-control: var(--line-control);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-faint: var(--fg-faint);
+  --color-link: var(--link);
+  --color-link-hi: var(--link-hi);
+  --color-eyebrow: var(--eyebrow);
+  --color-ring: var(--ring);
+  --color-danger: var(--danger);   --color-danger-bg: var(--danger-bg);
+  --color-warn: var(--warn);       --color-warn-bg: var(--warn-bg);
+  --color-ok: var(--ok);           --color-ok-bg: var(--ok-bg);
+  --color-info: var(--info);       --color-info-bg: var(--info-bg);
+  --color-scrim: var(--scrim);
+
+  --font-display: var(--al-font-display);
+  --font-script: var(--al-font-script);
+
+  --radius-pill: var(--r-pill);
+  --shadow-card: var(--al-shadow-card);
+  --shadow-pop: var(--al-shadow-pop);
+}
+
+/* Type scale: mapped here (not inline) so text and leading utilities follow the runtime tokens.
+   --leading-tight is renamed --leading-display so the default leading-tight is not overridden. */
+@theme {
+  --text-display: clamp(2.5rem, 1.6rem + 4.2vw, 5.25rem);  /* hero h1: 40px @390 up to 84px */
+  --text-h1: clamp(2rem, 1.5rem + 2.2vw, 3rem);
+  --text-h2: clamp(1.625rem, 1.3rem + 1.4vw, 2.5rem);
+  --text-h3: 1.25rem;
+  --text-h4: 1.0625rem;
+  --text-lead: clamp(1.0625rem, 1rem + 0.4vw, 1.25rem);
+  --text-body: 1.0625rem;      /* 17px */
+  --text-small: 0.9375rem;     /* 15px */
+  --text-caption: 0.8125rem;   /* 13px, minimum for any text */
+  --text-eyebrow: 0.75rem;     /* 12px uppercase, tracking .12em, only in --eyebrow colour */
+  --leading-display: 1.08;
+  --leading-heading: 1.2;
+  --leading-body: 1.6;
+}
