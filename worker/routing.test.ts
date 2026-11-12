@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { CMS_CSP, canonicalRedirect, canonicalUrl, handle, isCmsPath, isPageRoute } from "./routing.ts";
+import { CMS_CSP, canonicalRedirect, canonicalUrl, handle, isCmsPath, isIndexableHost, isPageRoute } from "./routing.ts";
 
 const u = (s: string) => new URL(s);
 
@@ -157,4 +157,34 @@ test("307 and 304 on look-alike cms paths pass through with site CSP", async () 
     assert.equal(r.status, status, p);
     assert.equal(r.headers.get("content-security-policy"), SITE_CSP, p);
   }
+});
+
+test("isIndexableHost: only apex and www", () => {
+  assert.equal(isIndexableHost("actorslines.app"), true);
+  assert.equal(isIndexableHost("WWW.actorslines.app"), true);
+  for (const h of ["actorslines-website.robertdeanmoore.workers.dev", "abc-actorslines-website.robertdeanmoore.workers.dev", "localhost", "evil-actorslines.app"])
+    assert.equal(isIndexableHost(h), false, h);
+});
+
+test("canonical host responses carry no X-Robots-Tag", async () => {
+  const r = await handle(new Request("https://actorslines.app/kb"), env({ "/": "shell" }));
+  assert.equal(r.headers.get("x-robots-tag"), null);
+  const w = await handle(new Request("https://www.actorslines.app/kb"), env({}));
+  assert.equal(w.status, 301);
+  assert.equal(w.headers.get("x-robots-tag"), null);
+});
+
+test("preview host: noindex on page, asset, 404 and fallback responses", async () => {
+  const e = env({ "/": "shell", "/robots.txt": "ok" });
+  for (const p of ["/", "/kb", "/robots.txt", "/missing.png"]) {
+    const r = await handle(new Request("https://abc-actorslines-website.robertdeanmoore.workers.dev" + p), e);
+    assert.equal(r.headers.get("x-robots-tag"), "noindex, nofollow", p);
+  }
+});
+
+test("workers.dev redirect also carries noindex and keeps its Location", async () => {
+  const r = await handle(new Request("https://actorslines-website.robertdeanmoore.workers.dev/kb"), env({}));
+  assert.equal(r.status, 301);
+  assert.equal(r.headers.get("location"), "https://actorslines.app/kb");
+  assert.equal(r.headers.get("x-robots-tag"), "noindex, nofollow");
 });
