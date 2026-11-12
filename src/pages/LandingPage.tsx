@@ -15,39 +15,70 @@ const features = [
 
 export default function LandingPage() {
   const { session } = useAuth();
+  // Production keeps the pre-redesign hero until the single release after slice 6 (Robert, WIP #257).
+  const night = isNightTheme();
   return (
     <>
-      <section className="al-hero" aria-labelledby="hero-heading">
-        <div className="al-hero__inner">
-          <h1 id="hero-heading" className="al-hero__title">
-            Learn your lines. <span className="al-hero__accent">Your way.</span>
+      {night ? (
+        <section className="al-hero" aria-labelledby="hero-heading">
+          <div className="al-hero__inner">
+            <h1 id="hero-heading" className="al-hero__title">
+              Learn your lines. <span className="al-hero__accent">Your way.</span>
+            </h1>
+            <p className="al-hero__lead">
+              Actors Lines is the on-device rehearsal companion for actors — from a
+              scanned script to a word-perfect performance, with a full synthetic cast
+              in your pocket.
+            </p>
+            <div className="al-hero__cta">
+              {/* [PLACEHOLDER: Robert/Clarity per Interview Pack CTA]: label and target are not final */}
+              {!session && (
+                <Link to="/register" className="al-btn al-btn--primary">
+                  Create account
+                </Link>
+              )}
+              {session ? (
+                <Link to="/board" className="al-btn al-btn--primary">
+                  Enhancement board
+                </Link>
+              ) : (
+                <Link to="/login" className="al-btn al-btn--secondary">
+                  Sign in
+                </Link>
+              )}
+            </div>
+            {/* Placeholder panels must not reach a production page (checklist 17): night previews only. */}
+            <DevicePlaceholder />
+          </div>
+        </section>
+      ) : (
+        <section className="text-center pt-16 pb-8 mx-auto w-full max-w-5xl px-4">
+          <h1 className="text-4xl sm:text-5xl font-extrabold text-brand">
+            Learn your lines. Your way.
           </h1>
-          <p className="al-hero__lead">
+          <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
             Actors Lines is the on-device rehearsal companion for actors — from a
             scanned script to a word-perfect performance, with a full synthetic cast
             in your pocket.
           </p>
-          <div className="al-hero__cta">
-            {/* [PLACEHOLDER: Robert/Clarity per Interview Pack CTA]: label and target are not final */}
+          <div className="mt-8 flex justify-center gap-4">
             {!session && (
-              <Link to="/register" className="al-btn al-btn--primary">
-                Create account
+              <Link
+                to="/register"
+                className="px-6 py-3 rounded-lg bg-brand text-white font-semibold hover:bg-brand-light"
+              >
+                Coming soon
               </Link>
             )}
-            {session ? (
-              <Link to="/board" className="al-btn al-btn--primary">
-                Enhancement board
-              </Link>
-            ) : (
-              <Link to="/login" className="al-btn al-btn--secondary">
-                Sign in
-              </Link>
-            )}
+            <Link
+              to={session ? "/board" : "/login"}
+              className="px-6 py-3 rounded-lg border border-brand text-brand font-semibold hover:bg-gray-100"
+            >
+              {session ? "Enhancement board" : "Sign in"}
+            </Link>
           </div>
-          {/* Placeholder panels must not reach a production page (checklist 17): night previews only. */}
-          {isNightTheme() && <DevicePlaceholder />}
-        </div>
-      </section>
+        </section>
+      )}
 
       <div className="mx-auto w-full max-w-5xl px-4 py-8 space-y-16">
         <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
