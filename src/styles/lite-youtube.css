@@ -1,0 +1,73 @@
+/* Click-to-load YouTube video (design spec 03 section 16). Tokens only; selectors use :where() inside
+   @layer components (LL0071). */
+
+@layer components {
+  :where(.al-lite__frame) {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: var(--r-xl);
+    background: var(--surface-raised);
+    box-shadow: inset 0 0 0 1px var(--line);
+  }
+  :where(.al-lite__poster) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  :where(.al-lite__poster--placeholder) {
+    display: grid;
+    place-content: center;
+    color: var(--fg-muted);
+    font-size: var(--text-small);
+  }
+  :where(.al-lite__iframe) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  :where(.al-lite__play) {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: grid;
+    place-content: center;
+    width: 4rem;
+    height: 4rem;
+    margin: -2rem 0 0 -2rem;
+    border: 0;
+    border-radius: var(--r-pill);
+    background: var(--accent);
+    color: var(--on-accent);
+    cursor: pointer;
+    transition: background-color var(--dur-fast) var(--al-ease-out);
+  }
+  :where(.al-lite__play:hover) {
+    background: var(--accent-hi);
+  }
+  :where(.al-lite__play:active) {
+    background: var(--accent-lo);
+  }
+  :where(.al-lite__fallback) {
+    margin-top: 0.5rem;
+    font-size: var(--text-small);
+    color: var(--fg);
+  }
+  :where(.al-lite__fallback a) {
+    color: var(--link);
+    text-decoration: underline;
+    text-underline-offset: 0.1875rem;
+  }
+  :where(.al-lite__sr) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+}
