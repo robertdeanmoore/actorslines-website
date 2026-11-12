@@ -10,12 +10,12 @@
     "test:edge": "node --test \"worker/*.test.ts\" \"supabase/functions/telemetry/*.test.ts\" \"supabase/functions/dispatch/*.test.ts\""
   },
   "dependencies": {
-    "@marsidev/react-turnstile": "^1.5.3",
-    "@supabase/supabase-js": "^2.47.0",
+    "@marsidev/react-turnstile": "^1.6.3",
+    "@supabase/supabase-js": "^2.119.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-markdown": "^10.0.0",
-    "react-router-dom": "^7.1.0"
+    "react-router-dom": "^7.18.5"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.5",
