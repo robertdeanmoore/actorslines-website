@@ -6,7 +6,7 @@ date: 2026-07-08
 
 The bar-chart icon on a play's card in the Play List opens "Accuracy Overview" — a map of
 every scene in the play showing how much you've practised it and how well you're doing, built
-from your Practice and Rehearse run history. The whole map fits on screen at once — no
+from your Practice run history. The whole map fits on screen at once — no
 scrolling, however long the play is.
 
 ## Reading the map
@@ -19,9 +19,6 @@ scrolling, however long the play is.
   between them — wherever one scene ends and the next begins.
 - Fine curly brackets in the scene-label gap mark any line sections you've set up for that
   scene — the same chapter markers you use to navigate during a run — in their usual colours.
-  Practice or Rehearsal filters show that mode's sections; Both shows one shared set if you keep
-  sections aligned across modes (Settings → Practice and Rehearse), or two narrower "P"/"R" sets
-  if you don't.
 - The left column, "How much practised", shades from red (untouched) to blue (your
   most-practised line) by session count.
 - The right column, "How well done", uses the same green/amber/red you see elsewhere (set in
@@ -30,14 +27,13 @@ scrolling, however long the play is.
 
 ## Filtering and drilling in
 
-- The Practice / Rehearsal / Both chips at the top scope the map to one run mode or both.
 - Tap anywhere in a scene's stretch to see that scene's session count and average accuracy,
-  plus "Practice this scene", "Rehearse this scene" and "Edit this scene" buttons that jump
-  straight to it — Practice and Rehearse pick up where you last left off in that scene, the
-  same way they always do; Edit opens at the top.
+  plus "Practice this scene" and "Edit this scene" buttons that jump
+  straight to it — Practice picks up where you last left off in that scene, the
+  same way it always does; Edit opens at the top.
 - Tapping *inside a section's own bracket* (the fine curly-bracket markers described above)
-  skips that scene-choice dialog entirely and launches straight into a Practice or Rehearsal run
-  of that section, in whichever mode the bracket belongs to — a shortcut for jumping straight
+  skips that scene-choice dialog entirely and launches straight into a Practice run
+  of that section — a shortcut for jumping straight
   back into a stretch you're already drilling, rather than a plain tap elsewhere in the scene's
   stretch, which always offers the dialog first.
 

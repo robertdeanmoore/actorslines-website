@@ -5,8 +5,8 @@ date: 2026-07-08
 ---
 
 Selftape lets you record your own voice reading other characters' cue lines, then play those
-recordings back in Practice, Rehearse and the Timers walk instead of the synthesised voice —
-handy if you're rehearsing with a real scene partner's cadence in mind, or just prefer hearing
+recordings back in Practice and the Timers walk instead of the synthesised voice —
+handy if you're practising with a real scene partner's cadence in mind, or just prefer hearing
 a real voice.
 
 ## Turning it on
@@ -19,7 +19,7 @@ a real voice.
 - "Also record my character's lines" additionally captures your own lines as recordings too —
   useful if you might switch which character is yours later, since every line ends up recorded
   either way.
-- "Play my recordings in runs" makes Practice, Rehearse and Timers actually use the recordings;
+- "Play my recordings in runs" makes Practice and Timers actually use the recordings;
   missing recordings always fall back to the synthesised voice. Turning it off asks you to
   confirm first, since a line originally entered by recording may have background-transcribed
   text that's never been checked for accuracy.
@@ -31,7 +31,7 @@ a real voice.
   show it's armed — then tap any scene and choose "All lines" to walk through the whole scene,
   or "Missing recordings only" to jump straight to the lines that still need one, or Cancel to
   back out. Tap Selftape again to disarm it.
-- Tick "My lines only" in that dialog to record just the lines a Cue-to-cue Practice/Rehearse
+- Tick "My lines only" in that dialog to record just the lines a Cue-to-cue Practice
   run will actually use, instead of the whole scene — handy once you know you'll always run
   this scene in Cue-to-cue mode. "Prepare scene"'s own dialog has the same option, labelled
   "My lines only" there too.
@@ -74,6 +74,6 @@ skip the wait, or tap Revise/Edit to cancel and fix the text before saving.
   Selftape mode off for every play — a double confirmation reminds you to export your play(s)
   first if you're about to move to a new device.
 - "Delete TTS model" frees the space used by the on-device neural voice. It disables the
-  neural voice — Timers, Practice and Rehearse fall back to your device's built-in voice until
+  neural voice — Timers and Practice fall back to your device's built-in voice until
   you download the TTS model again from the same screen. Handy if you only ever use Selftape
   and don't need the synthesised voice at all.

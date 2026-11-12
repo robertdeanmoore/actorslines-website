@@ -6,9 +6,9 @@ import { isNightTheme } from "../lib/theme";
 
 const features = [
   ["Import any script", "Scan a paper script with your camera or import a PDF — Actors Lines reads it on your device and builds your scenes, characters and lines automatically."],
-  ["Rehearse with a full cast", "Synthesised voices (or your own recordings) speak every other character's lines while you play your part. Your lines stay hidden until you say them."],
+  ["Practise with a full cast", "Synthesised voices (or your own recordings) speak every other character's lines while you play your part. Your lines stay hidden until you say them."],
   ["Practice that adapts", "Read along, hide lines as you learn them, run cue-to-cue, loop tricky sections, and get accuracy scores on every line via on-device speech recognition."],
-  ["Selftape mode", "Record cue lines in your own voice for self-tapes and rehearsal runs — no internet needed, nothing leaves your phone."],
+  ["Selftape mode", "Record cue lines in your own voice for self-tapes and practice runs — no internet needed, nothing leaves your phone."],
   ["Track your progress", "Accuracy heat-maps show exactly which lines and scenes need work, scene by scene, run by run."],
   ["Private by design", "Everything happens on your device. Your scripts are your business."],
 ] as const;

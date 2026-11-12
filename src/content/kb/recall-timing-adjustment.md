@@ -19,4 +19,4 @@ countdown becomes 15 seconds; at -20% it becomes 8.
 > there easily, right in the middle) to get them back.
 
 > **Tip:** Only affects Practice's own-line countdown — it doesn't change Pace between other
-> characters' cue lines, or anything in Rehearsal or Teach.
+> characters' cue lines, or anything in Teach.

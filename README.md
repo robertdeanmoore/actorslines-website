@@ -1,6 +1,6 @@
 # actorslines.app
 
-Website for **Actors Lines**, the on-device rehearsal companion for actors
+Website for **Actors Lines**, the on-device line-learning companion for actors
 (Android). Marketing site, members' knowledge base, and a community
 enhancement-request pipeline backed by AI triage.
 

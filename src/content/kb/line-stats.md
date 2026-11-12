@@ -9,7 +9,7 @@ without opening anything.
 
 ## What the numbers mean
 
-- Sections — scene cards only: how many Learn, Practice and Rehearse boundary sections have
+- Sections — scene cards only: how many Learn and Practice boundary sections have
   been defined in that scene, added together (not counting speeches).
 - Lines — how many of your own lines are in that scene (or, on a Play card, the whole play).
   Consecutive same-character lines the app listens to as one (because only silent stage business

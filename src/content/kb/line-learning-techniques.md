@@ -5,7 +5,7 @@ date: 2026-07-04
 ---
 
 Actors have argued about the "right" way to learn lines for as long as there have
-been lines. A few methods keep winning in both rehearsal rooms and memory research.
+been lines. A few methods keep winning in both drama schools and memory research.
 
 ## Retrieval beats re-reading
 
@@ -17,7 +17,7 @@ make. This is exactly what Practice mode's hide-and-reveal is for.
 ## Cues, not paragraphs
 
 Your brain doesn't store a monologue as a wall of text; it stores *this line follows
-that cue*. Rehearsing cue-to-response pairs (cue-to-cue mode) builds the links you
+that cue*. Practising cue-to-response pairs (cue-to-cue mode) builds the links you
 actually need on stage.
 
 ## Little and often
@@ -29,7 +29,7 @@ heat-map makes a perfect five-minute session: pick the reddest band, run it, don
 ## Say it out loud
 
 Silent reading recruits a fraction of the memory you'll use in performance. Speaking
-engages your voice, breath and hearing — the state you'll actually be in. Rehearse
+engages your voice, breath and hearing — the state you'll actually be in. Practice
 mode's speech scoring keeps you honest.
 
 ## Embed an editing example

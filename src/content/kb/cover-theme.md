@@ -20,7 +20,7 @@ your wallpaper, just seeded from the cover instead.
 
 ## What stays the same
 
-Scene Editor, Practice, Rehearse, Teach and the other line screens keep their own reading-paper
+Scene Editor, Practice, Teach and the other line screens keep their own reading-paper
 look regardless — this only affects the surrounding app chrome.
 
 ## Changing or removing it

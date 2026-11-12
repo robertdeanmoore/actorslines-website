@@ -49,7 +49,7 @@ perform it.
   up in Accuracy Overview the same way, with no separate history to check.
 - Sworn words that the recogniser reports only as censored asterisks ("f***", "s***", "****")
   count as correct when they match the script word's first letter and length; a bare "****"
-  matches any word. Practice and Rehearse score swears the same way.
+  matches any word. Practice scores swears the same way.
 
 > **Tip:** The tracking follows you word by word and re-checks everything against the whole take
 > as it listens — so a word only ever turns red once you've clearly moved past it, and an early
