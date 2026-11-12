@@ -185,7 +185,9 @@
   }
   :where(.al-video__poster--placeholder) {
     display: grid;
-    place-content: center;
+    /* Label at the bottom so it never runs under the centred play button. */
+    place-content: end center;
+    padding-bottom: 0.75rem;
     color: var(--fg-muted);
     font-size: var(--text-small);
   }
@@ -252,6 +254,7 @@
 
   /* ---- Error summary ---- */
   :where(.al-error-summary) {
+    margin-bottom: 1.5rem;
     padding: 1rem 1.25rem;
     border: 1px solid color-mix(in srgb, var(--danger) 40%, transparent);
     border-radius: var(--r-md);
@@ -269,6 +272,9 @@
     padding-left: 1.25rem;
   }
   :where(.al-error-summary a) {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target-min);
     color: var(--fg);
     text-decoration: underline;
     text-underline-offset: 0.1875rem;

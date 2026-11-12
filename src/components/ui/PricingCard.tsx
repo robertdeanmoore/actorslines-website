@@ -8,6 +8,10 @@ export interface PricingProduct {
   included: string[];
   cta: { label: string; to?: string; href?: string };
   smallPrint?: ReactNode;
+  /** Shows a "Best value" badge above the name. */
+  bestValue?: boolean;
+  /** Discount line under the price, e.g. "Returning customers: £1 off". Text comes from the caller; no prices live here. */
+  discountLine?: ReactNode;
 }
 
 export interface PricingCardProps {
@@ -38,6 +42,7 @@ export default function PricingCard({ product, headingLevel = 3, className }: Pr
 
   return (
     <div className={className ? `al-pricing ${className}` : "al-pricing"}>
+      {product.bestValue ? <p className="al-pricing__badge">Best value</p> : null}
       <Heading className="al-pricing__name">{product.name}</Heading>
       {product.price !== undefined ? (
         <p className="al-pricing__price">{product.price}</p>
@@ -45,6 +50,7 @@ export default function PricingCard({ product, headingLevel = 3, className }: Pr
         <p className="al-pricing__price-tba">Price to be announced</p>
       )}
       {product.period ? <p className="al-pricing__period">{product.period}</p> : null}
+      {product.discountLine ? <p className="al-pricing__discount">{product.discountLine}</p> : null}
       <ul className="al-pricing__list">
         {product.included.map((item) => (
           <li key={item} className="al-pricing__item">

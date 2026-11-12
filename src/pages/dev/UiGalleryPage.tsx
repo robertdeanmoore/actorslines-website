@@ -262,6 +262,35 @@ function Showcase({ prefix }: { prefix: string }) {
       </div>
 
       <div className="al-gallery__group">
+        <h3>Pricing cards, two tiers (ADR-0156; demo values, best value badge and discount line)</h3>
+        <div className="al-gallery__grid">
+          <PricingCard
+            headingLevel={4}
+            product={{
+              name: "Demo tier one",
+              price: "Demo price",
+              period: "Demo period line",
+              discountLine: "Returning customers: demo discount",
+              included: ["Demo included item one", "Demo included item two"],
+              cta: { label: "Demo call to action", to: "/" },
+            }}
+          />
+          <PricingCard
+            headingLevel={4}
+            product={{
+              name: "Demo tier two",
+              price: "Demo price",
+              period: "Demo period line",
+              bestValue: true,
+              discountLine: "Returning customers: demo discount",
+              included: ["Demo included item one", "Demo included item two"],
+              cta: { label: "Demo call to action", to: "/" },
+            }}
+          />
+        </div>
+      </div>
+
+      <div className="al-gallery__group">
         <h3>Section and container</h3>
         <Section title="Demo section" headingLevel={3} eyebrow="Eyebrow" tone="surface">
           <p>Section content sits in the page container.</p>

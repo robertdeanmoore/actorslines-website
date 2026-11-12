@@ -233,6 +233,9 @@
     font-weight: 600;
     color: var(--fg);
   }
+  :where(.al-field, .al-check-wrap) + :where(.al-gallery__row) {
+    margin-top: 1.5rem;
+  }
   :where(.al-field + .al-field),
   :where(.al-field + .al-check-wrap) {
     margin-top: 1.25rem;
@@ -367,6 +370,12 @@
     border-radius: var(--r-md);
     mask-image: linear-gradient(to right, var(--page) 0, var(--page) calc(100% - 1.5rem), transparent 100%);
   }
+  /* The fade mask would clip the focus ring (mask-clip is the border box), so the mask is dropped
+     while the region has keyboard focus and the ring is drawn inside the box. */
+  :where(.al-table-scroll:focus-visible) {
+    mask-image: none;
+    outline-offset: calc(var(--ring-width) * -1);
+  }
   :where(.al-table) {
     width: 100%;
     min-width: 36rem;
@@ -409,7 +418,7 @@
     position: sticky;
     left: 0;
     z-index: 1;
-    background: var(--surface);
+    background: var(--page);
   }
   :where(.al-table tbody tr:hover th),
   :where(.al-table tbody tr:hover td) {
@@ -422,8 +431,10 @@
   :where(.al-table-action) {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
+    min-width: var(--target-min);
     min-height: var(--target-min);
-    padding: 0;
+    padding: 0 0.5rem;
     border: 0;
     background: none;
     color: var(--link);
@@ -513,6 +524,12 @@
   :where(.al-error__details) {
     font-size: 0.8125rem;
   }
+  :where(.al-error__details summary) {
+    display: flex;
+    align-items: center;
+    min-height: var(--target-min);
+    cursor: pointer;
+  }
   :where(.al-error__pre) {
     margin: 0.5rem 0 0;
     padding: 0.75rem;
@@ -585,6 +602,9 @@
     margin-top: 0.25rem;
   }
   :where(.al-tile__link) {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target-min);
     margin-top: auto;
     color: var(--link);
     font-weight: 600;
@@ -647,6 +667,9 @@
     color: var(--accent);
   }
   :where(.al-feature__link) {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target-min);
     color: var(--link);
     font-weight: 600;
     text-decoration: underline;
@@ -736,6 +759,23 @@
     :where(.al-pricing) {
       padding: 1.75rem;
     }
+  }
+  :where(.al-pricing__badge) {
+    align-self: flex-start;
+    margin: 0;
+    padding: 0.125rem 0.625rem;
+    border-radius: var(--r-pill);
+    background: var(--accent);
+    color: var(--on-accent);
+    font-family: var(--al-font-display);
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+  :where(.al-pricing__discount) {
+    margin: 0;
+    font-size: var(--text-body);
+    font-weight: 600;
+    color: var(--fg);
   }
   :where(.al-pricing__name) {
     margin: 0;

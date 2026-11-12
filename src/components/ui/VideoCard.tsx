@@ -6,6 +6,9 @@ export const VIDEO_PRIVACY_NOTE = "Plays from YouTube when you press play. YouTu
 const VIDEO_ID = /^[A-Za-z0-9_-]{11}$/;
 const LOAD_TIMEOUT_MS = 10000;
 
+/** Same minimal sandbox as the tutorials LiteYouTube (Holly C-1): scripts, own origin, presentation, popups. */
+const PLAYER_SANDBOX = "allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox";
+
 type Phase = "poster" | "playing" | "failed";
 
 /**
@@ -62,6 +65,7 @@ export default function VideoCard({
             className="al-video__iframe"
             src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0`}
             title={title}
+            sandbox={PLAYER_SANDBOX}
             allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
             allowFullScreen
             referrerPolicy="strict-origin-when-cross-origin"
