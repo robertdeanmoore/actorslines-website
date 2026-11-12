@@ -188,3 +188,19 @@ test("workers.dev redirect also carries noindex and keeps its Location", async (
   assert.equal(r.headers.get("location"), "https://actorslines.app/kb");
   assert.equal(r.headers.get("x-robots-tag"), "noindex, nofollow");
 });
+
+test("preview host: noindex wrapper keeps Cache-Control and CSP headers", async () => {
+  const e = {
+    ASSETS: {
+      fetch: async () =>
+        new Response("x", {
+          headers: { "content-type": "text/plain", "cache-control": "public, max-age=300", "content-security-policy": CMS_CSP, "x-frame-options": "DENY" },
+        }),
+    },
+  };
+  const r = await handle(new Request("https://abc-actorslines-website.robertdeanmoore.workers.dev/robots.txt"), e);
+  assert.equal(r.headers.get("x-robots-tag"), "noindex, nofollow");
+  assert.equal(r.headers.get("cache-control"), "public, max-age=300");
+  assert.equal(r.headers.get("content-security-policy"), CMS_CSP);
+  assert.equal(r.headers.get("x-frame-options"), "DENY");
+});
