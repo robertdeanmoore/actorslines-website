@@ -228,10 +228,14 @@
   }
   :where(.al-field__label) {
     display: block;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.5rem;
     font-size: 0.9375rem;
     font-weight: 600;
     color: var(--fg);
+  }
+  :where(.al-field + .al-field),
+  :where(.al-field + .al-check-wrap) {
+    margin-top: 1.25rem;
   }
   :where(.al-field__help) {
     margin: 0 0 0.5rem;
@@ -550,7 +554,7 @@
     }
   }
   :where(.al-tile[data-hero]) {
-    background: var(--al-tile-hero);
+    background: var(--tile-hero);
   }
   :where(.al-tile__eyebrow) {
     margin: 0;

@@ -128,7 +128,7 @@ export function Checkbox({ label, error, help, id, className, ...rest }: Checkbo
     [help ? helpId : null, error ? errorId : null].filter(Boolean).join(" ") || undefined;
 
   return (
-    <div className={className}>
+    <div className={cx("al-check-wrap", className)}>
       <label className="al-check">
         <input
           {...rest}

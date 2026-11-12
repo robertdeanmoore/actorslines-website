@@ -55,6 +55,7 @@
   --info: #1D4F9A;    --info-bg: #E6EEFB;
   --scrim: rgb(18 8 69 / 0.55);
   --glow-hero: none;
+  --tile-hero: var(--surface-raised);   /* bento tile 1 fill; gradient only on night */
 }
 
 /* ---------- 3. Semantic tokens: NIGHT (option B). Flag: <html data-theme="night"> ---------- */
@@ -83,6 +84,7 @@
   --info: #8EC5FF;    --info-bg: #0F2A55;
   --scrim: rgb(11 5 48 / 0.72);
   --glow-hero: radial-gradient(ellipse 60% 70% at 50% 0, var(--al-glow) 0, rgb(74 31 154 / 0.35) 40%, transparent 70%);
+  --tile-hero: var(--al-tile-hero);
 }
 /* A paper panel inside the night page re-binds the same names to the paper values (section 2 block
    is already scoped to [data-surface="paper"]); nested specificity: attribute selectors tie, source
@@ -111,6 +113,7 @@
   --warn: #7A4B00;    --warn-bg: #FFF4DB;
   --ok: #1B6B3A;      --ok-bg: #E4F4EA;
   --info: #1D4F9A;    --info-bg: #E6EEFB;
+  --tile-hero: var(--surface-raised);
 }
 
 /* ---------- 4. Non-colour tokens ---------- */
