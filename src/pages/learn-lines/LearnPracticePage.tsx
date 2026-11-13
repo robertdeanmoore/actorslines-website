@@ -151,7 +151,7 @@ export default function LearnPracticePage() {
   const contentIndexes = contentLineIndexes(scene.lines);
 
   const content = (
-    <div className="flex gap-6 -mx-4 sm:mx-0">
+    <div className={night ? "flex gap-6" : "flex gap-6 -mx-4 sm:mx-0"}>
       {/* Desktop sidebar */}
       <div
         className="hidden md:block w-60 shrink-0 sticky top-4 self-start max-h-[calc(100vh-2rem)] overflow-y-auto rounded-xl p-3"
@@ -191,31 +191,31 @@ export default function LearnPracticePage() {
       <main className="flex-1 min-w-0">
         {/* Sticky header: stays pinned at the top of the screen while the line list scrolls
             beneath it — back link + (mobile) scene switcher, then the tap-zone legend. */}
-        <div className="sticky top-0 z-30 -mx-4 px-4 mb-2 bg-white shadow-sm">
-          <div className="flex items-center gap-3 py-2">
+        <div className={night ? "al-practice__bar" : "sticky top-0 z-30 -mx-4 px-4 mb-2 bg-white shadow-sm"}>
+          <div className={night ? "al-practice__bar-row" : "flex items-center gap-3 py-2"}>
             <Link
               to="/learn-lines"
-              className="flex items-center gap-1 text-sm font-medium text-gray-700 hover:text-brand shrink-0"
+              className={night ? "al-back-link" : "flex items-center gap-1 text-sm font-medium text-gray-700 hover:text-brand shrink-0"}
             >
               <span aria-hidden="true">←</span> Scripts
             </Link>
             <button
               onClick={() => setDrawerOpen(true)}
-              className="md:hidden w-11 h-11 flex items-center justify-center rounded-md hover:bg-gray-100 text-xl"
+              className={night ? "md:hidden al-practice__scenes-btn" : "md:hidden w-11 h-11 flex items-center justify-center rounded-md hover:bg-gray-100 text-xl"}
               aria-label="Scenes"
             >
               ☰
             </button>
-            <div className="md:hidden font-semibold text-sm truncate">
+            <div className={night ? "hidden" : "md:hidden font-semibold text-sm truncate"}>
               Act {scene.actNumber}, Scene {scene.sceneNumber}
             </div>
           </div>
-          <div className="flex items-center pb-2">
+          <div className={night ? "al-practice__legend" : "flex items-center pb-2"}>
             {["Show/Hide all", "First word", "First letters", "Random words"].map((label, i) => (
               <span
                 key={label}
-                className={`flex-1 text-[11px] italic truncate paperkit-script ${i > 0 ? "border-l pl-2" : ""}`}
-                style={{ color: "var(--color-paperkit-graphite)", borderColor: "var(--color-paperkit-bg-deep)" }}
+                className={night ? "al-practice__legend-item paperkit-script" : `flex-1 text-[11px] italic truncate paperkit-script ${i > 0 ? "border-l pl-2" : ""}`}
+                style={night ? undefined : { color: "var(--color-paperkit-graphite)", borderColor: "var(--color-paperkit-bg-deep)" }}
               >
                 {label}
               </span>
@@ -227,10 +227,16 @@ export default function LearnPracticePage() {
           className="rounded-xl px-4 sm:px-6 py-6"
           style={{ backgroundColor: "var(--color-paperkit-bg)" }}
         >
-          <h1 className="hidden md:block text-lg font-semibold mb-4" style={{ color: "var(--color-paperkit-ink)" }}>
+          <h1
+            className={night ? "al-page-title mb-4" : "hidden md:block text-lg font-semibold mb-4"}
+            style={night ? undefined : { color: "var(--color-paperkit-ink)" }}
+          >
             Act {scene.actNumber}, Scene {scene.sceneNumber}
             {scene.shortDescription && (
-              <span className="ml-2 text-sm font-normal" style={{ color: "var(--color-paperkit-graphite)" }}>
+              <span
+                className={night ? "al-practice__desc" : "ml-2 text-sm font-normal"}
+                style={night ? undefined : { color: "var(--color-paperkit-graphite)" }}
+              >
                 {scene.shortDescription}
               </span>
             )}

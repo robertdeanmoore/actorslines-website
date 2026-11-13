@@ -104,17 +104,18 @@ export default function BoardPostPage() {
     }`;
 
   return night ? (
-    <Container size="detail" className="space-y-6">
+    <Container size="detail" className="al-members space-y-6">
       <Card as="article">
-        <LinkButton to="/board" variant="ghost">← Enhancement board</LinkButton>
+        <LinkButton to="/board" variant="ghost" className="al-back">← Enhancement board</LinkButton>
         <div className="mt-3 flex items-start gap-3">
-          <p className="flex-1">{post.summary}</p>
+          <h1 className="al-page-title al-page-title--post flex-1">{post.summary}</h1>
           <UiStatusBadge status={post.status} />
         </div>
         <div className="mt-4 flex items-center gap-3">
           <Button
             variant={post.my_vote === 1 ? "primary" : "secondary"}
             aria-pressed={post.my_vote === 1}
+            aria-label={`Thumbs up, ${post.up_votes} votes`}
             onClick={() => vote(1)}
           >
             👍 {post.up_votes}
@@ -122,6 +123,7 @@ export default function BoardPostPage() {
           <Button
             variant={post.my_vote === -1 ? "primary" : "secondary"}
             aria-pressed={post.my_vote === -1}
+            aria-label={`Thumbs down, ${post.down_votes} votes`}
             onClick={() => vote(-1)}
           >
             👎 {post.down_votes}
@@ -134,27 +136,35 @@ export default function BoardPostPage() {
 
       <Card as="article">
         <h2>Comments</h2>
-        <div className="mt-3 space-y-3">
+        <div className="mt-3">
           {comments.length === 0 && (
             <EmptyState headingLevel={3} title="No comments yet — start the conversation." />
           )}
-          {comments.map((c) => (
-            <div key={c.id}
-              className={`rounded-lg p-3 text-sm ${c.hidden_by_admin ? "opacity-50" : ""}`}>
-              <p className="text-xs font-semibold mb-1">
-                {c.public_profiles?.display_name || "Former member"}
-                {" · "}{new Date(c.created_at).toLocaleString()}
-                {c.hidden_by_admin && " · hidden"}
-              </p>
-              <p className="whitespace-pre-wrap">{c.body}</p>
-              {profile?.role === "admin" && (
-                <Button variant="ghost" onClick={() => hideComment(c)} className="mt-1 text-xs">
-                  {c.hidden_by_admin ? "Unhide" : "Hide"}
-                </Button>
-              )}
-            </div>
-          ))}
         </div>
+        {comments.length > 0 && (
+          <ul className="al-msg-list">
+            {comments.map((c) => (
+              <li
+                key={c.id}
+                className={`al-msg${c.author_id === session?.user.id ? " al-msg--own" : ""}${c.hidden_by_admin ? " al-msg--hidden" : ""}`}
+              >
+                <p className="al-msg__meta">
+                  {c.author_id === session?.user.id
+                    ? "You"
+                    : c.public_profiles?.display_name || "Former member"}
+                  {" · "}{new Date(c.created_at).toLocaleString()}
+                  {c.hidden_by_admin && " · hidden"}
+                </p>
+                <p className="al-msg__body">{c.body}</p>
+                {profile?.role === "admin" && (
+                  <Button variant="ghost" onClick={() => hideComment(c)} className="mt-1 text-xs">
+                    {c.hidden_by_admin ? "Unhide" : "Hide"}
+                  </Button>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
         <form onSubmit={addComment} className="mt-4 flex items-end gap-2">
           <Field label="Comment" className="flex-1">
             {(control) => (

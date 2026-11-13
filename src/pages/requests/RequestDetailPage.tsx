@@ -84,11 +84,11 @@ export default function RequestDetailPage() {
   ];
 
   return night ? (
-    <Container size="detail" className="space-y-6">
+    <Container size="detail" className="al-members space-y-6">
       <Card as="article">
-        <LinkButton to="/requests" variant="ghost">← My requests</LinkButton>
+        <LinkButton to="/requests" variant="ghost" className="al-back">← My requests</LinkButton>
         <div className="mt-2 flex items-center gap-3">
-          <h1 className="flex-1">{request.title}</h1>
+          <h1 className="al-page-title flex-1">{request.title}</h1>
           <UiStatusBadge status={request.status} />
         </div>
         <dl className="mt-4 space-y-3">
@@ -109,23 +109,34 @@ export default function RequestDetailPage() {
 
       <Card as="article">
         <h2>Conversation</h2>
-        <div className="mt-3 space-y-3">
+        <div className="mt-3">
           {messages.length === 0 && (
             <EmptyState
               headingLevel={3}
               title="No messages yet. If we need more detail from you, questions will appear here."
             />
           )}
-          {messages.map((m) => (
-            <div key={m.id} className="rounded-lg p-3 text-sm whitespace-pre-wrap">
-              <p className="text-xs font-semibold mb-1">
-                {m.author_kind === "user" ? "You" : "Actors Lines team"}
-                {" · "}{new Date(m.created_at).toLocaleString()}
-              </p>
-              {m.body}
-            </div>
-          ))}
         </div>
+        {messages.length > 0 && (
+          <ul className="al-msg-list">
+            {messages.map((m) => (
+              <li
+                key={m.id}
+                className={`al-msg${m.author_kind === "user" ? " al-msg--own" : ""}${m.author_kind === "system" ? " al-msg--system" : ""}`}
+              >
+                <p className="al-msg__meta">
+                  {m.author_kind === "user"
+                    ? "You"
+                    : m.author_kind === "system"
+                      ? "System notice"
+                      : "Actors Lines team"}
+                  {" · "}{new Date(m.created_at).toLocaleString()}
+                </p>
+                <p className="al-msg__body">{m.body}</p>
+              </li>
+            ))}
+          </ul>
+        )}
         <form onSubmit={sendReply} className="mt-4 flex items-end gap-2">
           <Field label="Message" className="flex-1">
             {(control) => (

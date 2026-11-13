@@ -30,27 +30,31 @@ export default function MyRequestsPage() {
   }, [session]);
 
   return night ? (
-    <Container size="detail">
-      <div className="flex items-center justify-between gap-4">
-        <h1>My requests</h1>
+    <Container size="detail" className="al-members">
+      <div className="al-page-head">
+        <h1 className="al-page-title">My requests</h1>
         <LinkButton to="/requests/new">+ New suggestion</LinkButton>
       </div>
-      <div className="mt-6 space-y-3">
+      <div className="mt-6">
         {loading && <LoadingState label="Loading…" />}
         {!loading && requests.length === 0 && (
           <EmptyState title="Nothing yet — got an idea that would make Actors Lines better?" />
         )}
-        {requests.map((r) => (
-          <Card key={r.id} as="article" to={`/requests/${r.id}`} title={r.title}>
-            <div className="mt-2 flex items-center gap-3">
-              <UiStatusBadge status={r.status} />
-              <span className="text-sm">
-                Submitted {new Date(r.created_at).toLocaleDateString()}
-              </span>
-            </div>
-          </Card>
-        ))}
       </div>
+      {requests.length > 0 && (
+        <ul className="al-card-list">
+          {requests.map((r) => (
+            <Card key={r.id} as="li" to={`/requests/${r.id}`} title={r.title}>
+              <div className="mt-2 flex items-center gap-3">
+                <UiStatusBadge status={r.status} />
+                <span className="text-sm">
+                  Submitted {new Date(r.created_at).toLocaleDateString()}
+                </span>
+              </div>
+            </Card>
+          ))}
+        </ul>
+      )}
     </Container>
   ) : (
     <div className="max-w-3xl mx-auto">

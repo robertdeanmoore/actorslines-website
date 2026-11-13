@@ -73,9 +73,9 @@ export default function LearnScriptsPage() {
   }
 
   return night ? (
-    <Container size="detail">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1>Learn Lines</h1>
+    <Container size="detail" className="al-members">
+      <div className="al-page-head">
+        <h1 className="al-page-title">Learn Lines</h1>
         <div className="flex gap-2">
           <Button variant="secondary" onClick={() => setAdoptOpen(true)}>
             Adopt shared script
@@ -90,35 +90,41 @@ export default function LearnScriptsPage() {
         hiding and revealing your lines right here in the browser.
       </p>
 
-      <div className="mt-6 space-y-3">
+      <div className="mt-6">
         {loading && <LoadingState label="Loading…" />}
         {!loading && scripts.length === 0 && (
           <EmptyState title="No scripts yet — upload a cast-export JSON to get started." />
         )}
-        {scripts.map((s) => (
-          <Card key={s.id} as="article">
-            <div className="flex items-center gap-3">
-              <Link to={`/learn-lines/${s.id}`} className="flex-1 min-w-0">
-                <div className="truncate">{s.title}</div>
-                <div className="text-xs">
-                  Playing {s.my_character_name} · {new Date(s.updated_at).toLocaleDateString()}
-                </div>
-              </Link>
-              <Button variant="ghost" onClick={() => setShareScriptId(s.id)}>
-                Share to
-              </Button>
-              {sharedScriptIds.has(s.id) && (
-                <Button variant="ghost" onClick={() => setSharedWithScriptId(s.id)}>
-                  Shared with
-                </Button>
-              )}
-              <Button variant="ghost" onClick={() => handleDelete(s.id)}>
-                Remove
-              </Button>
-            </div>
-          </Card>
-        ))}
       </div>
+      {scripts.length > 0 && (
+        <ul className="al-card-list">
+          {scripts.map((s) => (
+            <Card key={s.id} as="li">
+              <div className="al-script-row">
+                <Link to={`/learn-lines/${s.id}`} className="al-title-link">
+                  <div className="al-title-link__title">{s.title}</div>
+                  <div className="al-title-link__meta">
+                    Playing {s.my_character_name} · {new Date(s.updated_at).toLocaleDateString()}
+                  </div>
+                </Link>
+                <div className="al-script-row__actions">
+                  <Button variant="ghost" onClick={() => setShareScriptId(s.id)}>
+                    Share to
+                  </Button>
+                  {sharedScriptIds.has(s.id) && (
+                    <Button variant="ghost" onClick={() => setSharedWithScriptId(s.id)}>
+                      Shared with
+                    </Button>
+                  )}
+                  <Button variant="ghost" onClick={() => handleDelete(s.id)}>
+                    Remove
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </ul>
+      )}
 
       {uploadOpen && (
         <UploadDialog onClose={() => setUploadOpen(false)} onImport={handleImport} />
