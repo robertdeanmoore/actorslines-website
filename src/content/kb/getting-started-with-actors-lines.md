@@ -29,6 +29,4 @@ right; you can even blend voices to create new ones.
 Start with **Practice** to read along and hide your lines as you learn them: the app
 speaks everyone else's lines and listens to yours, scoring your accuracy line by line.
 
-> Tip: the accuracy heat-map on each play card shows exactly where you need work.
-
-A video walkthrough is coming soon — it will appear right here.
+> **Tip:** the accuracy heat-map on each play card shows exactly where you need work.

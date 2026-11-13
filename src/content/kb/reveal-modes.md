@@ -53,7 +53,7 @@ Tapping a *different* column normally switches straight to that mode. The re-tap
 | Fully shown | → Blank | → All | → that hint |
 | Blank | → fully shown | → All | → that hint |
 | All | → Blank | → fully shown | → that hint |
-| showing a hint | → fully shown | → fully shown | tap the same hint again → Blank; a different hint → that hint |
+| Showing a hint (Word / Letters / Random) | → fully shown | → fully shown | → that hint (the same hint again → Blank) |
 
 So: tapping **Blank** or **All** a second time brings the line back to fully visible. Moving
 between **Blank** and **All** just adds or removes the pencil guide. Tapping **Blank** or **All**
