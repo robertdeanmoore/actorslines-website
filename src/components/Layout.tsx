@@ -2,6 +2,7 @@ import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { supabaseConfigured } from "../lib/supabase";
 import { useRouteFocus } from "../lib/useRouteFocus";
+import { useRouteMeta } from "../lib/useRouteMeta";
 import Footer from "./Footer";
 import MobileMenu from "./ui/MobileMenu";
 import SkipLink from "./ui/SkipLink";
@@ -26,6 +27,7 @@ export default function Layout() {
   const { session, profile, signOut } = useAuth();
   const { pathname } = useLocation();
   useRouteFocus();
+  useRouteMeta();
 
   const signedIn = Boolean(session && profile);
   const isAdmin = profile?.role === "admin";

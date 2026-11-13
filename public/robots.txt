@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /profile
+Disallow: /requests
+Disallow: /board
+Disallow: /learn-lines
+Disallow: /notify/
+Disallow: /invite/
+Disallow: /reset-password
+Disallow: /update-password
+Disallow: /mobile-captcha
+Disallow: /cms/
+
+Sitemap: https://actorslines.app/sitemap.xml
