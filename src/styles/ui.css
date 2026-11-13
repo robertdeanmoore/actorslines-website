@@ -1,0 +1,890 @@
+/* Slice 2 presentational UI components. Colours come only from the semantic tokens in tokens.css, so
+   the same rules render the paper (cream) look today and the night look under <html data-theme="night">.
+   Every selector uses :where() inside @layer components so Tailwind utilities override them (LL0071). */
+
+@layer components {
+  /* ---- Visually hidden text ---- */
+  :where(.al-sr-only) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* ---- Button extras (variant base rules live in shell.css) ---- */
+  :where(.al-btn--destructive) {
+    background: var(--destructive);
+    color: var(--on-destructive);
+  }
+  :where(.al-btn--destructive:hover) {
+    background: var(--destructive-hi);
+  }
+  :where(.al-icon-btn) {
+    width: var(--target);
+    min-width: var(--target);
+    height: var(--target);
+    padding: 0;
+    border-radius: var(--r-pill);
+  }
+  :where(.al-hint) {
+    margin: 0.5rem 0 0;
+    font-size: var(--text-small);
+    color: var(--fg-muted);
+  }
+
+  /* ---- Card ---- */
+  :where(.al-card) {
+    position: relative;
+    padding: 1.25rem;
+    border-radius: var(--r-lg);
+    background: var(--surface);
+    box-shadow: var(--al-shadow-card), inset 0 0 0 1px var(--line);
+  }
+  @media (min-width: 48rem) {
+    :where(.al-card) {
+      padding: 1.75rem;
+    }
+  }
+  :where(.al-card__eyebrow) {
+    margin: 0 0 0.5rem;
+    font-family: var(--al-font-display);
+    font-size: var(--text-eyebrow);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--eyebrow);
+  }
+  :where(.al-card__title) {
+    margin: 0;
+    font-family: var(--al-font-display);
+    font-size: var(--text-h3);
+    font-weight: 600;
+    letter-spacing: var(--track-heading);
+  }
+  :where(.al-card--marketing .al-card__title) {
+    color: var(--accent);
+  }
+  :where(.al-card--dense .al-card__title) {
+    color: var(--fg);
+  }
+  :where(.al-card__link) {
+    color: inherit;
+    text-decoration: none;
+  }
+  :where(.al-card__link)::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: var(--r-lg);
+  }
+  :where(.al-card--link) {
+    transition: box-shadow var(--dur-base) var(--al-ease-out);
+  }
+  :where(.al-card--link:hover) {
+    box-shadow: var(--al-shadow-pop), inset 0 0 0 1px var(--line);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    :where(.al-card--link) {
+      transition: box-shadow var(--dur-base) var(--al-ease-out), transform var(--dur-base) var(--al-ease-out);
+    }
+    :where(.al-card--link:hover) {
+      transform: translateY(-2px);
+    }
+  }
+  :where(.al-card--link:has(.al-card__link:focus-visible)) {
+    outline: var(--ring-width) solid var(--ring);
+    outline-offset: var(--ring-offset);
+  }
+
+  /* ---- Badge ---- */
+  :where(.al-badge) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.125rem 0.625rem;
+    border: 1px solid transparent;
+    border-radius: var(--r-pill);
+    font-family: var(--al-font-body);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+  :where(.al-badge--neutral) {
+    background: var(--surface-raised);
+    color: var(--fg-muted);
+    border-color: color-mix(in srgb, var(--fg-muted) 40%, transparent);
+  }
+  :where(.al-badge--info) {
+    background: var(--info-bg);
+    color: var(--info);
+    border-color: color-mix(in srgb, var(--info) 40%, transparent);
+  }
+  :where(.al-badge--ok) {
+    background: var(--ok-bg);
+    color: var(--ok);
+    border-color: color-mix(in srgb, var(--ok) 40%, transparent);
+  }
+  :where(.al-badge--warn) {
+    background: var(--warn-bg);
+    color: var(--warn);
+    border-color: color-mix(in srgb, var(--warn) 40%, transparent);
+  }
+  :where(.al-badge--danger) {
+    background: var(--danger-bg);
+    color: var(--danger);
+    border-color: color-mix(in srgb, var(--danger) 40%, transparent);
+  }
+  :where(.al-badge--lilac) {
+    background: var(--surface-raised);
+    color: var(--link);
+    border-color: color-mix(in srgb, var(--link) 40%, transparent);
+  }
+  :where(.al-badge--closed) {
+    background: var(--surface-raised);
+    color: var(--fg-faint);
+    border-color: color-mix(in srgb, var(--fg-faint) 40%, transparent);
+  }
+  :where(.al-badge__dot) {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: var(--r-pill);
+    background: currentColor;
+  }
+
+  /* ---- Callout ---- */
+  :where(.al-callout) {
+    display: flex;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid transparent;
+    border-radius: var(--r-md);
+    background: var(--surface-raised);
+    color: var(--fg);
+  }
+  :where(.al-callout--tip) {
+    background: var(--info-bg);
+    border-color: color-mix(in srgb, var(--info) 40%, transparent);
+  }
+  :where(.al-callout--note) {
+    background: var(--surface-raised);
+    border-color: color-mix(in srgb, var(--line) 40%, transparent);
+  }
+  :where(.al-callout--success) {
+    background: var(--ok-bg);
+    border-color: color-mix(in srgb, var(--ok) 40%, transparent);
+  }
+  :where(.al-callout--warning) {
+    background: var(--warn-bg);
+    border-color: color-mix(in srgb, var(--warn) 40%, transparent);
+  }
+  :where(.al-callout--error) {
+    background: var(--danger-bg);
+    border-color: color-mix(in srgb, var(--danger) 40%, transparent);
+  }
+  :where(.al-callout__icon) {
+    flex: none;
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  :where(.al-callout--tip .al-callout__icon) {
+    color: var(--info);
+  }
+  :where(.al-callout--note .al-callout__icon) {
+    color: var(--fg-muted);
+  }
+  :where(.al-callout--success .al-callout__icon) {
+    color: var(--ok);
+  }
+  :where(.al-callout--warning .al-callout__icon) {
+    color: var(--warn);
+  }
+  :where(.al-callout--error .al-callout__icon) {
+    color: var(--danger);
+  }
+  :where(.al-callout__title) {
+    margin: 0;
+    font-family: var(--al-font-display);
+    font-weight: 600;
+    font-size: var(--text-h4);
+    color: var(--fg);
+  }
+  :where(.al-callout__body) {
+    margin: 0;
+    font-size: var(--text-body);
+    color: var(--fg);
+  }
+  :where(.al-callout__title + .al-callout__body) {
+    margin-top: 0.25rem;
+  }
+
+  /* ---- Field, controls ---- */
+  :where(.al-field) {
+    display: block;
+    margin: 0;
+  }
+  :where(.al-field__label) {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--fg);
+  }
+  :where(.al-field, .al-check-wrap) + :where(.al-gallery__row) {
+    margin-top: 1.5rem;
+  }
+  :where(.al-field + .al-field),
+  :where(.al-field + .al-check-wrap) {
+    margin-top: 1.25rem;
+  }
+  :where(.al-field__help) {
+    margin: 0 0 0.5rem;
+    font-size: 0.9375rem;
+    color: var(--fg-muted);
+  }
+  :where(.al-field__error) {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin: 0.5rem 0 0;
+    font-size: 0.9375rem;
+    color: var(--danger);
+  }
+  :where(.al-control) {
+    display: block;
+    width: 100%;
+    min-height: var(--target);
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--line-control);
+    border-radius: var(--r-md);
+    background: var(--field);
+    color: var(--fg);
+    font-family: var(--al-font-body);
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  :where(.al-control)::placeholder {
+    color: var(--fg-faint);
+  }
+  :where(.al-control:focus-visible) {
+    border-color: var(--ring);
+  }
+  :where(.al-control:disabled) {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  :where(.al-control[aria-invalid="true"]) {
+    border-color: var(--danger);
+  }
+  :where(textarea.al-control) {
+    min-height: 7.5rem;
+    resize: vertical;
+  }
+  :where(.al-select) {
+    position: relative;
+    display: block;
+  }
+  :where(.al-select select) {
+    appearance: none;
+    padding-right: 2.5rem;
+  }
+  :where(.al-select__chevron) {
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    width: 1rem;
+    height: 1rem;
+    transform: translateY(-50%);
+    color: var(--fg-muted);
+    pointer-events: none;
+  }
+
+  /* ---- Checkbox ---- */
+  :where(.al-check) {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    min-height: var(--target);
+    cursor: pointer;
+  }
+  :where(.al-check input) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  :where(.al-check__box) {
+    position: relative;
+    flex: none;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-top: 0.25rem;
+    border: 2px solid var(--line-control);
+    border-radius: var(--r-sm);
+    background: var(--field);
+  }
+  :where(.al-check input:checked + .al-check__box) {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  :where(.al-check input:checked + .al-check__box)::after {
+    content: "";
+    position: absolute;
+    left: 0.375rem;
+    top: 0.1875rem;
+    width: 0.375rem;
+    height: 0.6875rem;
+    border: solid var(--on-accent);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  :where(.al-check input:focus-visible + .al-check__box) {
+    outline: var(--ring-width) solid var(--ring);
+    outline-offset: var(--ring-offset);
+  }
+  :where(.al-check__text) {
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    color: var(--fg);
+  }
+  :where(.al-check__error) {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin: 0.5rem 0 0;
+    font-size: 0.9375rem;
+    color: var(--danger);
+  }
+
+  /* ---- Table ---- */
+  :where(.al-table-scroll) {
+    position: relative;
+    overflow-x: auto;
+    border-radius: var(--r-md);
+    mask-image: linear-gradient(to right, var(--page) 0, var(--page) calc(100% - 1.5rem), transparent 100%);
+  }
+  /* The fade mask would clip the focus ring (mask-clip is the border box), so the mask is dropped
+     while the region has keyboard focus and the ring is drawn inside the box. */
+  :where(.al-table-scroll:focus-visible) {
+    mask-image: none;
+    outline-offset: calc(var(--ring-width) * -1);
+  }
+  :where(.al-table) {
+    width: 100%;
+    min-width: 36rem;
+    border-collapse: collapse;
+    font-size: 0.9375rem;
+  }
+  :where(.al-table__caption) {
+    caption-side: top;
+    padding: 0 0 0.5rem;
+    text-align: left;
+    font-size: var(--text-small);
+    color: var(--fg-muted);
+  }
+  /* The caption box is as wide as the table, so it scrolls away sideways; the inner text sticks to the
+     scrollport's left edge instead and is capped to the visible width so it wraps rather than overflows. */
+  :where(.al-table__caption-text) {
+    position: sticky;
+    left: 0;
+    display: inline-block;
+    max-width: min(100%, calc(100vw - 2rem));
+  }
+  :where(.al-table th) {
+    padding: 0.75rem 1rem;
+    background: var(--surface-raised);
+    font-family: var(--al-font-display);
+    font-weight: 600;
+    font-size: 0.8125rem;
+    text-align: left;
+    color: var(--fg);
+  }
+  :where(.al-table thead th) {
+    border-bottom: 1px solid var(--line);
+  }
+  :where(.al-table td) {
+    height: 3.5rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--line);
+    vertical-align: middle;
+  }
+  :where(.al-table thead th:first-child) {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: var(--surface-raised);
+  }
+  :where(.al-table tbody th:first-child),
+  :where(.al-table tbody td:first-child) {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--page);
+  }
+  :where(.al-table tbody tr:hover th),
+  :where(.al-table tbody tr:hover td) {
+    background: var(--surface-raised);
+  }
+  :where(.al-num) {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  :where(.al-table-action) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--target-min);
+    min-height: var(--target-min);
+    padding: 0 0.5rem;
+    border: 0;
+    background: none;
+    color: var(--link);
+    font-family: var(--al-font-body);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  :where(.al-table-action:hover) {
+    color: var(--link-hi);
+  }
+
+  /* ---- States ---- */
+  :where(.al-skeleton) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  :where(.al-skeleton__line) {
+    height: 1rem;
+    border-radius: var(--r-md);
+    background: var(--surface-raised);
+  }
+  :where(.al-skeleton__block) {
+    border-radius: var(--r-md);
+    background: var(--surface-raised);
+  }
+  :where(.al-loading) {
+    display: grid;
+    place-items: center;
+    padding: 2rem;
+    border-radius: var(--r-lg);
+    background: var(--surface);
+    box-shadow: var(--al-shadow-card), inset 0 0 0 1px var(--line);
+    color: var(--fg-muted);
+    font-size: 0.9375rem;
+  }
+  :where(.al-empty) {
+    display: grid;
+    justify-items: center;
+    gap: 1rem;
+    padding: 2rem;
+    border-radius: var(--r-lg);
+    background: var(--surface);
+    box-shadow: var(--al-shadow-card), inset 0 0 0 1px var(--line);
+    text-align: center;
+  }
+  :where(.al-empty__icon) {
+    width: 2rem;
+    height: 2rem;
+    color: var(--fg-faint);
+  }
+  :where(.al-empty__title) {
+    margin: 0;
+    font-family: var(--al-font-display);
+    font-weight: 600;
+    font-size: var(--text-h3);
+    color: var(--fg);
+  }
+  :where(.al-empty__body) {
+    margin: 0;
+    max-width: var(--measure-card);
+    font-size: var(--text-body);
+    color: var(--fg-muted);
+  }
+  :where(.al-error) {
+    display: grid;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid color-mix(in srgb, var(--danger) 40%, transparent);
+    border-radius: var(--r-md);
+    background: var(--danger-bg);
+    color: var(--fg);
+  }
+  :where(.al-error__title) {
+    margin: 0;
+    font-family: var(--al-font-display);
+    font-weight: 600;
+    font-size: var(--text-h4);
+    color: var(--danger);
+  }
+  :where(.al-error__message) {
+    margin: 0;
+    font-size: var(--text-body);
+  }
+  :where(.al-error__details) {
+    font-size: 0.8125rem;
+  }
+  :where(.al-error__details summary) {
+    display: flex;
+    align-items: center;
+    min-height: var(--target-min);
+    cursor: pointer;
+  }
+  :where(.al-error__pre) {
+    margin: 0.5rem 0 0;
+    padding: 0.75rem;
+    overflow: auto;
+    border-radius: var(--r-sm);
+    background: var(--surface-raised);
+    font-family: var(--al-font-mono);
+    white-space: pre-wrap;
+  }
+
+  /* ---- Bento ---- */
+  :where(.al-bento) {
+    display: grid;
+    gap: 1rem;
+  }
+  @media (min-width: 48rem) {
+    :where(.al-bento) {
+      grid-template-columns: 2fr 1fr 1fr;
+    }
+    :where(.al-bento > [data-hero]) {
+      grid-row: span 2;
+    }
+    :where(.al-bento > [data-wide]) {
+      grid-column: 1 / -1;
+    }
+  }
+  :where(.al-tile) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1.25rem;
+    border-radius: var(--r-lg);
+    background: var(--surface);
+    box-shadow: var(--al-shadow-card), inset 0 0 0 1px var(--line);
+  }
+  @media (min-width: 48rem) {
+    :where(.al-tile) {
+      padding: 1.75rem;
+    }
+  }
+  :where(.al-tile[data-hero]) {
+    background: var(--tile-hero);
+  }
+  :where(.al-tile__eyebrow) {
+    margin: 0;
+    font-family: var(--al-font-display);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--eyebrow);
+  }
+  :where(.al-tile__title) {
+    margin: 0;
+    font-family: var(--al-font-display);
+    font-weight: 600;
+    font-size: var(--text-h3);
+    letter-spacing: var(--track-heading);
+    color: var(--accent);
+  }
+  :where(.al-tile[data-hero] .al-tile__title) {
+    font-size: 1.5rem;
+  }
+  :where(.al-tile__body) {
+    margin: 0;
+    max-width: var(--measure-card);
+    font-size: var(--text-body);
+    color: var(--fg-muted);
+  }
+  :where(.al-tile__media) {
+    margin-top: 0.25rem;
+  }
+  :where(.al-tile__link) {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target-min);
+    margin-top: auto;
+    color: var(--link);
+    font-weight: 600;
+    text-decoration: underline;
+  }
+  :where(.al-tile__link:hover) {
+    color: var(--link-hi);
+  }
+
+  /* ---- Feature row ---- */
+  :where(.al-feature) {
+    display: grid;
+    gap: 1.5rem;
+  }
+  :where(.al-feature__text) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  :where(.al-feature__eyebrow) {
+    margin: 0;
+    font-family: var(--al-font-display);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--eyebrow);
+  }
+  :where(.al-feature__title) {
+    margin: 0;
+    font-family: var(--al-font-display);
+    font-weight: 600;
+    font-size: var(--text-h2);
+    letter-spacing: var(--track-heading);
+    color: var(--fg);
+    text-wrap: balance;
+  }
+  :where(.al-feature__body) {
+    margin: 0;
+    max-width: var(--measure-card);
+    font-size: var(--text-body);
+    color: var(--fg-muted);
+  }
+  :where(.al-feature__bullets) {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  :where(.al-feature__bullet) {
+    display: flex;
+    gap: 0.5rem;
+    font-size: var(--text-body);
+    color: var(--fg);
+  }
+  :where(.al-feature__check) {
+    flex: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--accent);
+  }
+  :where(.al-feature__link) {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target-min);
+    color: var(--link);
+    font-weight: 600;
+    text-decoration: underline;
+  }
+  :where(.al-feature__link:hover) {
+    color: var(--link-hi);
+  }
+  @media (min-width: 64rem) {
+    :where(.al-feature) {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: 2.5rem;
+      align-items: center;
+    }
+    :where(.al-feature__text) {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    :where(.al-feature__media) {
+      grid-column: 2;
+      grid-row: 1;
+    }
+    :where(.al-feature--reverse .al-feature__text) {
+      grid-column: 2;
+    }
+    :where(.al-feature--reverse .al-feature__media) {
+      grid-column: 1;
+    }
+  }
+
+  /* ---- Feature section / cue sheet ---- */
+  :where(.al-feature-section) {
+    display: grid;
+    gap: 1.5rem;
+  }
+  :where(.al-feature-section__intro) {
+    margin: 0;
+    max-width: var(--measure-prose);
+    font-size: var(--text-lead);
+    color: var(--fg-muted);
+  }
+  :where(.al-cue-sheet) {
+    display: grid;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  :where(.al-cue-sheet__item) {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.25rem 1.25rem;
+    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  :where(.al-cue-sheet__index) {
+    grid-row: span 2;
+    font-family: var(--al-font-display);
+    font-weight: 600;
+    font-size: 0.8125rem;
+    color: var(--eyebrow);
+    font-variant-numeric: tabular-nums;
+  }
+  :where(.al-cue-sheet__title) {
+    margin: 0;
+    font-family: var(--al-font-display);
+    font-weight: 600;
+    font-size: 1.125rem;
+    color: var(--fg);
+  }
+  :where(.al-cue-sheet__body) {
+    margin: 0;
+    font-size: var(--text-body);
+    color: var(--fg-muted);
+  }
+
+  /* ---- Pricing card ---- */
+  :where(.al-pricing) {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.25rem;
+    border-radius: var(--r-lg);
+    background: var(--surface);
+    box-shadow: inset 0 0 0 2px var(--accent), var(--al-shadow-card);
+  }
+  @media (min-width: 48rem) {
+    :where(.al-pricing) {
+      padding: 1.75rem;
+    }
+  }
+  :where(.al-pricing__badge) {
+    align-self: flex-start;
+    margin: 0;
+    padding: 0.125rem 0.625rem;
+    border-radius: var(--r-pill);
+    background: var(--accent);
+    color: var(--on-accent);
+    font-family: var(--al-font-display);
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+  :where(.al-pricing__discount) {
+    margin: 0;
+    font-size: var(--text-body);
+    font-weight: 600;
+    color: var(--fg);
+  }
+  :where(.al-pricing__name) {
+    margin: 0;
+    font-family: var(--al-font-display);
+    font-weight: 600;
+    font-size: var(--text-h3);
+    color: var(--fg);
+  }
+  :where(.al-pricing__price) {
+    margin: 0;
+    font-family: var(--al-font-display);
+    font-weight: 700;
+    font-size: 2.375rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--fg);
+  }
+  :where(.al-pricing__price-tba) {
+    margin: 0;
+    font-family: var(--al-font-display);
+    font-weight: 600;
+    font-size: 1.25rem;
+    color: var(--fg-muted);
+  }
+  :where(.al-pricing__period) {
+    margin: 0;
+    font-size: var(--text-small);
+    color: var(--fg-muted);
+  }
+  :where(.al-pricing__list) {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  :where(.al-pricing__item) {
+    display: flex;
+    gap: 0.5rem;
+    font-size: var(--text-body);
+    color: var(--fg);
+  }
+  :where(.al-pricing__check) {
+    flex: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--accent);
+  }
+  :where(.al-pricing__small) {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: var(--fg-muted);
+  }
+
+  /* ---- Layout: Container + Section ---- */
+  :where(.al-container) {
+    width: 100%;
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+  :where(.al-container--page) {
+    max-width: var(--container);
+  }
+  :where(.al-container--detail) {
+    max-width: var(--container-detail);
+  }
+  :where(.al-container--form) {
+    max-width: var(--container-form);
+  }
+  :where(.al-container--formWide) {
+    max-width: var(--container-form-wide);
+  }
+  :where(.al-container--prose) {
+    max-width: var(--measure-prose);
+  }
+  :where(.al-section) {
+    padding-block: var(--section-y);
+  }
+  :where(.al-section--surface) {
+    background: var(--surface);
+  }
+  :where(.al-section__header) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+  }
+  :where(.al-section__eyebrow) {
+    margin: 0;
+    font-family: var(--al-font-display);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--eyebrow);
+  }
+  :where(.al-section__title) {
+    margin: 0;
+    font-family: var(--al-font-display);
+    font-weight: 600;
+    font-size: var(--text-h2);
+    letter-spacing: var(--track-heading);
+    color: var(--fg);
+    text-wrap: balance;
+  }
+}

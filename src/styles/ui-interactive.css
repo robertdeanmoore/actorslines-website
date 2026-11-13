@@ -1,0 +1,335 @@
+/* Slice 2, behaviour components: paper panel, device frame, accordion, modal, video card, error summary,
+   404 view, gallery. Colours come only from the semantic tokens (tokens.css). Selectors use :where()
+   inside @layer components so utilities override without !important (LL0071). The presentational
+   components live in ui.css. */
+
+@layer components {
+  /* ---- Paper panel ---- */
+  :where(.al-paper) {
+    background: var(--page);
+    color: var(--fg);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    box-shadow: var(--al-shadow-card);
+    padding: 1.25rem;
+  }
+  @media (min-width: 48rem) {
+    :where(.al-paper) {
+      padding: 1.75rem;
+    }
+  }
+
+  /* ---- Device frame, image mode (the placeholder mode reuses the hero.css classes) ---- */
+  :where(.al-device__shot) {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: calc(var(--r-phone) - 0.625rem);
+    box-shadow: 0 0 0 1px var(--screen-edge);
+  }
+  :where(.al-device__caption) {
+    margin-top: 0.75rem;
+    font-size: var(--text-caption);
+    color: var(--fg-muted);
+    text-align: center;
+  }
+
+  /* ---- Accordion (native <details>) ---- */
+  :where(.al-accordion) {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--line);
+  }
+  :where(.al-accordion__item) {
+    border-bottom: 1px solid var(--line);
+  }
+  :where(.al-accordion__item summary) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 3.5rem;
+    padding: 0.75rem 1.25rem;
+    list-style: none;
+    cursor: pointer;
+    color: var(--fg);
+    font-family: var(--al-font-display);
+    font-size: 1.0625rem;
+    font-weight: 600;
+    border-radius: var(--r-md);
+  }
+  :where(.al-accordion__item summary::-webkit-details-marker) {
+    display: none;
+  }
+  :where(.al-accordion__item summary:hover) {
+    background: var(--surface-raised);
+  }
+  :where(.al-accordion__item details[open]) {
+    background: var(--surface);
+  }
+  :where(.al-accordion__item summary svg) {
+    flex: none;
+    transition: transform var(--dur-base) var(--al-ease-out);
+  }
+  :where(.al-accordion__item details[open] summary svg) {
+    transform: rotate(180deg);
+  }
+  :where(.al-accordion__panel) {
+    max-width: 60ch;
+    padding: 0.25rem 1.25rem 1.25rem;
+    font-size: var(--text-body);
+    line-height: var(--leading-body);
+    color: var(--fg);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    :where(.al-accordion__item details[open] .al-accordion__panel) {
+      animation: al-fade-in var(--dur-base) var(--al-ease-out);
+    }
+  }
+  @keyframes al-fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /* ---- Modal (native <dialog>) ---- */
+  :where(.al-modal) {
+    width: calc(100% - 2rem);
+    max-width: 32rem;
+    max-height: calc(100dvh - 2rem);
+    margin: auto;
+    padding: 0;
+    border: 0;
+    border-radius: var(--r-lg);
+    background: var(--surface);
+    color: var(--fg);
+    box-shadow: var(--al-shadow-pop);
+    overflow: auto;
+  }
+  @media (min-width: 48rem) {
+    :where(.al-modal) {
+      border-radius: var(--r-xl);
+    }
+  }
+  :where(.al-modal)::backdrop {
+    background: var(--scrim);
+  }
+  :where(.al-modal[data-surface="paper"]) {
+    background: var(--page);
+  }
+  :where(.al-modal__panel) {
+    padding: 1.5rem;
+  }
+  :where(.al-modal__head) {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  :where(.al-modal__title) {
+    margin: 0;
+    padding-top: 0.5rem;
+    font-size: var(--text-h3);
+    font-weight: 600;
+    line-height: var(--leading-heading);
+    letter-spacing: var(--track-heading);
+    color: var(--fg);
+  }
+  :where(.al-modal__body) {
+    margin-top: 1rem;
+    line-height: var(--leading-body);
+  }
+  :where(.al-modal__footer) {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+  :where(.al-modal__footer > *) {
+    width: 100%;
+  }
+  @media (min-width: 40rem) {
+    :where(.al-modal__footer) {
+      flex-direction: row;
+      justify-content: flex-end;
+    }
+    :where(.al-modal__footer > *) {
+      width: auto;
+    }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    :where(.al-modal[open]) {
+      animation: al-fade-in var(--dur-base) var(--al-ease-out);
+    }
+  }
+  /* The page behind a modal dialog is inert; stop it scrolling under the backdrop as well. */
+  :where(body:has(dialog.al-modal[open])) {
+    overflow: hidden;
+  }
+
+  /* ---- Video card (click-to-load) ---- */
+  :where(.al-video__frame) {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: var(--r-xl);
+    background: var(--surface-raised);
+    box-shadow: inset 0 0 0 1px var(--line);
+  }
+  :where(.al-video__poster) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  :where(.al-video__poster--placeholder) {
+    display: grid;
+    /* Label at the bottom so it never runs under the centred play button. */
+    place-content: end center;
+    padding-bottom: 0.75rem;
+    color: var(--fg-muted);
+    font-size: var(--text-small);
+  }
+  :where(.al-video__iframe) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  :where(.al-video__play) {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: grid;
+    place-content: center;
+    width: 4rem;
+    height: 4rem;
+    margin: -2rem 0 0 -2rem;
+    border: 0;
+    border-radius: var(--r-pill);
+    background: var(--accent);
+    color: var(--on-accent);
+    cursor: pointer;
+    transition: background-color var(--dur-fast) var(--al-ease-out);
+  }
+  :where(.al-video__play:hover) {
+    background: var(--accent-hi);
+  }
+  :where(.al-video__play:active) {
+    background: var(--accent-lo);
+  }
+  :where(.al-video__meta) {
+    margin-top: 0.75rem;
+  }
+  :where(.al-video__title) {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: var(--leading-heading);
+    color: var(--fg);
+  }
+  :where(.al-video__duration) {
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+    color: var(--fg-muted);
+  }
+  :where(.al-video__desc) {
+    margin-top: 0.5rem;
+    max-width: var(--measure-card);
+    font-size: var(--text-small);
+    color: var(--fg-muted);
+  }
+  :where(.al-video__fallback) {
+    margin-top: 0.5rem;
+    font-size: var(--text-small);
+    color: var(--fg);
+  }
+  :where(.al-video__fallback a) {
+    color: var(--link);
+    text-decoration: underline;
+    text-underline-offset: 0.1875rem;
+  }
+
+  /* ---- Error summary ---- */
+  :where(.al-error-summary) {
+    margin-bottom: 1.5rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid color-mix(in srgb, var(--danger) 40%, transparent);
+    border-radius: var(--r-md);
+    background: var(--danger-bg);
+    color: var(--fg);
+  }
+  :where(.al-error-summary__title) {
+    margin: 0 0 0.5rem;
+    font-family: var(--al-font-display);
+    font-weight: 600;
+    color: var(--danger);
+  }
+  :where(.al-error-summary ul) {
+    margin: 0;
+    padding-left: 1.25rem;
+  }
+  :where(.al-error-summary a) {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target-min);
+    color: var(--fg);
+    text-decoration: underline;
+    text-underline-offset: 0.1875rem;
+  }
+
+  /* ---- 404 view ---- */
+  :where(.al-notfound) {
+    max-width: var(--container-detail);
+    margin: 0 auto;
+    padding: 4rem var(--gutter);
+  }
+  :where(.al-notfound__eyebrow) {
+    font-family: var(--al-font-display);
+    font-size: var(--text-eyebrow);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--eyebrow);
+  }
+  :where(.al-notfound h1) {
+    margin-top: 0.5rem;
+    font-size: var(--text-h1);
+    font-weight: 700;
+    line-height: var(--leading-heading);
+    letter-spacing: var(--track-heading);
+  }
+  :where(.al-notfound p + p) {
+    margin-top: 1rem;
+  }
+  :where(.al-notfound__actions) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  /* ---- Gallery (preview only) ---- */
+  :where(.al-gallery__group) {
+    display: grid;
+    gap: 1.25rem;
+    margin-top: 2.5rem;
+  }
+  :where(.al-gallery__row) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  :where(.al-gallery__grid) {
+    display: grid;
+    gap: 1rem;
+  }
+  @media (min-width: 48rem) {
+    :where(.al-gallery__grid) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+}

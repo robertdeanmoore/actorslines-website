@@ -27,6 +27,7 @@ import TelemetryPage from "./pages/admin/TelemetryPage";
 import NotifyLinkPage from "./pages/NotifyLinkPage";
 import LearnScriptsPage from "./pages/learn-lines/LearnScriptsPage";
 import LearnPracticePage from "./pages/learn-lines/LearnPracticePage";
+import UiGalleryRoute from "./pages/dev/UiGalleryRoute";
 
 export default function App() {
   return (
@@ -36,6 +37,8 @@ export default function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/terms" element={<TermsPage />} />
+        {/* Preview only (night flag on): component gallery for WIP 257 slice 2. Redirects home otherwise. */}
+        <Route path="/_ui-gallery" element={<UiGalleryRoute />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/notify/:action/:token" element={<NotifyLinkPage />} />
