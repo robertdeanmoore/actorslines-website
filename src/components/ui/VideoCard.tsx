@@ -67,7 +67,6 @@ export default function VideoCard({
             title={title}
             sandbox={PLAYER_SANDBOX}
             allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-            allowFullScreen
             referrerPolicy="strict-origin-when-cross-origin"
             onLoad={() => {
               loaded.current = true;

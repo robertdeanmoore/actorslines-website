@@ -16,7 +16,9 @@ export default function Table({ caption, captionHidden = false, label, className
   return (
     <div role="region" aria-label={label} tabIndex={0} className={cx("al-table-scroll", className)}>
       <table className="al-table">
-        <caption className={captionHidden ? "al-sr-only" : "al-table__caption"}>{caption}</caption>
+        <caption className={captionHidden ? "al-sr-only" : "al-table__caption"}>
+          {captionHidden ? caption : <span className="al-table__caption-text">{caption}</span>}
+        </caption>
         {children}
       </table>
     </div>
