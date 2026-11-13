@@ -3,6 +3,12 @@ import { Link } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import type { RequestStatus } from "../../lib/types";
 import StatusBadge from "../../components/StatusBadge";
+import { isNightTheme } from "../../lib/theme";
+import { Container } from "../../components/ui/Layout";
+import Card from "../../components/ui/Card";
+import { StatusBadge as UiStatusBadge } from "../../components/ui/Badge";
+import LinkButton from "../../components/ui/LinkButton";
+import { LoadingState, EmptyState } from "../../components/ui/States";
 
 export interface BoardPostStats {
   id: number;
@@ -17,6 +23,7 @@ export interface BoardPostStats {
 }
 
 export default function BoardPage() {
+  const night = isNightTheme();
   const [posts, setPosts] = useState<BoardPostStats[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -31,7 +38,38 @@ export default function BoardPage() {
       });
   }, []);
 
-  return (
+  return night ? (
+    <Container size="detail">
+      <div className="flex items-center justify-between gap-4">
+        <h1>Enhancement board</h1>
+        <LinkButton to="/requests/new">+ New suggestion</LinkButton>
+      </div>
+      <p className="mt-2 text-sm">
+        Ideas from actors like you, under consideration for Actors Lines. Vote for
+        the ones you'd use — it directly shapes what gets built next.
+      </p>
+      <div className="mt-6 space-y-3">
+        {loading && <LoadingState label="Loading…" />}
+        {!loading && posts.length === 0 && (
+          <EmptyState title="Nothing on the board yet." />
+        )}
+        {posts.map((p) => (
+          <Card key={p.id} as="article">
+            <Link to={`/board/${p.id}`} className="block">
+              <p>{p.summary}</p>
+              <div className="mt-3 flex items-center gap-4 text-xs">
+                <span title="Thumbs up">👍 {p.up_votes}</span>
+                <span title="Thumbs down">👎 {p.down_votes}</span>
+                <span>💬 {p.comment_count}</span>
+                <span className="flex-1" />
+                <UiStatusBadge status={p.status} />
+              </div>
+            </Link>
+          </Card>
+        ))}
+      </div>
+    </Container>
+  ) : (
     <div className="max-w-3xl mx-auto">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-brand">Enhancement board</h1>

@@ -4,10 +4,19 @@ import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../auth/AuthContext";
 import type { EnhancementRequest, RequestMessage } from "../../lib/types";
 import StatusBadge from "../../components/StatusBadge";
+import { isNightTheme } from "../../lib/theme";
+import { Container } from "../../components/ui/Layout";
+import Card from "../../components/ui/Card";
+import { StatusBadge as UiStatusBadge } from "../../components/ui/Badge";
+import Button from "../../components/ui/Button";
+import LinkButton from "../../components/ui/LinkButton";
+import { Field, Input } from "../../components/ui/Field";
+import { LoadingState, EmptyState } from "../../components/ui/States";
 
 export default function RequestDetailPage() {
   const { id } = useParams();
   const { session } = useAuth();
+  const night = isNightTheme();
   const [request, setRequest] = useState<EnhancementRequest | null>(null);
   const [messages, setMessages] = useState<RequestMessage[]>([]);
   const [reply, setReply] = useState("");
@@ -38,9 +47,27 @@ export default function RequestDetailPage() {
     await load();
   }
 
-  if (loading) return <p className="text-center text-gray-500">Loading…</p>;
+  if (loading)
+    return night ? (
+      <Container size="detail">
+        <LoadingState label="Loading…" />
+      </Container>
+    ) : (
+      <p className="text-center text-gray-500">Loading…</p>
+    );
   if (!request) {
-    return (
+    return night ? (
+      <Container size="detail">
+        <EmptyState
+          title="That request couldn't be found."
+          action={
+            <LinkButton to="/requests" variant="secondary">
+              Back to my requests
+            </LinkButton>
+          }
+        />
+      </Container>
+    ) : (
       <div className="text-center py-12">
         <p className="text-gray-600">That request couldn't be found.</p>
         <Link to="/requests" className="text-brand hover:underline text-sm">Back to my requests</Link>
@@ -56,7 +83,66 @@ export default function RequestDetailPage() {
     ["Anything else", request.extra_notes || "—"],
   ];
 
-  return (
+  return night ? (
+    <Container size="detail" className="space-y-6">
+      <Card as="article">
+        <LinkButton to="/requests" variant="ghost">← My requests</LinkButton>
+        <div className="mt-2 flex items-center gap-3">
+          <h1 className="flex-1">{request.title}</h1>
+          <UiStatusBadge status={request.status} />
+        </div>
+        <dl className="mt-4 space-y-3">
+          {qa.map(([q, a]) => (
+            <div key={q}>
+              <dt className="text-xs font-semibold uppercase tracking-wide">{q}</dt>
+              <dd className="whitespace-pre-wrap">{a}</dd>
+            </div>
+          ))}
+        </dl>
+        {request.status === "submitted" && (
+          <p className="mt-4 text-sm">
+            Thanks! Your suggestion is being reviewed — you'll see its status change
+            here as it moves along.
+          </p>
+        )}
+      </Card>
+
+      <Card as="article">
+        <h2>Conversation</h2>
+        <div className="mt-3 space-y-3">
+          {messages.length === 0 && (
+            <EmptyState
+              headingLevel={3}
+              title="No messages yet. If we need more detail from you, questions will appear here."
+            />
+          )}
+          {messages.map((m) => (
+            <div key={m.id} className="rounded-lg p-3 text-sm whitespace-pre-wrap">
+              <p className="text-xs font-semibold mb-1">
+                {m.author_kind === "user" ? "You" : "Actors Lines team"}
+                {" · "}{new Date(m.created_at).toLocaleString()}
+              </p>
+              {m.body}
+            </div>
+          ))}
+        </div>
+        <form onSubmit={sendReply} className="mt-4 flex items-end gap-2">
+          <Field label="Message" className="flex-1">
+            {(control) => (
+              <Input
+                {...control}
+                value={reply}
+                onChange={(e) => setReply(e.target.value)}
+                placeholder="Add a message…"
+                maxLength={4000}
+              />
+            )}
+          </Field>
+          <Button type="submit">Send</Button>
+        </form>
+      </Card>
+    </Container>
+  ) : (
     <div className="max-w-3xl mx-auto space-y-6">
       <div className="bg-white rounded-xl shadow-sm p-6">
         <Link to="/requests" className="text-sm text-brand hover:underline">← My requests</Link>

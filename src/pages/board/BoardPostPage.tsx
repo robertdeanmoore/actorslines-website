@@ -5,6 +5,14 @@ import { useAuth } from "../../auth/AuthContext";
 import type { Comment } from "../../lib/types";
 import StatusBadge from "../../components/StatusBadge";
 import type { BoardPostStats } from "./BoardPage";
+import { isNightTheme } from "../../lib/theme";
+import { Container } from "../../components/ui/Layout";
+import Card from "../../components/ui/Card";
+import { StatusBadge as UiStatusBadge } from "../../components/ui/Badge";
+import Button from "../../components/ui/Button";
+import LinkButton from "../../components/ui/LinkButton";
+import { Field, Input } from "../../components/ui/Field";
+import { LoadingState, EmptyState } from "../../components/ui/States";
 
 interface CommentWithName extends Comment {
   public_profiles: { display_name: string } | null;
@@ -13,6 +21,7 @@ interface CommentWithName extends Comment {
 export default function BoardPostPage() {
   const { id } = useParams();
   const { session, profile } = useAuth();
+  const night = isNightTheme();
   const [post, setPost] = useState<BoardPostStats | null>(null);
   const [comments, setComments] = useState<CommentWithName[]>([]);
   const [newComment, setNewComment] = useState("");
@@ -61,9 +70,27 @@ export default function BoardPostPage() {
     await load();
   }
 
-  if (loading) return <p className="text-center text-gray-500">Loading…</p>;
+  if (loading)
+    return night ? (
+      <Container size="detail">
+        <LoadingState label="Loading…" />
+      </Container>
+    ) : (
+      <p className="text-center text-gray-500">Loading…</p>
+    );
   if (!post) {
-    return (
+    return night ? (
+      <Container size="detail">
+        <EmptyState
+          title="That post couldn't be found."
+          action={
+            <LinkButton to="/board" variant="secondary">
+              Back to the board
+            </LinkButton>
+          }
+        />
+      </Container>
+    ) : (
       <div className="text-center py-12">
         <p className="text-gray-600">That post couldn't be found.</p>
         <Link to="/board" className="text-brand hover:underline text-sm">Back to the board</Link>
@@ -76,7 +103,75 @@ export default function BoardPostPage() {
       active ? "bg-brand text-white border-brand" : "border-gray-300 hover:bg-gray-100"
     }`;
 
-  return (
+  return night ? (
+    <Container size="detail" className="space-y-6">
+      <Card as="article">
+        <LinkButton to="/board" variant="ghost">← Enhancement board</LinkButton>
+        <div className="mt-3 flex items-start gap-3">
+          <p className="flex-1">{post.summary}</p>
+          <UiStatusBadge status={post.status} />
+        </div>
+        <div className="mt-4 flex items-center gap-3">
+          <Button
+            variant={post.my_vote === 1 ? "primary" : "secondary"}
+            aria-pressed={post.my_vote === 1}
+            onClick={() => vote(1)}
+          >
+            👍 {post.up_votes}
+          </Button>
+          <Button
+            variant={post.my_vote === -1 ? "primary" : "secondary"}
+            aria-pressed={post.my_vote === -1}
+            onClick={() => vote(-1)}
+          >
+            👎 {post.down_votes}
+          </Button>
+          <span className="text-xs">
+            Tap again to remove your vote.
+          </span>
+        </div>
+      </Card>
+
+      <Card as="article">
+        <h2>Comments</h2>
+        <div className="mt-3 space-y-3">
+          {comments.length === 0 && (
+            <EmptyState headingLevel={3} title="No comments yet — start the conversation." />
+          )}
+          {comments.map((c) => (
+            <div key={c.id}
+              className={`rounded-lg p-3 text-sm ${c.hidden_by_admin ? "opacity-50" : ""}`}>
+              <p className="text-xs font-semibold mb-1">
+                {c.public_profiles?.display_name || "Former member"}
+                {" · "}{new Date(c.created_at).toLocaleString()}
+                {c.hidden_by_admin && " · hidden"}
+              </p>
+              <p className="whitespace-pre-wrap">{c.body}</p>
+              {profile?.role === "admin" && (
+                <Button variant="ghost" onClick={() => hideComment(c)} className="mt-1 text-xs">
+                  {c.hidden_by_admin ? "Unhide" : "Hide"}
+                </Button>
+              )}
+            </div>
+          ))}
+        </div>
+        <form onSubmit={addComment} className="mt-4 flex items-end gap-2">
+          <Field label="Comment" className="flex-1">
+            {(control) => (
+              <Input
+                {...control}
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                maxLength={2000}
+                placeholder="Add a comment…"
+              />
+            )}
+          </Field>
+          <Button type="submit">Post</Button>
+        </form>
+      </Card>
+    </Container>
+  ) : (
     <div className="max-w-3xl mx-auto space-y-6">
       <div className="bg-white rounded-xl shadow-sm p-6">
         <Link to="/board" className="text-sm text-brand hover:underline">← Enhancement board</Link>
