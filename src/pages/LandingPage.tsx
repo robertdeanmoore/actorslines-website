@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import NotifyIphoneSection from "../components/NotifyIphoneSection";
@@ -20,7 +21,7 @@ const features = [
 // "nothing leaves your phone" and no "on-device speech recognition" (Clarity, Pricing Page Structure Update 3).
 // [COPY: Clarity to approve at the slice 3 gate]
 const bentoItems = [
-  { title: "Scan or import any script", body: "Scan a paper script with your camera or import a PDF. Actors Lines builds your scenes, characters and lines for you." },
+  { title: "Scan or import your script", body: "Scan a paper script with your camera or import a PDF. Actors Lines builds your scenes, characters and lines from it." },
   { title: "Hide and reveal your lines", body: "Choose how much you see: reveal modes, My Lines Only, cue-to-cue and sections, so you practise the way you learn." },
   { title: "Hear the other parts", body: "Natural voices, or recordings of your own, read every other character while you play yours." },
   { title: "See how each line went", body: "Say a line and get an accuracy score. A heat-map shows which lines and scenes need more work." },
@@ -30,9 +31,12 @@ const bentoItems = [
 
 // Trust strip: Clarity's wording (Pricing Page Structure Update 2, item 7). The "We never see your card details" line
 // waits for checkout (ADR-0155). [HOLLY CHECK] on the scripts line.
-const trustLines = [
-  "Your scripts are stored on your phone, and your plays can always be backed up and exported free.",
-  "No auto-renew: nothing is charged unless you buy again.",
+const trustLines: ReactNode[] = [
+  <>
+    In the app, your scripts are stored on your phone and are not uploaded to us. Android backup and speech
+    recognition can involve Google: see our <Link to="/privacy">privacy policy</Link>.
+  </>,
+  "This website sets no advertising or analytics cookies.",
   "Made by You Never Know Productions.",
 ];
 
@@ -49,9 +53,8 @@ export default function LandingPage() {
               Learn your lines. <span className="al-hero__accent">Your way.</span>
             </h1>
             <p className="al-hero__lead">
-              Actors Lines is the on-device line-learning companion for actors — from a
-              scanned script to a word-perfect performance, with a full synthetic cast
-              in your pocket.
+              Actors Lines is the line-learning app for actors, from a scanned script to a
+              word-perfect performance, with every other part read aloud for you.
             </p>
             <div className="al-hero__cta">
               {/* [PLACEHOLDER: Robert/Clarity per Interview Pack CTA]: label and target are not final */}
@@ -110,16 +113,16 @@ export default function LandingPage() {
           </Section>
           <Section tone="surface" title="Why actors trust it">
             <ul className="al-trust">
-              {trustLines.map((line) => (
-                <li key={line} className="al-trust__item">{line}</li>
+              {trustLines.map((line, i) => (
+                <li key={i} className="al-trust__item">{line}</li>
               ))}
             </ul>
           </Section>
           <Section title="Help shape Actors Lines">
             <p className="al-panel-text">
-              Registered members get our line-learning knowledge base and a direct
-              line to development: suggest enhancements, vote on other actors' ideas,
-              and watch the best ones get built.
+              Read our line-learning knowledge base, no account needed. Registered members also get a
+              direct line to development: suggest enhancements, vote on other actors' ideas and see
+              which ones we take forward.
             </p>
           </Section>
           <Section>
