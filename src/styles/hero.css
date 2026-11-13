@@ -101,7 +101,8 @@
   :where(.al-shots .al-device) {
     margin-top: 0;
   }
-  :where(.al-shots .al-device__caption) {
+  /* Real specificity: the :where() form lost to ui-interactive.css .al-device__caption (13px), which loads later. */
+  .al-shots .al-device__caption {
     max-width: 30ch;
     margin: 1rem auto 0;
     font-size: 1rem;
