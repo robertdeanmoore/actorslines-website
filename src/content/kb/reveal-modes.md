@@ -48,12 +48,10 @@ rows the text wraps onto, the whole block counts.
 
 Tapping a *different* column normally switches straight to that mode. The re-tap behaviour:
 
-| Line is currently… | Tap **Blank** | Tap **All** | Tap a hint (Word / Letters / Random) |
-|---|---|---|---|
-| Fully shown | → Blank | → All | → that hint |
-| Blank | → fully shown | → All | → that hint |
-| All | → Blank | → fully shown | → that hint |
-| Showing a hint (Word / Letters / Random) | → fully shown | → fully shown | → that hint (the same hint again → Blank) |
+- **Fully shown:** tap **Blank** → Blank. Tap **All** → All. Tap a hint (Word / Letters / Random) → that hint.
+- **Blank:** tap **Blank** → fully shown. Tap **All** → All. Tap a hint → that hint.
+- **All:** tap **Blank** → Blank. Tap **All** → fully shown. Tap a hint → that hint.
+- **Showing a hint (Word / Letters / Random):** tap **Blank** → fully shown. Tap **All** → fully shown. Tap a different hint → that hint. Tap the same hint again → Blank.
 
 So: tapping **Blank** or **All** a second time brings the line back to fully visible. Moving
 between **Blank** and **All** just adds or removes the pencil guide. Tapping **Blank** or **All**
