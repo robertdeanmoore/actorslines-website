@@ -15,10 +15,16 @@ import CueRow from "./components/CueRow";
 import BookmarkableRow from "./components/BookmarkableRow";
 import BookmarkMarker from "./components/BookmarkMarker";
 import BookmarkDialog from "./components/BookmarkDialog";
+import { isNightTheme } from "../../lib/theme";
+import PaperPanel from "../../components/ui/PaperPanel";
+import { Container } from "../../components/ui/Layout";
+import LinkButton from "../../components/ui/LinkButton";
+import { LoadingState, EmptyState } from "../../components/ui/States";
 
 export default function LearnPracticePage() {
   const { scriptId } = useParams<{ scriptId: string }>();
   const scriptIdNum = scriptId ? Number(scriptId) : undefined;
+  const night = isNightTheme();
 
   const [script, setScript] = useState<LearnScript | null>(null);
   const [loading, setLoading] = useState(true);
@@ -110,9 +116,27 @@ export default function LearnPracticePage() {
     sync.setReveal(key, newMode);
   }
 
-  if (loading) return <p className="p-8 text-center text-gray-500">Loading…</p>;
+  if (loading)
+    return night ? (
+      <Container size="detail">
+        <LoadingState label="Loading…" />
+      </Container>
+    ) : (
+      <p className="p-8 text-center text-gray-500">Loading…</p>
+    );
   if (notFound || !script) {
-    return (
+    return night ? (
+      <Container size="detail">
+        <EmptyState
+          title="That script couldn't be found."
+          action={
+            <LinkButton to="/learn-lines" variant="secondary">
+              Back to My Scripts
+            </LinkButton>
+          }
+        />
+      </Container>
+    ) : (
       <div className="max-w-md mx-auto text-center py-12">
         <p className="text-gray-600">That script couldn't be found.</p>
         <Link to="/learn-lines" className="text-brand hover:underline text-sm mt-2 inline-block">
@@ -126,8 +150,8 @@ export default function LearnPracticePage() {
   const scene = scenes[activeScene];
   const contentIndexes = contentLineIndexes(scene.lines);
 
-  return (
-    <div className="flex gap-6 -mx-4 sm:mx-0">
+  const content = (
+    <div className={night ? "flex gap-6" : "flex gap-6 -mx-4 sm:mx-0"}>
       {/* Desktop sidebar */}
       <div
         className="hidden md:block w-60 shrink-0 sticky top-4 self-start max-h-[calc(100vh-2rem)] overflow-y-auto rounded-xl p-3"
@@ -167,31 +191,31 @@ export default function LearnPracticePage() {
       <main className="flex-1 min-w-0">
         {/* Sticky header: stays pinned at the top of the screen while the line list scrolls
             beneath it — back link + (mobile) scene switcher, then the tap-zone legend. */}
-        <div className="sticky top-0 z-30 -mx-4 px-4 mb-2 bg-white shadow-sm">
-          <div className="flex items-center gap-3 py-2">
+        <div className={night ? "al-practice__bar" : "sticky top-0 z-30 -mx-4 px-4 mb-2 bg-white shadow-sm"}>
+          <div className={night ? "al-practice__bar-row" : "flex items-center gap-3 py-2"}>
             <Link
               to="/learn-lines"
-              className="flex items-center gap-1 text-sm font-medium text-gray-700 hover:text-brand shrink-0"
+              className={night ? "al-back-link" : "flex items-center gap-1 text-sm font-medium text-gray-700 hover:text-brand shrink-0"}
             >
               <span aria-hidden="true">←</span> Scripts
             </Link>
             <button
               onClick={() => setDrawerOpen(true)}
-              className="md:hidden w-11 h-11 flex items-center justify-center rounded-md hover:bg-gray-100 text-xl"
+              className={night ? "md:hidden al-practice__scenes-btn" : "md:hidden w-11 h-11 flex items-center justify-center rounded-md hover:bg-gray-100 text-xl"}
               aria-label="Scenes"
             >
               ☰
             </button>
-            <div className="md:hidden font-semibold text-sm truncate">
+            <div className={night ? "hidden" : "md:hidden font-semibold text-sm truncate"}>
               Act {scene.actNumber}, Scene {scene.sceneNumber}
             </div>
           </div>
-          <div className="flex items-center pb-2">
+          <div className={night ? "al-practice__legend" : "flex items-center pb-2"}>
             {["Show/Hide all", "First word", "First letters", "Random words"].map((label, i) => (
               <span
                 key={label}
-                className={`flex-1 text-[11px] italic truncate paperkit-script ${i > 0 ? "border-l pl-2" : ""}`}
-                style={{ color: "var(--color-paperkit-graphite)", borderColor: "var(--color-paperkit-bg-deep)" }}
+                className={night ? "al-practice__legend-item paperkit-script" : `flex-1 text-[11px] italic truncate paperkit-script ${i > 0 ? "border-l pl-2" : ""}`}
+                style={night ? undefined : { color: "var(--color-paperkit-graphite)", borderColor: "var(--color-paperkit-bg-deep)" }}
               >
                 {label}
               </span>
@@ -203,10 +227,16 @@ export default function LearnPracticePage() {
           className="rounded-xl px-4 sm:px-6 py-6"
           style={{ backgroundColor: "var(--color-paperkit-bg)" }}
         >
-          <h1 className="hidden md:block text-lg font-semibold mb-4" style={{ color: "var(--color-paperkit-ink)" }}>
+          <h1
+            className={night ? "al-page-title mb-4" : "hidden md:block text-lg font-semibold mb-4"}
+            style={night ? undefined : { color: "var(--color-paperkit-ink)" }}
+          >
             Act {scene.actNumber}, Scene {scene.sceneNumber}
             {scene.shortDescription && (
-              <span className="ml-2 text-sm font-normal" style={{ color: "var(--color-paperkit-graphite)" }}>
+              <span
+                className={night ? "al-practice__desc" : "ml-2 text-sm font-normal"}
+                style={night ? undefined : { color: "var(--color-paperkit-graphite)" }}
+              >
                 {scene.shortDescription}
               </span>
             )}
@@ -293,4 +323,5 @@ export default function LearnPracticePage() {
       )}
     </div>
   );
+  return night ? <PaperPanel>{content}</PaperPanel> : content;
 }

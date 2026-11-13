@@ -7,10 +7,16 @@ import UploadDialog from "./components/UploadDialog";
 import ShareScriptDialog from "./components/ShareScriptDialog";
 import AdoptSharedDialog from "./components/AdoptSharedDialog";
 import SharedWithDialog from "./components/SharedWithDialog";
+import { isNightTheme } from "../../lib/theme";
+import { Container } from "../../components/ui/Layout";
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
+import { LoadingState, EmptyState } from "../../components/ui/States";
 
 export default function LearnScriptsPage() {
   const { session } = useAuth();
   const navigate = useNavigate();
+  const night = isNightTheme();
   const [scripts, setScripts] = useState<LearnScriptSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploadOpen, setUploadOpen] = useState(false);
@@ -66,7 +72,84 @@ export default function LearnScriptsPage() {
     setScripts((prev) => prev.filter((s) => s.id !== id));
   }
 
-  return (
+  return night ? (
+    <Container size="detail" className="al-members">
+      <div className="al-page-head">
+        <h1 className="al-page-title">Learn Lines</h1>
+        <div className="flex gap-2">
+          <Button variant="secondary" onClick={() => setAdoptOpen(true)}>
+            Adopt shared script
+          </Button>
+          <Button onClick={() => setUploadOpen(true)}>
+            + Upload script
+          </Button>
+        </div>
+      </div>
+      <p className="mt-2 text-sm">
+        Import the same JSON file Actors Voice exports for cast distribution, then practice
+        hiding and revealing your lines right here in the browser.
+      </p>
+
+      <div className="mt-6">
+        {loading && <LoadingState label="Loading…" />}
+        {!loading && scripts.length === 0 && (
+          <EmptyState title="No scripts yet — upload a cast-export JSON to get started." />
+        )}
+      </div>
+      {scripts.length > 0 && (
+        <ul className="al-card-list">
+          {scripts.map((s) => (
+            <Card key={s.id} as="li">
+              <div className="al-script-row">
+                <Link to={`/learn-lines/${s.id}`} className="al-title-link">
+                  <div className="al-title-link__title">{s.title}</div>
+                  <div className="al-title-link__meta">
+                    Playing {s.my_character_name} · {new Date(s.updated_at).toLocaleDateString()}
+                  </div>
+                </Link>
+                <div className="al-script-row__actions">
+                  <Button variant="ghost" onClick={() => setShareScriptId(s.id)}>
+                    Share to
+                  </Button>
+                  {sharedScriptIds.has(s.id) && (
+                    <Button variant="ghost" onClick={() => setSharedWithScriptId(s.id)}>
+                      Shared with
+                    </Button>
+                  )}
+                  <Button variant="ghost" onClick={() => handleDelete(s.id)}>
+                    Remove
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </ul>
+      )}
+
+      {uploadOpen && (
+        <UploadDialog onClose={() => setUploadOpen(false)} onImport={handleImport} />
+      )}
+      {adoptOpen && (
+        <AdoptSharedDialog onClose={() => setAdoptOpen(false)} onImport={handleImport} />
+      )}
+      {shareScriptId !== null && (
+        <ShareScriptDialog
+          scriptId={shareScriptId}
+          onClose={() => {
+            setShareScriptId(null);
+            void loadSharedScriptIds();
+          }}
+        />
+      )}
+      {sharedWithScriptId !== null && (
+        <SharedWithDialog
+          scriptId={sharedWithScriptId}
+          onClose={() => setSharedWithScriptId(null)}
+          onChange={loadSharedScriptIds}
+        />
+      )}
+    </Container>
+  ) : (
     <div className="max-w-3xl mx-auto">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-brand">Learn Lines</h1>

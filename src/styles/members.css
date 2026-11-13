@@ -1,0 +1,215 @@
+/* Members area, night look (WIP #257 slice 3b): Requests, Request detail, Board, Learn Lines.
+   Colours only from semantic tokens; :where() inside @layer components so Tailwind utilities override
+   them (LL0071). Every class here is used by the isNightTheme() branch only. */
+
+@layer components {
+  /* ---- Page title (display h1, same recipe as the tutorials and 404 h1) ---- */
+  :where(.al-page-title) {
+    margin: 0;
+    font-family: var(--al-font-display);
+    font-weight: 700;
+    font-size: var(--text-h1);
+    line-height: var(--leading-heading);
+    letter-spacing: var(--track-heading);
+    color: var(--fg);
+    overflow-wrap: anywhere;
+  }
+  :where(.al-page-title--post) {
+    font-size: var(--text-h3);
+    line-height: 1.35;
+    letter-spacing: normal;
+  }
+  :where(.al-page-head) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1rem;
+  }
+
+  /* ---- Lists of cards ---- */
+  :where(.al-card-list) {
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  :where(.al-members .al-card__link) {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target-min);
+  }
+
+  /* ---- Back links ---- */
+  :where(.al-back) {
+    justify-content: flex-start;
+    padding-inline: 0;
+  }
+  :where(.al-back-link) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    min-height: var(--target-min);
+    padding-inline: 0.25rem;
+    font-size: var(--text-small);
+    font-weight: 600;
+    color: var(--link);
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+  :where(.al-back-link:hover) {
+    text-decoration: underline;
+  }
+
+  /* ---- Learn scripts list row: title gets the full row on narrow screens ---- */
+  :where(.al-script-row) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: center;
+    gap: 0.25rem 0.75rem;
+  }
+  @media (min-width: 40rem) {
+    :where(.al-script-row) {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+  }
+  :where(.al-script-row__actions) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+  :where(.al-title-link) {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+    min-height: var(--target-min);
+    color: inherit;
+    text-decoration: none;
+  }
+  :where(.al-title-link__title) {
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+  :where(.al-title-link__meta) {
+    font-size: var(--text-small);
+    color: var(--fg-muted);
+  }
+
+  /* ---- Messages and comments: yours right and tinted, theirs left and raised, system centred ---- */
+  :where(.al-msg-list) {
+    list-style: none;
+    margin: 0.75rem 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  :where(.al-msg) {
+    align-self: flex-start;
+    max-width: min(100%, 34rem);
+    padding: 0.75rem 1rem;
+    border-radius: var(--r-lg);
+    border-top-left-radius: 0.25rem;
+    background: var(--surface-raised);
+    box-shadow: inset 0 0 0 1px var(--line);
+    font-size: var(--text-small);
+    line-height: 1.5;
+  }
+  :where(.al-msg--own) {
+    align-self: flex-end;
+    border-top-left-radius: var(--r-lg);
+    border-top-right-radius: 0.25rem;
+    background: color-mix(in srgb, var(--accent) 22%, var(--surface));
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent);
+  }
+  :where(.al-msg--system) {
+    align-self: center;
+    max-width: 100%;
+    border-radius: var(--r-md);
+    background: transparent;
+    box-shadow: none;
+    outline: 1px dashed var(--line-control);
+    text-align: center;
+    font-style: italic;
+    color: var(--fg-muted);
+  }
+  :where(.al-msg--hidden) {
+    opacity: 0.5;
+  }
+  :where(.al-msg__meta) {
+    margin: 0 0 0.25rem;
+    font-size: var(--text-caption);
+    font-weight: 600;
+    font-style: normal;
+    color: var(--fg-muted);
+  }
+  :where(.al-msg__body) {
+    margin: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  /* ---- Learn Lines practice (inside the paper panel) ---- */
+  :where(.al-practice__bar) {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    margin-bottom: 0.5rem;
+    background: var(--page);
+    border-bottom: 1px solid var(--line);
+  }
+  :where(.al-practice__bar-row) {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  :where(.al-practice__scenes-btn) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--target-min);
+    height: var(--target-min);
+    border: 0;
+    border-radius: var(--r-md);
+    background: transparent;
+    color: var(--fg);
+    font-size: 1.25rem;
+    cursor: pointer;
+  }
+  :where(.al-practice__scenes-btn:hover) {
+    background: var(--surface-raised);
+  }
+  :where(.al-practice__legend) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.125rem 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+  @media (min-width: 40rem) {
+    :where(.al-practice__legend) {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  :where(.al-practice__legend-item) {
+    font-size: var(--text-caption);
+    font-style: italic;
+    color: var(--fg-muted);
+  }
+  :where(.al-practice__desc) {
+    display: block;
+    margin-top: 0.25rem;
+    font-family: var(--al-font-body);
+    font-size: var(--text-small);
+    font-weight: 400;
+    color: var(--fg-muted);
+  }
+}
+
+/* The Learn Lines script text uses the Android "graphite" grey (3.4:1 on the paper). Inside a paper panel on the
+   night look, darken it to the AA paper muted token. Unlayered on purpose: it must beat the @theme variable. */
+[data-theme="night"] [data-surface="paper"] {
+  --color-paperkit-graphite: var(--al-paper-muted);
+}

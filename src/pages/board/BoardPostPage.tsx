@@ -5,6 +5,14 @@ import { useAuth } from "../../auth/AuthContext";
 import type { Comment } from "../../lib/types";
 import StatusBadge from "../../components/StatusBadge";
 import type { BoardPostStats } from "./BoardPage";
+import { isNightTheme } from "../../lib/theme";
+import { Container } from "../../components/ui/Layout";
+import Card from "../../components/ui/Card";
+import { StatusBadge as UiStatusBadge } from "../../components/ui/Badge";
+import Button from "../../components/ui/Button";
+import LinkButton from "../../components/ui/LinkButton";
+import { Field, Input } from "../../components/ui/Field";
+import { LoadingState, EmptyState } from "../../components/ui/States";
 
 interface CommentWithName extends Comment {
   public_profiles: { display_name: string } | null;
@@ -13,6 +21,7 @@ interface CommentWithName extends Comment {
 export default function BoardPostPage() {
   const { id } = useParams();
   const { session, profile } = useAuth();
+  const night = isNightTheme();
   const [post, setPost] = useState<BoardPostStats | null>(null);
   const [comments, setComments] = useState<CommentWithName[]>([]);
   const [newComment, setNewComment] = useState("");
@@ -61,9 +70,27 @@ export default function BoardPostPage() {
     await load();
   }
 
-  if (loading) return <p className="text-center text-gray-500">Loading…</p>;
+  if (loading)
+    return night ? (
+      <Container size="detail">
+        <LoadingState label="Loading…" />
+      </Container>
+    ) : (
+      <p className="text-center text-gray-500">Loading…</p>
+    );
   if (!post) {
-    return (
+    return night ? (
+      <Container size="detail">
+        <EmptyState
+          title="That post couldn't be found."
+          action={
+            <LinkButton to="/board" variant="secondary">
+              Back to the board
+            </LinkButton>
+          }
+        />
+      </Container>
+    ) : (
       <div className="text-center py-12">
         <p className="text-gray-600">That post couldn't be found.</p>
         <Link to="/board" className="text-brand hover:underline text-sm">Back to the board</Link>
@@ -76,7 +103,85 @@ export default function BoardPostPage() {
       active ? "bg-brand text-white border-brand" : "border-gray-300 hover:bg-gray-100"
     }`;
 
-  return (
+  return night ? (
+    <Container size="detail" className="al-members space-y-6">
+      <Card as="article">
+        <LinkButton to="/board" variant="ghost" className="al-back">← Enhancement board</LinkButton>
+        <div className="mt-3 flex items-start gap-3">
+          <h1 className="al-page-title al-page-title--post flex-1">{post.summary}</h1>
+          <UiStatusBadge status={post.status} />
+        </div>
+        <div className="mt-4 flex items-center gap-3">
+          <Button
+            variant={post.my_vote === 1 ? "primary" : "secondary"}
+            aria-pressed={post.my_vote === 1}
+            aria-label={`Thumbs up, ${post.up_votes} votes`}
+            onClick={() => vote(1)}
+          >
+            👍 {post.up_votes}
+          </Button>
+          <Button
+            variant={post.my_vote === -1 ? "primary" : "secondary"}
+            aria-pressed={post.my_vote === -1}
+            aria-label={`Thumbs down, ${post.down_votes} votes`}
+            onClick={() => vote(-1)}
+          >
+            👎 {post.down_votes}
+          </Button>
+          <span className="text-xs">
+            Tap again to remove your vote.
+          </span>
+        </div>
+      </Card>
+
+      <Card as="article">
+        <h2>Comments</h2>
+        <div className="mt-3">
+          {comments.length === 0 && (
+            <EmptyState headingLevel={3} title="No comments yet — start the conversation." />
+          )}
+        </div>
+        {comments.length > 0 && (
+          <ul className="al-msg-list">
+            {comments.map((c) => (
+              <li
+                key={c.id}
+                className={`al-msg${c.author_id === session?.user.id ? " al-msg--own" : ""}${c.hidden_by_admin ? " al-msg--hidden" : ""}`}
+              >
+                <p className="al-msg__meta">
+                  {c.author_id === session?.user.id
+                    ? "You"
+                    : c.public_profiles?.display_name || "Former member"}
+                  {" · "}{new Date(c.created_at).toLocaleString()}
+                  {c.hidden_by_admin && " · hidden"}
+                </p>
+                <p className="al-msg__body">{c.body}</p>
+                {profile?.role === "admin" && (
+                  <Button variant="ghost" onClick={() => hideComment(c)} className="mt-1 text-xs">
+                    {c.hidden_by_admin ? "Unhide" : "Hide"}
+                  </Button>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+        <form onSubmit={addComment} className="mt-4 flex items-end gap-2">
+          <Field label="Comment" className="flex-1">
+            {(control) => (
+              <Input
+                {...control}
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                maxLength={2000}
+                placeholder="Add a comment…"
+              />
+            )}
+          </Field>
+          <Button type="submit">Post</Button>
+        </form>
+      </Card>
+    </Container>
+  ) : (
     <div className="max-w-3xl mx-auto space-y-6">
       <div className="bg-white rounded-xl shadow-sm p-6">
         <Link to="/board" className="text-sm text-brand hover:underline">← Enhancement board</Link>
