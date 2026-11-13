@@ -1,0 +1,38 @@
+/* Legal pages (Privacy, Terms), night look (WIP #257 slice 4b). */
+/* Legal pages (Privacy, Terms), night only. Deliberately NOT in a layer: unlayered rules beat the
+   legacy Tailwind utilities (text-gray-700, text-sm, mt-2 ...) still on the unchanged legal text,
+   so the text lines stay byte-identical and later wording edits do not collide with this restyle.
+   Fixes D2 (/privacy h2 near-invisible). */
+[data-theme="night"] .al-legal {
+  font-size: var(--text-body);
+  line-height: 1.7;
+  color: var(--fg);
+  overflow-wrap: anywhere;
+}
+[data-theme="night"] .al-legal :is(p, li, ol, ul) {
+  font-size: var(--text-body);
+  line-height: 1.7;
+  color: var(--fg);
+}
+[data-theme="night"] .al-legal :is(p, ul, ol) {
+  margin-top: 0.75rem;
+}
+[data-theme="night"] .al-legal h2 {
+  margin-top: 2rem;
+  font-family: var(--al-font-display);
+  font-weight: 600;
+  font-size: var(--text-h3);
+  line-height: 1.3;
+  color: var(--fg);
+}
+[data-theme="night"] .al-legal :is(ul, ol) {
+  padding-left: 1.5rem;
+  margin-left: 0;
+}
+[data-theme="night"] .al-legal ul { list-style: disc; }
+[data-theme="night"] .al-legal ol { list-style: decimal; }
+[data-theme="night"] .al-legal li + li { margin-top: 0.5rem; }
+[data-theme="night"] .al-legal strong { font-weight: 600; color: var(--fg); }
+[data-theme="night"] .al-legal a { color: var(--link); text-decoration: underline; text-underline-offset: 0.2em; }
+[data-theme="night"] .al-legal a:hover { color: var(--link-hi); }
+[data-theme="night"] .al-legal .al-prose__meta { margin-top: 0.5rem; font-size: var(--text-caption); color: var(--fg-muted); }
