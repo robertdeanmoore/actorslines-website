@@ -1,8 +1,15 @@
+import { isNightTheme } from "../lib/theme";
+
+// Night look: the al-legal rules in legal.css (unlayered, so they beat the legacy Tailwind colour
+// utilities on the body text) restyle the page. Only the wrapper classes change; the text is untouched.
+const NIGHT_ARTICLE = "al-container al-container--prose al-doc al-legal";
+
 export default function TermsPage() {
+  const night = isNightTheme();
   return (
-    <article className="max-w-3xl mx-auto bg-white rounded-xl shadow-sm p-8">
-      <h1 className="text-2xl font-bold text-brand">Terms of Use</h1>
-      <p className="text-sm text-gray-500">Last updated: 5 July 2026</p>
+    <article className={night ? NIGHT_ARTICLE : "max-w-3xl mx-auto bg-white rounded-xl shadow-sm p-8"}>
+      <h1 className={night ? "al-page-title" : "text-2xl font-bold text-brand"}>Terms of Use</h1>
+      <p className={night ? "al-prose__meta" : "text-sm text-gray-500"}>Last updated: 5 July 2026</p>
 
       <ol className="list-decimal ml-5 mt-6 space-y-3 text-sm text-gray-700">
         <li>
