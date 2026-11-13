@@ -12,7 +12,7 @@ const LOAD_TIMEOUT_MS = 10000;
  * origin (allow-same-origin); allow-presentation covers the player's presentation controls; the two
  * popup tokens let the "YouTube" logo and share links open a tab that is not itself sandboxed.
  * Omitted on purpose: top-navigation, forms, modals, downloads, pointer-lock. Fullscreen is granted by
- * the allow/allowFullScreen attributes, not by sandbox tokens.
+ * the allow attribute, not by sandbox tokens.
  */
 export const PLAYER_SANDBOX =
   "allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox";
@@ -72,9 +72,10 @@ export default function LiteYouTube({
             title={title}
             sandbox={PLAYER_SANDBOX}
             allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-            allowFullScreen
             referrerPolicy="strict-origin-when-cross-origin"
             onLoad={() => {
+              // Not proof of playback: a blocked or refused frame still fires load (with the browser's
+              // error page) and iframes never fire error. Kept only to skip the timeout on a normal load.
               loaded.current = true;
             }}
             onError={() => setPhase("failed")}
@@ -111,9 +112,9 @@ export default function LiteYouTube({
           </>
         )}
       </div>
-      {phase === "failed" ? (
-        <p className="al-lite__fallback" role="status">
-          The video did not load.{" "}
+      {phase !== "poster" ? (
+        <p className="al-lite__fallback" role={phase === "failed" ? "status" : undefined}>
+          {phase === "failed" ? "The video did not load. " : "Having trouble? "}
           <a href={`https://www.youtube.com/watch?v=${videoId}`} target="_blank" rel="noreferrer">
             Watch on YouTube<span className="al-lite__sr"> (opens in a new tab)</span>
           </a>
