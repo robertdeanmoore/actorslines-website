@@ -48,7 +48,7 @@ export default function KbListPage() {
         <div className="mt-6" aria-live="polite">
           {kbArticles.length === 0 && <EmptyState title="No articles yet — check back soon." />}
           {kbArticles.length > 0 && filtered.length === 0 && (
-            <EmptyState title={`No help topics match "${query}".`} />
+            <EmptyState title={`No help topics match "${query}". Try a shorter word.`} />
           )}
         </div>
       </Container>

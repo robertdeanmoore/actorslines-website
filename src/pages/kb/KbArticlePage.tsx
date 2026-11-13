@@ -6,7 +6,7 @@ import YouTubeEmbed, { youTubeId } from "../../components/YouTubeEmbed";
 import { isNightTheme } from "../../lib/theme";
 import { Container } from "../../components/ui/Layout";
 import Callout from "../../components/ui/Callout";
-import VideoCard from "../../components/ui/VideoCard";
+import VideoCard, { VIDEO_PRIVACY_NOTE } from "../../components/ui/VideoCard";
 
 const CALLOUT_LEAD = /^(Tip|Note):$/;
 
@@ -57,6 +57,7 @@ export default function KbArticlePage() {
   }
 
   if (night) {
+    const hasVideo = (article.body.match(/https?:\/\/[^\s)>\]]+/g) ?? []).some((u) => youTubeId(u));
     return (
       <Container size="prose" as="article" className="al-doc">
         <Link to="/kb" className="al-doc__back">← Knowledge base</Link>
@@ -88,6 +89,7 @@ export default function KbArticlePage() {
           >
             {article.body}
           </Markdown>
+          {hasVideo && <p className="al-prose__meta">{VIDEO_PRIVACY_NOTE}</p>}
         </div>
       </Container>
     );

@@ -88,7 +88,7 @@ export default function VideoCard({
               />
             ) : (
               <div className="al-video__poster al-video__poster--placeholder">
-                <span>Poster image to come</span>
+                <span>{title || "Video"}</span>
               </div>
             )}
             <button
