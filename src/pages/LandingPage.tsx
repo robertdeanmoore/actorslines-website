@@ -2,6 +2,9 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import NotifyIphoneSection from "../components/NotifyIphoneSection";
 import DevicePlaceholder from "../components/ui/DevicePlaceholder";
+import { FeatureSection } from "../components/ui/FeatureRow";
+import { Container, Section } from "../components/ui/Layout";
+import LinkButton from "../components/ui/LinkButton";
 import { isNightTheme } from "../lib/theme";
 
 const features = [
@@ -12,6 +15,26 @@ const features = [
   ["Track your progress", "Accuracy heat-maps show exactly which lines and scenes need work, scene by scene, run by run."],
   ["Private by design", "Everything happens on your device. Your scripts are your business."],
 ] as const;
+
+// Night-look bento: Clarity's ranked six (Interview Pack section 2), shipped features only. No Rehearse, no
+// "nothing leaves your phone" and no "on-device speech recognition" (Clarity, Pricing Page Structure Update 3).
+// [COPY: Clarity to approve at the slice 3 gate]
+const bentoItems = [
+  { title: "Scan or import any script", body: "Scan a paper script with your camera or import a PDF. Actors Lines builds your scenes, characters and lines for you." },
+  { title: "Hide and reveal your lines", body: "Choose how much you see: reveal modes, My Lines Only, cue-to-cue and sections, so you practise the way you learn." },
+  { title: "Hear the other parts", body: "Natural voices, or recordings of your own, read every other character while you play yours." },
+  { title: "See how each line went", body: "Say a line and get an accuracy score. A heat-map shows which lines and scenes need more work." },
+  { title: "Built for theatre", body: "Entrances and exits, sound and lighting cues, collapsible sections, and a jump to the next entrance." },
+  { title: "Self-tape cues", body: "Record cue lines in your own voice for self-tapes and practice runs." },
+];
+
+// Trust strip: Clarity's wording (Pricing Page Structure Update 2, item 7). The "We never see your card details" line
+// waits for checkout (ADR-0155). [HOLLY CHECK] on the scripts line.
+const trustLines = [
+  "Your scripts are stored on your phone, and your plays can always be backed up and exported free.",
+  "No auto-renew: nothing is charged unless you buy again.",
+  "Made by You Never Know Productions.",
+];
 
 export default function LandingPage() {
   const { session } = useAuth();
@@ -80,6 +103,46 @@ export default function LandingPage() {
         </section>
       )}
 
+      {night ? (
+        <>
+          <Section>
+            <FeatureSection title="What Actors Lines does" variant="bento" items={bentoItems} />
+          </Section>
+          <Section tone="surface" title="Why actors trust it">
+            <ul className="al-trust">
+              {trustLines.map((line) => (
+                <li key={line} className="al-trust__item">{line}</li>
+              ))}
+            </ul>
+          </Section>
+          <Section title="Help shape Actors Lines">
+            <p className="al-panel-text">
+              Registered members get our line-learning knowledge base and a direct
+              line to development: suggest enhancements, vote on other actors' ideas,
+              and watch the best ones get built.
+            </p>
+          </Section>
+          <Section>
+            <Container size="form">
+              <NotifyIphoneSection />
+            </Container>
+          </Section>
+          {/* [PLACEHOLDER: Robert/Clarity per Interview Pack CTA]: heading and targets are not final */}
+          <Section className="al-cta-band">
+            <h2 className="al-cta-band__title">Start learning your lines</h2>
+            <div className="al-cta-band__actions">
+              {session ? (
+                <LinkButton to="/board">Enhancement board</LinkButton>
+              ) : (
+                <>
+                  <LinkButton to="/register">Create account</LinkButton>
+                  <LinkButton to="/login" variant="secondary">Sign in</LinkButton>
+                </>
+              )}
+            </div>
+          </Section>
+        </>
+      ) : (
       <div className="mx-auto w-full max-w-5xl px-4 py-8 space-y-16">
         <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {features.map(([title, body]) => (
@@ -101,6 +164,7 @@ export default function LandingPage() {
 
         <NotifyIphoneSection />
       </div>
+      )}
     </>
   );
 }
