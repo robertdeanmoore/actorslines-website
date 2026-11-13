@@ -70,6 +70,10 @@
     margin: 1rem 0 0;
     line-height: 1.7;
   }
+  /* Room between the disabled-button hint and the legal text that follows it. */
+  :where(.al-notify__submit + .al-hint + .al-notify__legal) {
+    margin-top: 1.5rem;
+  }
   :where(.al-notify__legal a) {
     padding-block: 0.5rem;
   }

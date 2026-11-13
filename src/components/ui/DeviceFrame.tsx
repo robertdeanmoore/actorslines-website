@@ -16,7 +16,16 @@ type Shot = {
  * transition from night to paper, copper glow, crisp screen edge. The screenshot is never dimmed,
  * tinted, inverted or cropped. Without `shot` the same bezel shows the labelled placeholder.
  */
-export default function DeviceFrame({ shot, caption }: { shot?: Shot; caption?: ReactNode }) {
+export default function DeviceFrame({
+  shot,
+  caption,
+  priority = false,
+}: {
+  shot?: Shot;
+  caption?: ReactNode;
+  /** Above-the-fold image (hero): loads eagerly with high fetch priority instead of lazily. */
+  priority?: boolean;
+}) {
   return (
     <figure className="al-device">
       <div className="al-device__bezel">
@@ -29,7 +38,8 @@ export default function DeviceFrame({ shot, caption }: { shot?: Shot; caption?: 
             width={shot.width}
             height={shot.height}
             alt={shot.alt}
-            loading="lazy"
+            loading={priority ? "eager" : "lazy"}
+            fetchPriority={priority ? "high" : undefined}
             decoding="async"
           />
         ) : (

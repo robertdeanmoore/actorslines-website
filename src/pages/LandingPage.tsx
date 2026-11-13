@@ -2,10 +2,11 @@ import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import NotifyIphoneSection from "../components/NotifyIphoneSection";
-import DevicePlaceholder from "../components/ui/DevicePlaceholder";
+import DeviceFrame from "../components/ui/DeviceFrame";
 import { FeatureSection } from "../components/ui/FeatureRow";
 import { Container, Section } from "../components/ui/Layout";
 import LinkButton from "../components/ui/LinkButton";
+import ScreenshotPair, { practiceShot } from "../components/ui/ScreenshotPair";
 import { isNightTheme } from "../lib/theme";
 
 const features = [
@@ -73,8 +74,8 @@ export default function LandingPage() {
                 </Link>
               )}
             </div>
-            {/* Placeholder panels must not reach a production page (checklist 17): night previews only. */}
-            <DevicePlaceholder />
+            {/* Decorative duplicate of the Practice screen shown with its caption below (Clarity: alt="" is fine). */}
+            <DeviceFrame shot={{ ...practiceShot, alt: "" }} priority />
           </div>
         </section>
       ) : (
@@ -110,6 +111,9 @@ export default function LandingPage() {
         <>
           <Section>
             <FeatureSection title="What Actors Lines does" variant="bento" items={bentoItems} />
+          </Section>
+          <Section eyebrow="The app" title="See it in action" id="screenshots">
+            <ScreenshotPair />
           </Section>
           <Section tone="surface" title="Why actors trust it">
             <ul className="al-trust">

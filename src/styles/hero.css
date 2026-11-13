@@ -51,7 +51,7 @@
     margin-top: 2rem;
   }
 
-  /* Device placeholder (hero phone with "screenshot to come"); replaced in slice 6. */
+  /* Device frame: hero phone and the "See it in action" pair; the placeholder mode is the gallery fallback. */
   :where(.al-device) {
     position: relative;
     width: min(18.75rem, 78%);
@@ -89,5 +89,42 @@
   :where(.al-device__note) {
     font-size: var(--text-small);
     color: var(--fg-muted);
+  }
+
+  /* ---- "See it in action": Edit and Practice screens, stacked on a phone, side by side from 48rem ---- */
+  :where(.al-shots) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 3rem;
+    justify-items: center;
+  }
+  :where(.al-shots .al-device) {
+    margin-top: 0;
+  }
+  :where(.al-shots .al-device__caption) {
+    max-width: 30ch;
+    margin: 1rem auto 0;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  :where(.al-device__caption-title) {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-family: var(--al-font-display);
+    font-weight: 600;
+    font-size: var(--text-h3);
+    line-height: 1.3;
+    color: var(--accent);
+  }
+  @media (min-width: 48rem) {
+    :where(.al-shots) {
+      grid-template-columns: repeat(2, minmax(0, 20rem));
+      justify-content: center;
+      align-items: start;
+      gap: 3rem 4rem;
+    }
+    :where(.al-shots > :nth-child(2)) {
+      margin-top: 1.5rem;
+    }
   }
 }

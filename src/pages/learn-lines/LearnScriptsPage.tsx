@@ -85,7 +85,7 @@ export default function LearnScriptsPage() {
           </Button>
         </div>
       </div>
-      <p className="mt-2 text-sm">
+      <p className="al-page-intro">
         Import the same JSON file Actors Voice exports for cast distribution, then practice
         hiding and revealing your lines right here in the browser.
       </p>
