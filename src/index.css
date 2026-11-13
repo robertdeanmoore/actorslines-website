@@ -8,6 +8,7 @@
 @import "./styles/ui.css";
 @import "./styles/ui-interactive.css";
 @import "./styles/members.css";
+@import "./styles/prose.css";
 
 @theme {
   --color-brand-500: oklch(46% 0.15 290);
