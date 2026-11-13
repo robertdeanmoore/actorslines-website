@@ -71,7 +71,7 @@ function withCmsCsp(res: Response): Response {
   return new Response(res.body, { status: res.status, statusText: res.statusText, headers });
 }
 
-export async function handle(request: Request, env: Env): Promise<Response> {
+async function route(request: Request, env: Env): Promise<Response> {
   const url = new URL(request.url);
 
   const target = canonicalRedirect(url);
@@ -91,3 +91,24 @@ export async function handle(request: Request, env: Env): Promise<Response> {
   return res;
 }
 
+
+// Hosts that may be indexed. Everything else (workers.dev, preview URLs, localhost) is noindex.
+const INDEXABLE_HOSTS = new Set([CANONICAL_HOST, `www.${CANONICAL_HOST}`]);
+
+export function isIndexableHost(hostname: string): boolean {
+  return INDEXABLE_HOSTS.has(hostname.toLowerCase());
+}
+
+/** Adds X-Robots-Tag: noindex, nofollow on non-canonical hosts so previews never enter search indexes. */
+function withRobotsPolicy(res: Response, hostname: string): Response {
+  if (isIndexableHost(hostname)) return res;
+  // Response.redirect() and fetched responses can have immutable headers: copy first.
+  const headers = new Headers(res.headers);
+  headers.set("x-robots-tag", "noindex, nofollow");
+  return new Response(res.body, { status: res.status, statusText: res.statusText, headers });
+}
+
+export async function handle(request: Request, env: Env): Promise<Response> {
+  const res = await route(request, env);
+  return withRobotsPolicy(res, new URL(request.url).hostname);
+}
