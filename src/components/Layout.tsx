@@ -1,6 +1,7 @@
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { supabaseConfigured } from "../lib/supabase";
+import { isNightTheme } from "../lib/theme";
 import { useRouteFocus } from "../lib/useRouteFocus";
 import { useRouteMeta } from "../lib/useRouteMeta";
 import Footer from "./Footer";
@@ -18,6 +19,10 @@ const MEMBER_LINKS: NavItem[] = [
   { to: "/requests", label: "My requests" },
 ];
 
+// Dark-launched nav entry (WIP 257): the /tutorials route exists on every host, but the link only shows
+// while the night theme flag is on, so production navigation is unchanged until the go-live release.
+const NIGHT_ONLY_LINKS: NavItem[] = [{ to: "/tutorials", label: "Tutorials" }];
+
 const ADMIN_LINKS: NavItem[] = [
   { to: "/admin", label: "Admin" },
   { to: "/admin/licences", label: "Box office" },
@@ -31,7 +36,7 @@ export default function Layout() {
 
   const signedIn = Boolean(session && profile);
   const isAdmin = profile?.role === "admin";
-  const links = signedIn ? MEMBER_LINKS : PUBLIC_LINKS;
+  const links = [...(signedIn ? MEMBER_LINKS : PUBLIC_LINKS), ...(isNightTheme() ? NIGHT_ONLY_LINKS : [])];
   // The landing page lays out its own full-width sections; every other page keeps the 5xl column.
   const fullBleed = pathname === "/";
 
