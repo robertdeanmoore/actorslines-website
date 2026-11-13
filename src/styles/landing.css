@@ -1,0 +1,79 @@
+/* Landing page sections (slice 3a). Colours only from semantic tokens; :where() in @layer components so
+   Tailwind utilities override (LL0071). Rendered on the night look only (LandingPage gates on isNightTheme). */
+
+@layer components {
+  :where(.al-trust) {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.75rem 2rem;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 48rem) {
+    :where(.al-trust) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  :where(.al-trust__item) {
+    margin: 0;
+    padding-left: 1rem;
+    border-left: 2px solid var(--line-control);
+    color: var(--fg-muted);
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+  :where(.al-cta-band) {
+    text-align: center;
+    background-image: var(--glow-hero);
+    background-repeat: no-repeat;
+  }
+  :where(.al-cta-band__title) {
+    margin: 0;
+    font-family: var(--al-font-display);
+    font-weight: 600;
+    font-size: var(--text-h2);
+    letter-spacing: var(--track-heading);
+    color: var(--fg);
+    text-wrap: balance;
+  }
+  :where(.al-cta-band__actions) {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  :where(.al-panel-text) {
+    margin: 0;
+    max-width: 60ch;
+    color: var(--fg-muted);
+    line-height: 1.6;
+  }
+  /* ---- Notify card (night look only) ---- */
+  :where(.al-notify__lead) {
+    margin-top: 0.75rem;
+  }
+  :where(.al-notify__form) {
+    margin-top: 1.5rem;
+  }
+  :where(.al-notify__captcha) {
+    margin-top: 1.25rem;
+    max-width: 100%;
+    min-height: 65px;
+    overflow: hidden;
+  }
+  :where(.al-notify__submit) {
+    margin-top: 1.25rem;
+  }
+  :where(.al-notify__legal) {
+    margin: 1rem 0 0;
+    line-height: 1.7;
+  }
+  :where(.al-notify__legal a) {
+    padding-block: 0.5rem;
+  }
+  :where(.al-notify__cta) {
+    margin-top: 1.25rem;
+  }
+}
