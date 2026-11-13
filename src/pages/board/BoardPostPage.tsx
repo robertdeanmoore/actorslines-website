@@ -18,6 +18,10 @@ interface CommentWithName extends Comment {
   public_profiles: { display_name: string } | null;
 }
 
+function voteCount(n: number): string {
+  return `${n} ${n === 1 ? "vote" : "votes"}`;
+}
+
 export default function BoardPostPage() {
   const { id } = useParams();
   const { session, profile } = useAuth();
@@ -115,7 +119,7 @@ export default function BoardPostPage() {
           <Button
             variant={post.my_vote === 1 ? "primary" : "secondary"}
             aria-pressed={post.my_vote === 1}
-            aria-label={`Thumbs up, ${post.up_votes} votes`}
+            aria-label={`Thumbs up, ${voteCount(post.up_votes)}`}
             onClick={() => vote(1)}
           >
             👍 {post.up_votes}
@@ -123,7 +127,7 @@ export default function BoardPostPage() {
           <Button
             variant={post.my_vote === -1 ? "primary" : "secondary"}
             aria-pressed={post.my_vote === -1}
-            aria-label={`Thumbs down, ${post.down_votes} votes`}
+            aria-label={`Thumbs down, ${voteCount(post.down_votes)}`}
             onClick={() => vote(-1)}
           >
             👎 {post.down_votes}

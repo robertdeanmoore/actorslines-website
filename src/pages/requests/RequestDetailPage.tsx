@@ -87,8 +87,8 @@ export default function RequestDetailPage() {
     <Container size="detail" className="al-members space-y-6">
       <Card as="article">
         <LinkButton to="/requests" variant="ghost" className="al-back">← My requests</LinkButton>
-        <div className="mt-2 flex items-center gap-3">
-          <h1 className="al-page-title flex-1">{request.title}</h1>
+        <div className="al-title-row mt-2">
+          <h1 className="al-page-title">{request.title}</h1>
           <UiStatusBadge status={request.status} />
         </div>
         <dl className="mt-4 space-y-3">

@@ -27,6 +27,28 @@
     gap: 0.75rem 1rem;
   }
 
+  /* Title and status badge: the badge drops under a long title instead of squeezing it (390px). */
+  :where(.al-title-row) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 0.5rem 0.75rem;
+  }
+  :where(.al-title-row > .al-page-title) {
+    flex: 1 1 14rem;
+    min-width: 0;
+  }
+  :where(.al-title-row > :not(.al-page-title)) {
+    flex-shrink: 0;
+  }
+  :where(.al-page-intro) {
+    margin: 0.75rem 0 0;
+    max-width: 60ch;
+    font-size: var(--text-small);
+    line-height: 1.6;
+    color: var(--fg-muted);
+  }
+
   /* ---- Lists of cards ---- */
   :where(.al-card-list) {
     list-style: none;
@@ -79,6 +101,19 @@
     display: flex;
     flex-wrap: wrap;
     gap: 0.25rem;
+  }
+  /* Ghost actions: pull them back so the label text lines up with the title above (the pill padding is invisible
+     until hover). Only while stacked; from 40rem they sit in the right column. */
+  :where(.al-script-row__actions .al-btn--ghost, .al-msg .al-btn--ghost) {
+    padding-inline: 0.75rem;
+  }
+  @media (max-width: 39.99rem) {
+    :where(.al-script-row__actions) {
+      margin-inline-start: -0.75rem;
+    }
+  }
+  :where(.al-msg .al-btn--ghost) {
+    margin-inline-start: -0.75rem;
   }
   :where(.al-title-link) {
     display: flex;

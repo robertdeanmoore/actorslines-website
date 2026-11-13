@@ -232,6 +232,7 @@ export default function LearnPracticePage() {
             style={night ? undefined : { color: "var(--color-paperkit-ink)" }}
           >
             Act {scene.actNumber}, Scene {scene.sceneNumber}
+            {scene.shortDescription && night && <span className="sr-only">: </span>}
             {scene.shortDescription && (
               <span
                 className={night ? "al-practice__desc" : "ml-2 text-sm font-normal"}
