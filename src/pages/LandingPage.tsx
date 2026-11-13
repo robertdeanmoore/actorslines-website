@@ -124,6 +124,9 @@ export default function LandingPage() {
               direct line to development: suggest enhancements, vote on other actors' ideas and see
               which ones we take forward.
             </p>
+            <div className="al-notify__cta">
+              <LinkButton to="/kb" variant="secondary">Read the knowledge base</LinkButton>
+            </div>
           </Section>
           <Section>
             <Container size="form">

@@ -50,4 +50,30 @@
     color: var(--fg-muted);
     line-height: 1.6;
   }
+  /* ---- Notify card (night look only) ---- */
+  :where(.al-notify__lead) {
+    margin-top: 0.75rem;
+  }
+  :where(.al-notify__form) {
+    margin-top: 1.5rem;
+  }
+  :where(.al-notify__captcha) {
+    margin-top: 1.25rem;
+    max-width: 100%;
+    min-height: 65px;
+    overflow: hidden;
+  }
+  :where(.al-notify__submit) {
+    margin-top: 1.25rem;
+  }
+  :where(.al-notify__legal) {
+    margin: 1rem 0 0;
+    line-height: 1.7;
+  }
+  :where(.al-notify__legal a) {
+    padding-block: 0.5rem;
+  }
+  :where(.al-notify__cta) {
+    margin-top: 1.25rem;
+  }
 }
