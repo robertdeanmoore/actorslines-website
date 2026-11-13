@@ -1,0 +1,158 @@
+/* Long-form reading, night look (WIP #257 slice 4): KB articles, Privacy, Terms.
+   Colours only from semantic tokens; :where() inside @layer components so Tailwind utilities override
+   them (LL0071). Used by the isNightTheme() branch only; the markup in that branch carries no legacy
+   colour utilities, so every colour here is the one that applies (fixes D1 /kb headings, D2 /privacy h2). */
+
+@layer components {
+  :where(.al-prose) {
+    font-size: var(--text-body);
+    line-height: 1.7;
+    color: var(--fg);
+    overflow-wrap: anywhere;
+  }
+  :where(.al-prose > * + *) {
+    margin-top: 1rem;
+  }
+  :where(.al-prose h2) {
+    margin-top: 2rem;
+    font-family: var(--al-font-display);
+    font-weight: 600;
+    font-size: var(--text-h3);
+    line-height: 1.3;
+    color: var(--fg);
+  }
+  :where(.al-prose h3) {
+    margin-top: 1.5rem;
+    font-family: var(--al-font-display);
+    font-weight: 600;
+    font-size: var(--text-h4);
+    line-height: 1.35;
+    color: var(--fg);
+  }
+  :where(.al-prose p, .al-prose li) {
+    color: var(--fg);
+  }
+  :where(.al-prose__meta) {
+    margin: 0.5rem 0 0;
+    font-size: var(--text-caption);
+    color: var(--fg-muted);
+  }
+  :where(.al-prose ul) {
+    list-style: disc;
+    padding-left: 1.5rem;
+  }
+  :where(.al-prose ol) {
+    list-style: decimal;
+    padding-left: 1.5rem;
+  }
+  :where(.al-prose li + li) {
+    margin-top: 0.5rem;
+  }
+  :where(.al-prose a) {
+    color: var(--link);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  :where(.al-prose a:hover) {
+    color: var(--link-hi);
+  }
+  :where(.al-prose strong) {
+    font-weight: 600;
+    color: var(--fg);
+  }
+  :where(.al-prose blockquote) {
+    margin-left: 0;
+    padding-left: 1rem;
+    border-left: 3px solid var(--line-control);
+    color: var(--fg-muted);
+  }
+  :where(.al-prose code) {
+    padding: 0.1em 0.35em;
+    border-radius: 0.25rem;
+    background: var(--field);
+    font-size: 0.9em;
+  }
+  :where(.al-prose img) {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--r-md);
+  }
+  :where(.al-prose table) {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+    font-size: var(--text-small);
+  }
+  :where(.al-prose th, .al-prose td) {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--line);
+    text-align: left;
+    vertical-align: top;
+  }
+  :where(.al-prose th) {
+    background: var(--surface-raised);
+    color: var(--fg);
+  }
+  :where(.al-prose hr) {
+    border: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  /* Article / legal page chrome */
+  :where(.al-doc) {
+    padding-block: 0.5rem 2rem;
+  }
+  :where(.al-doc__back) {
+    display: inline-block;
+    font-size: var(--text-small);
+    color: var(--link);
+    text-underline-offset: 0.2em;
+  }
+  :where(.al-doc__back:hover) {
+    color: var(--link-hi);
+  }
+
+  /* KB search field (visible label) */
+  :where(.al-kb-search) {
+    margin-top: 1.25rem;
+    display: grid;
+    gap: 0.375rem;
+  }
+  :where(.al-kb-search__label) {
+    font-size: var(--text-small);
+    font-weight: 600;
+    color: var(--fg);
+  }
+  :where(.al-kb-search__input) {
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0.5rem 0.875rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--line-control);
+    background: var(--field);
+    color: var(--fg);
+    font: inherit;
+    font-size: var(--text-small);
+  }
+  :where(.al-kb-search__input::placeholder) {
+    color: var(--fg-faint);
+  }
+  :where(.al-kb-search__input:focus-visible) {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  :where(.al-kb-card-meta) {
+    margin: 0.5rem 0 0;
+    font-size: var(--text-caption);
+    color: var(--fg-faint);
+  }
+  :where(.al-kb-summary) {
+    margin: 0.25rem 0 0;
+    font-size: var(--text-small);
+    color: var(--fg-muted);
+  }
+  :where(.al-prose .al-video) {
+    margin-block: 1.5rem;
+  }
+}
