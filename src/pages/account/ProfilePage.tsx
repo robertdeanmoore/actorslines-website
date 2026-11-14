@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../auth/AuthContext";
 import { verifyMfaCode, mfaRetryMessage } from "../../auth/mfaVerify";
@@ -20,6 +20,8 @@ export default function ProfilePage() {
   const [enrolFactorId, setEnrolFactorId] = useState<string | null>(null);
   const [enrolCode, setEnrolCode] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+  const deleting = useRef(false);
 
   useEffect(() => {
     supabase.auth.mfa.listFactors().then(({ data }) => {
@@ -71,8 +73,16 @@ export default function ProfilePage() {
   }
 
   async function deleteAccount() {
+    if (deleting.current) return;
+    deleting.current = true;
+    setDeleteError("");
     const { error } = await supabase.rpc("delete_own_account");
-    if (error) { setMessage(error.message); return; }
+    if (error) {
+      setMessage(error.message);
+      setDeleteError(error.message);
+      deleting.current = false;
+      return;
+    }
     await signOut();
   }
 
@@ -134,6 +144,7 @@ export default function ProfilePage() {
               Permanently removes your account, requests, comments and votes. This cannot
               be undone.
             </p>
+            {deleteError && <Callout tone="error" className="mt-4">{deleteError}</Callout>}
             <Button variant="secondary" onClick={() => setConfirmDelete(true)} className="mt-4">
               Delete my account…
             </Button>
@@ -142,8 +153,8 @@ export default function ProfilePage() {
               onClose={() => setConfirmDelete(false)}
               onConfirm={() => { setConfirmDelete(false); void deleteAccount(); }}
               title="Delete account"
-              description="Permanently removes your account, requests, comments and votes. This cannot be undone."
-              confirmLabel="Yes, delete everything"
+              description="Permanently deletes your account and its data, including your requests, comments, votes and Learn Lines scripts. If you bought a licence we keep only a minimal order record, as the law requires. This cannot be undone."
+              confirmLabel="Yes, delete my account"
               destructive
             />
           </Card>
