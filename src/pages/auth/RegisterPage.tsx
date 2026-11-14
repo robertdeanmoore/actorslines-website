@@ -80,8 +80,6 @@ function RegisterForm() {
 
   if (isNightTheme()) {
     // Night look (slice 5a): same fields, names, autoComplete, validation, handlers and Turnstile gating as the default look.
-    // TODO(Holly legal check, Terms v2 cl. 4 / F7): the 18+ signup line is NOT added yet; the wording
-    // "By creating an account you confirm you are 18 or over." is only a draft in Terms v2 (HOLLY CHECK open).
     if (done) {
       return (
         <div className="al-auth">
@@ -128,6 +126,10 @@ function RegisterForm() {
                 )}
               </Field>
               <TurnstileWidget ref={turnstileRef} onToken={setCaptchaToken} theme="dark" className="al-auth__captcha" />
+              <p className="al-auth__text">
+                By creating an account you confirm you are 18 or over. See our{" "}
+                <Link to="/terms">Terms</Link> and <Link to="/privacy">Privacy Policy</Link>.
+              </p>
               <Button type="submit" block busy={busy} className="al-auth__submit"
                 disabledReason={turnstileConfigured && !captchaToken ? "Complete the security check to continue." : undefined}
                 disabled={busy || (turnstileConfigured && !captchaToken)}>

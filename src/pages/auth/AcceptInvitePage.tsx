@@ -76,7 +76,6 @@ export default function AcceptInvitePage() {
 
   if (isNightTheme()) {
     // Night look (slice 5a): same invite check, fields, names, autoComplete, handlers and Turnstile gating as the default look.
-    // TODO(Holly legal check, Terms v2 cl. 4 / F7): the 18+ line is NOT added yet (wording still HOLLY CHECK in Terms v2).
     if (checkState === "checking") {
       return (
         <div className="al-auth">
@@ -119,13 +118,17 @@ export default function AcceptInvitePage() {
                     value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
                 )}
               </Field>
-              <Field label="Password" id="new-password" help="Choose a password of 8 characters or more." required>
+              <Field label="Password" id="new-password" help="8 characters or more." required>
                 {(control) => (
                   <Input {...control} type="password" name="new-password" autoComplete="new-password" required minLength={8}
                     value={password} onChange={(e) => setPassword(e.target.value)} />
                 )}
               </Field>
               <TurnstileWidget ref={turnstileRef} onToken={setCaptchaToken} theme="dark" className="al-auth__captcha" />
+              <p className="al-auth__text">
+                By creating an account you confirm you are 18 or over. See our{" "}
+                <Link to="/terms">Terms</Link> and <Link to="/privacy">Privacy Policy</Link>.
+              </p>
               <Button type="submit" block busy={busy} className="al-auth__submit"
                 disabledReason={turnstileConfigured && !captchaToken ? "Complete the security check to continue." : undefined}
                 disabled={busy || (turnstileConfigured && !captchaToken)}>
