@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
+import { isNightTheme } from "../lib/theme";
+import { Container } from "../components/ui/Layout";
+import Card from "../components/ui/Card";
+import Button from "../components/ui/Button";
 
 type State = "idle" | "working" | "ok" | "invalid" | "failed";
 
@@ -37,6 +41,28 @@ export default function NotifyLinkPage() {
             : "Please confirm that you want to unsubscribe and have your address deleted.";
 
   const showButton = valid && (state === "idle" || state === "failed");
+
+  if (isNightTheme()) {
+    // Night look (slice 5a): same message, button, click-to-act behaviour and links as the default look.
+    return (
+      <div className="al-auth">
+        <Container size="form">
+          <Card as="div" tone="dense" className="al-auth__card--center">
+            <h1 className="al-auth__title">iPhone updates</h1>
+            <p id="notify-link-message" className="al-auth__text" role="status">{message}</p>
+            {showButton && (
+              <Button type="button" onClick={submit} className="al-auth__action">
+                {action === "confirm" ? "Confirm my email" : "Unsubscribe"}
+              </Button>
+            )}
+            <div className="al-auth__action">
+              <Link to="/" className="al-auth__link">Back to Actors Lines</Link>
+            </div>
+          </Card>
+        </Container>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-md mx-auto bg-white rounded-xl shadow-sm p-8 text-center">

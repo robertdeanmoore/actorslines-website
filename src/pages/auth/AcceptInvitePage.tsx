@@ -3,6 +3,13 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import TurnstileWidget, { turnstileConfigured } from "../../components/TurnstileWidget";
 import type { TurnstileInstance } from "@marsidev/react-turnstile";
+import { isNightTheme } from "../../lib/theme";
+import { Container } from "../../components/ui/Layout";
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
+import Callout from "../../components/ui/Callout";
+import { Field, Input } from "../../components/ui/Field";
+import { LoadingState } from "../../components/ui/States";
 
 type CheckState = "checking" | "valid" | "invalid";
 
@@ -65,6 +72,70 @@ export default function AcceptInvitePage() {
       return;
     }
     navigate("/kb", { replace: true });
+  }
+
+  if (isNightTheme()) {
+    // Night look (slice 5a): same invite check, fields, names, autoComplete, handlers and Turnstile gating as the default look.
+    // TODO(Holly legal check, Terms v2 cl. 4 / F7): the 18+ line is NOT added yet (wording still HOLLY CHECK in Terms v2).
+    if (checkState === "checking") {
+      return (
+        <div className="al-auth">
+          <Container size="form">
+            <LoadingState label="Checking your invite…" />
+          </Container>
+        </div>
+      );
+    }
+    if (checkState === "invalid") {
+      return (
+        <div className="al-auth">
+          <Container size="form">
+            <Card as="div" tone="dense" className="al-auth__card--center">
+              <h1 className="al-auth__title">Invite link not valid</h1>
+              <p className="al-auth__text">{invalidReason}</p>
+              <p className="al-auth__text">
+                Ask whoever invited you to send a new one.
+              </p>
+              <Link to="/" className="al-auth__link al-auth__action">Back to home</Link>
+            </Card>
+          </Container>
+        </div>
+      );
+    }
+    return (
+      <div className="al-auth">
+        <Container size="form">
+          <Card as="div" tone="dense">
+            <h1 className="al-auth__title">You're invited</h1>
+            <p className="al-auth__text">
+              Create your account for <strong>{email}</strong>. See our{" "}
+              <Link to="/privacy">privacy policy</Link>.
+            </p>
+            {error && <Callout tone="error" className="al-auth__error">{error}</Callout>}
+            <form onSubmit={submit} className="al-auth__form">
+              <Field label="Display name" id="name" help="Shown on comments." required>
+                {(control) => (
+                  <Input {...control} name="name" autoComplete="name" required maxLength={40}
+                    value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
+                )}
+              </Field>
+              <Field label="Password" id="new-password" help="Choose a password of 8 characters or more." required>
+                {(control) => (
+                  <Input {...control} type="password" name="new-password" autoComplete="new-password" required minLength={8}
+                    value={password} onChange={(e) => setPassword(e.target.value)} />
+                )}
+              </Field>
+              <TurnstileWidget ref={turnstileRef} onToken={setCaptchaToken} theme="dark" className="al-auth__captcha" />
+              <Button type="submit" block busy={busy} className="al-auth__submit"
+                disabledReason={turnstileConfigured && !captchaToken ? "Complete the security check to continue." : undefined}
+                disabled={busy || (turnstileConfigured && !captchaToken)}>
+                {busy ? "Creating…" : "Create account"}
+              </Button>
+            </form>
+          </Card>
+        </Container>
+      </div>
+    );
   }
 
   if (checkState === "checking") {

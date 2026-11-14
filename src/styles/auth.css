@@ -1,0 +1,85 @@
+/* Auth and notify-link pages, night look (WIP #257 slice 5a): Login, Register, Invite, Reset password,
+   Update password, Notify link. Colours only from semantic tokens; :where() inside @layer components so
+   Tailwind utilities override them (LL0071). Every class here is used by the isNightTheme() branch only. */
+
+@layer components {
+  :where(.al-auth) {
+    padding-block: 2.5rem 4rem;
+  }
+  :where(.al-auth__card--center) {
+    text-align: center;
+  }
+  :where(.al-auth__title) {
+    margin: 0;
+    font-family: var(--al-font-display);
+    font-weight: 700;
+    font-size: clamp(1.5rem, 1.3rem + 0.8vw, 1.875rem);
+    line-height: var(--leading-heading);
+    letter-spacing: var(--track-heading);
+    color: var(--fg);
+    overflow-wrap: anywhere;
+  }
+  :where(.al-auth__text) {
+    margin: 0.75rem 0 0;
+    color: var(--fg-muted);
+    line-height: 1.6;
+  }
+  :where(.al-auth__text a) {
+    color: var(--link);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  :where(.al-auth__error) {
+    margin-top: 1rem;
+  }
+  :where(.al-auth__form) {
+    margin-top: 1.25rem;
+  }
+  :where(.al-auth__form > .al-auth__error) {
+    margin: 0 0 1.25rem;
+  }
+  :where(.al-auth__form > .al-auth__text) {
+    margin: 0 0 1.25rem;
+  }
+  :where(.al-auth__captcha) {
+    margin-top: 1.25rem;
+    max-width: 100%;
+    min-height: 65px;
+    overflow: hidden;
+  }
+  :where(.al-auth__submit) {
+    margin-top: 1.25rem;
+  }
+  :where(.al-auth__otp) {
+    text-align: center;
+    letter-spacing: 0.3em;
+  }
+  :where(.al-auth__links) {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0 1rem;
+    margin-top: 1rem;
+    font-size: 0.9375rem;
+  }
+  :where(.al-auth__link) {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target);
+    color: var(--link);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  :where(.al-auth__link:hover) {
+    color: var(--link-hi);
+  }
+  :where(.al-auth__action) {
+    margin-top: 1.25rem;
+  }
+  :where(.al-auth__fine) {
+    margin: 1rem 0 0;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--fg-muted);
+  }
+}
