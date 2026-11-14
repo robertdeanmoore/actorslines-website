@@ -29,6 +29,9 @@ import LearnScriptsPage from "./pages/learn-lines/LearnScriptsPage";
 import LearnPracticePage from "./pages/learn-lines/LearnPracticePage";
 import UiGalleryRoute from "./pages/dev/UiGalleryRoute";
 import TutorialsPage from "./pages/TutorialsPage";
+import FeaturesPage from "./pages/FeaturesPage";
+import FaqPage from "./pages/FaqPage";
+import SupportPage from "./pages/SupportPage";
 
 export default function App() {
   return (
@@ -41,6 +44,9 @@ export default function App() {
         {/* Preview only (night flag on): component gallery for WIP 257 slice 2. Redirects home otherwise. */}
         <Route path="/_ui-gallery" element={<UiGalleryRoute />} />
         <Route path="/tutorials" element={<TutorialsPage />} />
+        <Route path="/features" element={<FeaturesPage />} />
+        <Route path="/faq" element={<FaqPage />} />
+        <Route path="/support" element={<SupportPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/notify/:action/:token" element={<NotifyLinkPage />} />
