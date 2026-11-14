@@ -95,8 +95,8 @@ export default function LicencePanel() {
             code, enter it here.
           </p>
           {message && <Callout tone="note" className="mt-3">{message}</Callout>}
-          <form onSubmit={redeem} className="mt-4 flex items-start gap-2">
-            <Field label="Licence code" required className="flex-1">
+          <form onSubmit={redeem} className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-start">
+            <Field label="Licence code" required className="sm:flex-1">
               {(control) => (
                 <Input
                   {...control}
@@ -107,7 +107,7 @@ export default function LicencePanel() {
                 />
               )}
             </Field>
-            <Button type="submit" busy={redeeming}>
+            <Button type="submit" busy={redeeming} className="w-full sm:w-auto">
               {redeeming ? "Redeeming…" : "Redeem"}
             </Button>
           </form>

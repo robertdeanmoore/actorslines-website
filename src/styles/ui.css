@@ -272,6 +272,12 @@
   :where(.al-control:focus-visible) {
     border-color: var(--ring);
   }
+  /* Native date inputs hand focus to their inner day/month/year fields, so :focus-visible on the input
+     can miss; :focus-within keeps the shared 3px ring (shell.css) showing. */
+  :where(.al-control[type="date"]:focus-within) {
+    outline: var(--ring-width) solid var(--ring);
+    outline-offset: var(--ring-offset);
+  }
   :where(.al-control:disabled) {
     opacity: 0.5;
     cursor: not-allowed;

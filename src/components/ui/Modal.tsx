@@ -19,7 +19,7 @@ const FIRST_FIELD = "input:not([type=hidden]):not([disabled]), select:not([disab
 
 /**
  * Native <dialog> opened with showModal(): focus trap, Esc, inert background and top layer come
- * from the browser (design spec 03 section 11). Focus lands on the first field (or the heading) and
+ * from the browser (design spec 03 section 11). Focus lands on a [data-autofocus] element, else the first field (or the heading) and
  * returns to the opener on close.
  */
 export default function Modal({ open, onClose, title, children, footer, paper = false, dismissOnBackdrop = true }: ModalProps) {
@@ -34,9 +34,11 @@ export default function Modal({ open, onClose, title, children, footer, paper = 
     if (open && !dialog.open) {
       openerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
       dialog.showModal();
+      // An explicit data-autofocus anywhere in the dialog (e.g. Cancel in a destructive confirm) wins.
+      const explicit = dialog.querySelector<HTMLElement>("[data-autofocus]");
       const body = dialog.querySelector<HTMLElement>(".al-modal__body");
       const first = body?.querySelector<HTMLElement>(FIRST_FIELD);
-      (first ?? headingRef.current)?.focus();
+      (explicit ?? first ?? headingRef.current)?.focus();
     } else if (!open && dialog.open) {
       dialog.close();
     }
@@ -111,7 +113,7 @@ export function ConfirmDialog({
       dismissOnBackdrop={false}
       footer={
         <>
-          <Button variant="secondary" onClick={onClose} disabled={busy}>
+          <Button variant="secondary" onClick={onClose} disabled={busy} data-autofocus={destructive ? "" : undefined}>
             {cancelLabel}
           </Button>
           <Button variant={destructive ? "destructive" : "primary"} onClick={onConfirm} busy={busy}>

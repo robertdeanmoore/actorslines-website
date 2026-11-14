@@ -141,8 +141,9 @@ export default function ProfilePage() {
 
           <Card as="section" tone="dense" title="Delete account" headingLevel={2}>
             <p className="mt-2">
-              Permanently removes your account, requests, comments and votes. This cannot
-              be undone.
+              Permanently deletes your account and its data, including your requests, comments, votes
+              and Learn Lines scripts. If you bought a licence, we keep only a minimal order record, as
+              the law requires.
             </p>
             {deleteError && <Callout tone="error" className="mt-4">{deleteError}</Callout>}
             <Button variant="secondary" onClick={() => setConfirmDelete(true)} className="mt-4">
