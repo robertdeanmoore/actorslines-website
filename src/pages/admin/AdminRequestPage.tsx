@@ -6,6 +6,15 @@ import type {
   AiReport, BoardPost, DevNote, EnhancementRequest, Plan, RequestMessage, RequestStatus,
 } from "../../lib/types";
 import StatusBadge from "../../components/StatusBadge";
+import { isNightTheme } from "../../lib/theme";
+import { Container } from "../../components/ui/Layout";
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
+import LinkButton from "../../components/ui/LinkButton";
+import { Badge, StatusBadge as UiStatusBadge } from "../../components/ui/Badge";
+import Callout from "../../components/ui/Callout";
+import { Field, Input, Textarea } from "../../components/ui/Field";
+import { LoadingState } from "../../components/ui/States";
 
 export default function AdminRequestPage() {
   const { id } = useParams();
@@ -132,10 +141,179 @@ export default function AdminRequestPage() {
     navigate("/admin");
   }
 
+  if (!request && isNightTheme()) return <LoadingState label="Loading…" />;
   if (!request) return <p className="text-center text-gray-500">Loading…</p>;
 
   const card = "bg-white rounded-xl shadow-sm p-6";
   const btn = "rounded-md px-3 py-1.5 text-xs font-semibold";
+
+  if (isNightTheme()) {
+    return (
+      <Container size="detail" className="al-members space-y-6">
+        <div className="al-page-head">
+          <div className="al-title-row">
+            <h1 className="al-page-title">#{request.id} {request.title}</h1>
+            <UiStatusBadge status={request.status} />
+          </div>
+          <LinkButton to="/admin" variant="ghost" className="al-back">← Queue</LinkButton>
+        </div>
+        {flash && (
+          <Callout tone={flashIsError ? "error" : "note"}>{flash}</Callout>
+        )}
+        <Card as="article">
+          <dl className="space-y-3">
+            {([["Goal", request.goal], ["Where", request.where_in_app],
+               ["How", request.how_it_works], ["Frequency", request.usage_frequency],
+               ["Extra", request.extra_notes]] as const).map(([k, v]) => (
+              <div key={k}>
+                <dt className="text-sm font-semibold uppercase tracking-wide">{k}</dt>
+                <dd className="whitespace-pre-wrap">{v || "—"}</dd>
+              </div>
+            ))}
+          </dl>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Button onClick={() => dispatch({ action: "triage-report", request_id: Number(id) })} busy={busy}>
+              {busy ? "Starting..." : report ? "Re-run AI report" : "Run AI report"}
+            </Button>
+            <Button variant="secondary" onClick={() => setStatus("closed")}>Close</Button>
+            <Button variant="destructive" onClick={() => setStatus("rejected")}>Reject</Button>
+            <Button variant="secondary" onClick={() => setStatus("implemented")}>Mark implemented</Button>
+            <span className="flex-1" />
+            <Button variant="destructive" onClick={deleteRequest}>Delete</Button>
+          </div>
+        </Card>
+
+        <Card as="article">
+          <h2 className="al-card__title">AI developer report</h2>
+          {report ? (
+            <div className="mt-3 text-sm [&_h1]:font-bold [&_h2]:font-semibold [&_h2]:mt-4 [&_ul]:list-disc [&_ul]:ml-5 [&_ol]:list-decimal [&_ol]:ml-5">
+              <p className="text-sm text-fg-muted">Generated {new Date(report.created_at).toLocaleString()}</p>
+              <Markdown>{report.report_md}</Markdown>
+            </div>
+          ) : (
+            <p className="mt-2 text-sm text-fg-muted">
+              No report yet — run one with the button above.
+            </p>
+          )}
+        </Card>
+
+        <Card as="article">
+          <h2 className="al-card__title">
+            Public board summary {post && <span className="text-sm font-normal text-fg-muted">(live — <Link className="al-back-link" to={`/board/${post.id}`}>view post</Link>)</span>}
+          </h2>
+          <Field label="Public board summary" className="mt-3">
+            {(control) => (
+              <Textarea {...control} rows={4} value={summaryDraft}
+                onChange={(e) => setSummaryDraft(e.target.value)}
+                placeholder="The AI drafts this when its report runs; edit freely before publishing." />
+            )}
+          </Field>
+          <Button className="mt-2" onClick={publishSummary}>
+            {post ? "Update summary" : "Approve & publish to board"}
+          </Button>
+        </Card>
+
+        <Card as="article">
+          <h2 className="al-card__title">Implementation plans</h2>
+          <form onSubmit={requestPlan} className="mt-3">
+            <Field label="Your prompt to the code engine">
+              {(control) => (
+                <Textarea {...control} rows={3} value={planPrompt} onChange={(e) => setPlanPrompt(e.target.value)}
+                  placeholder="Your prompt to the code engine: how you'd like this enhancement approached…" />
+              )}
+            </Field>
+            <Button type="submit" className="mt-2">
+              Generate plan (iteration {(plans[0]?.iteration ?? 0) + 1})
+            </Button>
+          </form>
+          <ul className="al-card-list">
+            {plans.map((p) => (
+              <Card as="li" key={p.id} className="text-sm">
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold">v{p.iteration}</span>
+                  <Badge tone="neutral">{p.status}</Badge>
+                  <span className="flex-1" />
+                  {p.repo_path && <code className="text-sm text-fg-muted">{p.repo_path}</code>}
+                </div>
+                <p className="mt-1 whitespace-pre-wrap">{p.prompt}</p>
+                {p.plan_md && (
+                  <Card className="mt-2 max-h-96 overflow-y-auto text-sm [&_h1]:font-bold [&_h2]:font-semibold [&_h2]:mt-3 [&_ul]:list-disc [&_ul]:ml-5 [&_ol]:list-decimal [&_ol]:ml-5">
+                    <Markdown>{p.plan_md}</Markdown>
+                  </Card>
+                )}
+                <div className="mt-2 flex gap-2">
+                  {p.status === "draft" && (
+                    <Button onClick={() => approvePlan(p)}>Approve plan</Button>
+                  )}
+                  {p.status === "approved" && p.repo_path && (
+                    <Button onClick={() => dispatch({
+                      action: "implement-pr", request_id: Number(id), plan_path: p.repo_path,
+                    })}>
+                      ⚡ Implement (opens PR)
+                    </Button>
+                  )}
+                  {p.pr_url && (
+                    <a href={p.pr_url} target="_blank" rel="noreferrer"
+                      className="al-back-link">View PR →</a>
+                  )}
+                </div>
+              </Card>
+            ))}
+          </ul>
+          {plans.length === 0 && <p className="mt-3 text-sm text-fg-muted">No plans yet.</p>}
+        </Card>
+
+        <Card as="article">
+          <h2 className="al-card__title">Dev notes (private)</h2>
+          <form onSubmit={addNote} className="mt-3 flex items-end gap-2">
+            <Field label="Add a note" className="flex-1">
+              {(control) => (
+                <Input {...control} value={newNote} onChange={(e) => setNewNote(e.target.value)}
+                  placeholder="Add a note…" />
+              )}
+            </Field>
+            <Button type="submit">Add</Button>
+          </form>
+          <ul className="al-card-list">
+            {notes.map((n) => (
+              <Card as="li" key={n.id} className="text-sm">
+                <span className="text-sm text-fg-muted">{new Date(n.created_at).toLocaleString()} — </span>
+                {n.body}
+              </Card>
+            ))}
+          </ul>
+        </Card>
+
+        <Card as="article">
+          <h2 className="al-card__title">Thread with the submitter</h2>
+          <div className="mt-3">
+            {messages.length === 0 && <p className="text-sm text-fg-muted">No messages.</p>}
+          </div>
+          {messages.length > 0 && (
+            <ul className="al-msg-list">
+              {messages.map((m) => (
+                <li key={m.id} className={`al-msg${m.author_kind === "admin" ? " al-msg--own" : ""}`}>
+                  <p className="al-msg__meta">
+                    {m.author_kind} · {new Date(m.created_at).toLocaleString()}
+                  </p>
+                  <p className="al-msg__body">{m.body}</p>
+                </li>
+              ))}
+            </ul>
+          )}
+          <form onSubmit={sendAdminReply} className="mt-3 flex items-end gap-2">
+            <Field label="Reply as Actors Lines team" className="flex-1">
+              {(control) => (
+                <Input {...control} value={adminReply} onChange={(e) => setAdminReply(e.target.value)}
+                  placeholder="Reply as Actors Lines team…" />
+              )}
+            </Field>
+            <Button type="submit">Send</Button>
+          </form>
+        </Card>
+      </Container>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">

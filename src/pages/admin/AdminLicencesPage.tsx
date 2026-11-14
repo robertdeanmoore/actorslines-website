@@ -4,6 +4,14 @@ import { supabase } from "../../lib/supabase";
 import type { ProductCode, RedemptionCode } from "../../lib/types";
 import { PRODUCT_LABELS } from "../../lib/types";
 import { formatDate } from "../../lib/entitlements";
+import { isNightTheme } from "../../lib/theme";
+import { Container } from "../../components/ui/Layout";
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
+import LinkButton from "../../components/ui/LinkButton";
+import Callout from "../../components/ui/Callout";
+import { Badge } from "../../components/ui/Badge";
+import { Field, Input, Select } from "../../components/ui/Field";
 
 interface UserResult {
   id: string;
@@ -65,6 +73,110 @@ export default function AdminLicencesPage() {
   }
 
   const card = "bg-white rounded-xl shadow-sm p-6";
+
+  if (isNightTheme()) {
+    // Night look: same query/results/mint state, search/mintCode handlers and RPC calls as below.
+    return (
+      <Container size="page" className="al-members">
+        <div className="al-page-head">
+          <h1 className="al-page-title">Box office — licences</h1>
+          <LinkButton to="/admin" variant="secondary">← Request queue</LinkButton>
+        </div>
+
+        <Card as="div" className="mt-6">
+          <h2 className="al-card__title">Find a user</h2>
+          <p className="mt-1 text-sm al-panel-text">
+            Search by email or display name, then open their licence page to grant or revoke.
+          </p>
+          <form onSubmit={search} className="mt-4 flex items-end gap-2">
+            <Field label="Email or display name" className="flex-1">
+              {(control) => (
+                <Input {...control} placeholder="name@example.com"
+                  value={query} onChange={(e) => setQuery(e.target.value)} />
+              )}
+            </Field>
+            <Button type="submit" busy={searching}>
+              {searching ? "Searching…" : "Search"}
+            </Button>
+          </form>
+          {results.length > 0 && (
+            <ul className="al-card-list mt-4">
+              {results.map((u) => (
+                <li key={u.id}>
+                  <Link
+                    to={`/admin/licences/${u.id}`}
+                    className="flex items-center gap-3 px-3 py-2 text-sm"
+                  >
+                    <span className="flex-1 font-medium">{u.display_name || "(no name)"}</span>
+                    <span>{u.email}</span>
+                    {u.role === "admin" && <Badge tone="lilac">admin</Badge>}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
+
+        <Card as="div" className="mt-6">
+          <h2 className="al-card__title">Redemption codes</h2>
+          <p className="mt-1 text-sm al-panel-text">
+            Under Codes-first, this is the actual sales mechanism — payment arrives by any means,
+            mint a code, hand it to the buyer. The plaintext is shown exactly once.
+          </p>
+          <form onSubmit={mintCode} className="mt-4 flex flex-wrap items-end gap-2">
+            <Field label="Product">
+              {(control) => (
+                <Select {...control} value={mintProduct}
+                  onChange={(e) => setMintProduct(e.target.value as ProductCode)}>
+                  {MINTABLE_PRODUCTS.map((p) => (
+                    <option key={p} value={p}>{PRODUCT_LABELS[p]}</option>
+                  ))}
+                </Select>
+              )}
+            </Field>
+            <Field label="Expires (optional)">
+              {(control) => (
+                <Input {...control} type="date" value={mintExpires}
+                  onChange={(e) => setMintExpires(e.target.value)} />
+              )}
+            </Field>
+            <Field label="Max uses">
+              {(control) => (
+                <Input {...control} type="number" min={1} className="w-20" value={mintMaxUses}
+                  onChange={(e) => setMintMaxUses(Number(e.target.value))} />
+              )}
+            </Field>
+            <Button type="submit" busy={minting}>
+              {minting ? "Minting…" : "Mint code"}
+            </Button>
+          </form>
+          {mintedPlaintext && (
+            <Callout tone="note" className="mt-3">
+              <div className="flex items-center gap-2">
+                <code className="flex-1 font-mono tracking-widest">{mintedPlaintext}</code>
+                <Button variant="ghost" onClick={() => navigator.clipboard.writeText(mintedPlaintext)}>
+                  Copy
+                </Button>
+                <span className="text-sm">shown once — copy it now</span>
+              </div>
+            </Callout>
+          )}
+
+          <ul className="al-card-list mt-4">
+            {codes.map((c) => (
+              <li key={c.id} className="flex items-center gap-3 py-2 text-sm">
+                <code>…{c.code_hint}</code>
+                <span className="flex-1 font-medium">{PRODUCT_LABELS[c.product_code]}</span>
+                <span>{c.redeemed_count}/{c.max_uses} used</span>
+                <span>{c.expires_at ? `expires ${formatDate(c.expires_at)}` : "no expiry"}</span>
+              </li>
+            ))}
+          </ul>
+          {codes.length === 0 && <p className="text-sm">No codes minted yet.</p>}
+        </Card>
+      </Container>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">

@@ -4,6 +4,13 @@ import { supabase } from "../../lib/supabase";
 import type { EnhancementRequest, RequestStatus } from "../../lib/types";
 import { STATUS_LABELS } from "../../lib/types";
 import StatusBadge from "../../components/StatusBadge";
+import { isNightTheme } from "../../lib/theme";
+import { Container } from "../../components/ui/Layout";
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
+import LinkButton from "../../components/ui/LinkButton";
+import { StatusBadge as UiStatusBadge } from "../../components/ui/Badge";
+import { LoadingState, EmptyState } from "../../components/ui/States";
 
 const FILTERS: (RequestStatus | "all")[] = [
   "all", "submitted", "reported", "published", "planned", "implemented",
@@ -24,6 +31,72 @@ export default function AdminQueuePage() {
       setLoading(false);
     });
   }, [filter]);
+
+  if (isNightTheme()) {
+    // Night look: same filter state, query effect, handlers and link targets as the legacy block below.
+    return (
+      <Container size="page" className="al-members">
+        <section>
+          <h1 className="al-page-title">Admin — request queue</h1>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {FILTERS.map((f) => (
+              <Button key={f} variant={filter === f ? "primary" : "secondary"}
+                aria-pressed={filter === f} onClick={() => setFilter(f)}>
+                {f === "all" ? "All" : STATUS_LABELS[f]}
+              </Button>
+            ))}
+          </div>
+          <div className="mt-6">
+            {loading && <LoadingState label="Loading…" />}
+            {!loading && requests.length === 0 && (
+              <EmptyState title="No requests in this state." />
+            )}
+            {requests.length > 0 && (
+              <ul className="al-card-list">
+                {requests.map((r) => (
+                  <Card key={r.id} as="li" to={`/admin/requests/${r.id}`} title={r.title}>
+                    <div className="mt-2 flex items-center gap-3">
+                      <UiStatusBadge status={r.status} />
+                      <span className="text-sm">
+                        {new Date(r.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </Card>
+                ))}
+              </ul>
+            )}
+          </div>
+        </section>
+
+        <section className="mt-10">
+          <h2 className="al-section__title">Admin resources</h2>
+          <p className="mt-1 text-sm al-panel-text">
+            Knowledge-base articles are edited via Decap CMS (signs in with GitHub) at{" "}
+            <code>/cms/</code>. User accounts (view, reset password, delete) are managed in
+            Supabase's own dashboard — neither can be embedded here (both block being framed for
+            security), so both open in a new tab.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <LinkButton to="/admin/invites" variant="secondary">
+              Invites →
+            </LinkButton>
+            <LinkButton to="/admin/licences" variant="secondary">
+              Box office →
+            </LinkButton>
+            <LinkButton to="/admin/telemetry" variant="secondary">
+              Usage telemetry →
+            </LinkButton>
+            <LinkButton href="/cms/" newTab variant="secondary">
+              Manage knowledge base (GitHub) →
+            </LinkButton>
+            <LinkButton href="https://supabase.com/dashboard/project/dicywovaxxuwnkidinpn/auth/users" newTab variant="secondary">
+              Manage users (Supabase) →
+            </LinkButton>
+          </div>
+        </section>
+      </Container>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-10">
