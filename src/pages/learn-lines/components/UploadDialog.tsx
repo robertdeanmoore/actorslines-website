@@ -2,6 +2,10 @@ import { useRef, useState } from "react";
 import { parseImport } from "../../../lib/learnLines/parseImport";
 import type { PlayExport } from "../../../lib/learnLines/types";
 import CharacterPickerDialog from "./CharacterPickerDialog";
+import { isNightTheme } from "../../../lib/theme";
+import Modal from "../../../components/ui/Modal";
+import Button from "../../../components/ui/Button";
+import Callout from "../../../components/ui/Callout";
 
 const MAX_FILE_BYTES = 5 * 1024 * 1024;
 
@@ -53,6 +57,44 @@ export default function UploadDialog({ onClose, onImport }: UploadDialogProps) {
         onConfirm={handleConfirm}
         onCancel={() => (busy ? undefined : setParsed(null))}
       />
+    );
+  }
+
+  if (isNightTheme()) {
+    return (
+      <Modal
+        open
+        onClose={onClose}
+        title="Upload a script"
+        paper
+        dismissOnBackdrop={false}
+        footer={
+          <>
+            <Button variant="secondary" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button variant="primary" onClick={() => fileInputRef.current?.click()}>
+              Choose file…
+            </Button>
+          </>
+        }
+      >
+        <p className="text-sm">
+          Choose the JSON file exported from Actors Voice's "Export for cast" option.
+        </p>
+        {error && <Callout tone="error" className="mt-3">{error}</Callout>}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="application/json,.json"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) void handleFile(file);
+            e.target.value = "";
+          }}
+        />
+      </Modal>
     );
   }
 

@@ -3,6 +3,12 @@ import { supabase } from "../../lib/supabase";
 import { fetchMyLicences, formatDate, formatPence } from "../../lib/entitlements";
 import type { Licence } from "../../lib/types";
 import { PRODUCT_LABELS } from "../../lib/types";
+import { isNightTheme } from "../../lib/theme";
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
+import { Field, Input } from "../../components/ui/Field";
+import Callout from "../../components/ui/Callout";
+import { Badge } from "../../components/ui/Badge";
 
 const REDEEM_ERROR_COPY: Record<string, string> = {
   bad_request: "Enter a code first.",
@@ -59,6 +65,82 @@ export default function LicencePanel() {
 
   const current = currentLicence(licences);
   const card = "bg-white rounded-xl shadow-sm p-6";
+
+  if (isNightTheme()) {
+    return (
+      <div className="space-y-6">
+        <Card as="section">
+          <h2 className="al-card__title">Your licence</h2>
+          {loading ? (
+            <p className="mt-2 text-sm">Loading…</p>
+          ) : current ? (
+            <div className="mt-2 text-sm">
+              <p>
+                <span className="font-semibold">{PRODUCT_LABELS[current.product_code]}</span>
+                {" — access until "}
+                {formatDate(current.ends_at)}
+              </p>
+            </div>
+          ) : (
+            <p className="mt-2 text-sm">
+              Free tier — no active paid licence. Got a code? Redeem it below.
+            </p>
+          )}
+        </Card>
+
+        <Card as="section">
+          <h2 className="al-card__title">Redeem a code</h2>
+          <p className="mt-1 text-sm">
+            Purchases happen off-site for now (see actorslines.app for how to buy) — once you have a
+            code, enter it here.
+          </p>
+          {message && <Callout tone="note" className="mt-3">{message}</Callout>}
+          <form onSubmit={redeem} className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-start">
+            <Field label="Licence code" required className="sm:flex-1">
+              {(control) => (
+                <Input
+                  {...control}
+                  placeholder="AL-XXXX-XXXX"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  className="uppercase tracking-widest"
+                />
+              )}
+            </Field>
+            <Button type="submit" busy={redeeming} className="w-full sm:w-auto">
+              {redeeming ? "Redeeming…" : "Redeem"}
+            </Button>
+          </form>
+        </Card>
+
+        {licences.length > 0 && (
+          <Card as="section">
+            <h2 className="al-card__title">Licence history</h2>
+            <div className="mt-3 space-y-2">
+              {licences.map((l) => (
+                <div key={l.id} className="flex items-center gap-3 text-sm">
+                  <span className="flex-1 font-medium">{PRODUCT_LABELS[l.product_code]}</span>
+                  <span>
+                    {formatDate(l.starts_at)} – {formatDate(l.ends_at)}
+                  </span>
+                  {l.price_paid_pence != null && (
+                    <span>{formatPence(l.price_paid_pence)}</span>
+                  )}
+                  <Badge
+                    tone={
+                      l.status === "active" ? "ok" : l.status === "revoked" ? "danger" : "neutral"
+                    }
+                  >
+                    {l.status === "revoked" ? "Revoked — contact support" : l.status}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

@@ -3,6 +3,11 @@ import { supabase } from "../../../lib/supabase";
 import { useAuth } from "../../../auth/AuthContext";
 import type { PlayExport } from "../../../lib/learnLines/types";
 import CharacterPickerDialog from "./CharacterPickerDialog";
+import { isNightTheme } from "../../../lib/theme";
+import Modal from "../../../components/ui/Modal";
+import Button from "../../../components/ui/Button";
+import Callout from "../../../components/ui/Callout";
+import { LoadingState, EmptyState } from "../../../components/ui/States";
 
 interface SharedScriptItem {
   shareId: number;
@@ -94,6 +99,52 @@ export default function AdoptSharedDialog({ onClose, onImport }: AdoptSharedDial
         onConfirm={handleConfirm}
         onCancel={() => (busy ? undefined : setSelected(null))}
       />
+    );
+  }
+
+  if (isNightTheme()) {
+    return (
+      <Modal
+        open
+        onClose={onClose}
+        title="Adopt a shared script"
+        paper
+        dismissOnBackdrop={false}
+        footer={
+          <Button variant="secondary" onClick={onClose}>
+            Close
+          </Button>
+        }
+      >
+        <p className="text-sm">
+          Scripts a cast member has shared with you. Choosing one creates your own copy so
+          you can pick your character and hide/show your own lines.
+        </p>
+        {error && <Callout tone="error" className="mt-3">{error}</Callout>}
+
+        <div className="mt-4">
+          {loading && <LoadingState label="Loading…" />}
+          {!loading && items.length === 0 && (
+            <EmptyState title="Nothing's been shared with you yet." headingLevel={3} />
+          )}
+          {items.length > 0 && (
+            <div className="flex flex-col gap-2">
+              {items.map((item) => (
+                <Button
+                  key={item.shareId}
+                  variant="secondary"
+                  block
+                  className="text-left"
+                  onClick={() => setSelected(item)}
+                >
+                  <span className="block text-sm font-medium truncate">{item.title}</span>
+                  <span className="block text-sm">Shared by {item.sharedByName}</span>
+                </Button>
+              ))}
+            </div>
+          )}
+        </div>
+      </Modal>
     );
   }
 

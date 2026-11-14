@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { supabase } from "../../../lib/supabase";
 import { useAuth } from "../../../auth/AuthContext";
+import { isNightTheme } from "../../../lib/theme";
+import Modal from "../../../components/ui/Modal";
+import Button, { IconButton } from "../../../components/ui/Button";
+import { Field, Input } from "../../../components/ui/Field";
+import { Badge } from "../../../components/ui/Badge";
 
 interface ShareScriptDialogProps {
   scriptId: number;
@@ -77,6 +82,79 @@ export default function ShareScriptDialog({ scriptId, onClose }: ShareScriptDial
     setEmails(targets);
     setResults(nextResults);
     setBusy(false);
+  }
+
+  if (isNightTheme()) {
+    return (
+      <Modal
+        open
+        onClose={onClose}
+        title="Share this script"
+        paper
+        dismissOnBackdrop={false}
+        footer={
+          <>
+            <Button variant="secondary" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              disabled={busy || (emails.length === 0 && !input.trim())}
+              busy={busy}
+              onClick={share}
+            >
+              {busy ? "Sharing…" : "Share"}
+            </Button>
+          </>
+        }
+      >
+        <p className="text-sm">
+          Enter the email each cast member registered with. They'll see it under
+          "Adopt shared script" next time they visit Learn Lines.
+        </p>
+
+        {emails.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {emails.map((email) => (
+              <Badge
+                key={email}
+                tone={
+                  !results[email]
+                    ? "neutral"
+                    : results[email] === "shared" || results[email] === "already_shared"
+                      ? "ok"
+                      : "danger"
+                }
+              >
+                {email}
+                {results[email] && <span> — {RESULT_LABEL[results[email]]}</span>}
+                <IconButton label={`Remove ${email}`} onClick={() => removeEmail(email)}>
+                  ×
+                </IconButton>
+              </Badge>
+            ))}
+          </div>
+        )}
+
+        <div className="mt-3 flex items-end gap-2">
+          <Field label="Email address" className="flex-1">
+            {(control) => (
+              <Input
+                {...control}
+                type="email"
+                placeholder="name@example.com"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleInputKeyDown}
+              />
+            )}
+          </Field>
+          <Button variant="secondary" onClick={addEmail}>
+            Add
+          </Button>
+        </div>
+      </Modal>
+    );
   }
 
   return (
