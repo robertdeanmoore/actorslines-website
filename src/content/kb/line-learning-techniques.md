@@ -31,9 +31,3 @@ heat-map makes a perfect five-minute session: pick the reddest band, run it, don
 Silent reading recruits a fraction of the memory you'll use in performance. Speaking
 engages your voice, breath and hearing — the state you'll actually be in. Practice
 mode's speech scoring keeps you honest.
-
-## Embed an editing example
-
-To embed a video in an article like this one, paste a YouTube link on its own line:
-
-[https://www.youtube.com/watch?v=dQw4w9WgXcQ](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
