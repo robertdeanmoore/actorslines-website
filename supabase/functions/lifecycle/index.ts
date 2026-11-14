@@ -9,6 +9,7 @@
 //          MAIL_FROM (e.g. "Actors Lines <hello@actorslines.app>")
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { runUsagePurge } from "./purge.ts";
 
 const MONTH_MS = 30 * 24 * 60 * 60 * 1000;
 const FORTNIGHT_MS = 14 * 24 * 60 * 60 * 1000;
@@ -55,6 +56,7 @@ Deno.serve(async (req) => {
     compExtended: 0, compErrors: 0,
     licence1moWarned: 0, licence1wkWarned: 0, licenceWarnErrors: 0,
     notifyPurged: 0, notifyPurgeErrors: 0,
+    usagePurged: { telemetry_events: 0, recognition_reports: 0, request_messages: 0 }, usagePurgeErrors: 0,
   };
 
   // Box Office: comp_rolling licences are rolling, not perpetual (golden principle #1, rules.md)
@@ -183,6 +185,16 @@ Deno.serve(async (req) => {
     summary.notifyPurgeErrors++;
   } else {
     summary.notifyPurged = typeof purged === "number" ? purged : 0;
+  }
+
+  // Retention (WIP #257 B2): anonymous usage data and recognition reports 12 months from
+  // collection; support messages 12 months after the case closes. public.purge_usage_data() is
+  // service_role only and returns counts, never content.
+  const usage = await runUsagePurge((name, args) => admin.rpc(name, args));
+  summary.usagePurged = usage.totals;
+  if (usage.errorCode) {
+    console.error(`[lifecycle] usage purge failed code=${usage.errorCode}`);
+    summary.usagePurgeErrors++;
   }
 
   console.log("[lifecycle] run complete", summary);
