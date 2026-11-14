@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
-import TurnstileWidget, { turnstileConfigured } from "../../components/TurnstileWidget";
+import TurnstileWidget, { turnstileConfigured, useNightWidgetSize } from "../../components/TurnstileWidget";
 import type { TurnstileInstance } from "@marsidev/react-turnstile";
 import { isNightTheme } from "../../lib/theme";
 import { Container } from "../../components/ui/Layout";
@@ -58,6 +58,7 @@ function RegisterForm() {
   const [done, setDone] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const turnstileRef = useRef<TurnstileInstance>(null);
+  const widgetSize = useNightWidgetSize();
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -125,7 +126,7 @@ function RegisterForm() {
                     value={password} onChange={(e) => setPassword(e.target.value)} />
                 )}
               </Field>
-              <TurnstileWidget ref={turnstileRef} onToken={setCaptchaToken} theme="dark" className="al-auth__captcha" />
+              <TurnstileWidget ref={turnstileRef} onToken={setCaptchaToken} theme="dark" size={widgetSize} className="al-auth__captcha" />
               <p className="al-auth__text">
                 By creating an account you confirm you are 18 or over. See our{" "}
                 <Link to="/terms">Terms</Link> and <Link to="/privacy">Privacy Policy</Link>.

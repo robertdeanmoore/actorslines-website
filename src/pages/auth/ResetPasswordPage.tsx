@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { supabase } from "../../lib/supabase";
-import TurnstileWidget, { turnstileConfigured } from "../../components/TurnstileWidget";
+import TurnstileWidget, { turnstileConfigured, useNightWidgetSize } from "../../components/TurnstileWidget";
 import type { TurnstileInstance } from "@marsidev/react-turnstile";
 import { isNightTheme } from "../../lib/theme";
 import { Container } from "../../components/ui/Layout";
@@ -15,6 +15,7 @@ export default function ResetPasswordPage() {
   const [error, setError] = useState("");
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const turnstileRef = useRef<TurnstileInstance>(null);
+  const widgetSize = useNightWidgetSize();
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -50,7 +51,7 @@ export default function ResetPasswordPage() {
                       onChange={(e) => setEmail(e.target.value)} />
                   )}
                 </Field>
-                <TurnstileWidget ref={turnstileRef} onToken={setCaptchaToken} theme="dark" className="al-auth__captcha" />
+                <TurnstileWidget ref={turnstileRef} onToken={setCaptchaToken} theme="dark" size={widgetSize} className="al-auth__captcha" />
                 <Button type="submit" block className="al-auth__submit"
                   disabledReason={turnstileConfigured && !captchaToken ? "Complete the security check to continue." : undefined}
                   disabled={turnstileConfigured && !captchaToken}>

@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../auth/AuthContext";
-import TurnstileWidget, { turnstileConfigured } from "../../components/TurnstileWidget";
+import TurnstileWidget, { turnstileConfigured, useNightWidgetSize } from "../../components/TurnstileWidget";
 import type { TurnstileInstance } from "@marsidev/react-turnstile";
 import { checkTrusted, issueTrustedDevice } from "../../auth/trustedDevice";
 import { verifyMfaCode, mfaRetryMessage } from "../../auth/mfaVerify";
@@ -23,6 +23,7 @@ export default function LoginPage() {
   const [busy, setBusy] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const turnstileRef = useRef<TurnstileInstance>(null);
+  const widgetSize = useNightWidgetSize();
   const navigate = useNavigate();
   const location = useLocation();
   const { refreshProfile } = useAuth();
@@ -96,7 +97,7 @@ export default function LoginPage() {
                       onChange={(e) => setPassword(e.target.value)} />
                   )}
                 </Field>
-                <TurnstileWidget ref={turnstileRef} onToken={setCaptchaToken} theme="dark" className="al-auth__captcha" />
+                <TurnstileWidget ref={turnstileRef} onToken={setCaptchaToken} theme="dark" size={widgetSize} className="al-auth__captcha" />
                 <Button type="submit" block busy={busy} className="al-auth__submit"
                   disabledReason={turnstileConfigured && !captchaToken ? "Complete the security check to continue." : undefined}
                   disabled={busy || (turnstileConfigured && !captchaToken)}>
