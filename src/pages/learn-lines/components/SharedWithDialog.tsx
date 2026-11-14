@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../../lib/supabase";
+import { isNightTheme } from "../../../lib/theme";
+import Modal from "../../../components/ui/Modal";
+import Button from "../../../components/ui/Button";
+import Card from "../../../components/ui/Card";
+import { LoadingState, EmptyState } from "../../../components/ui/States";
 
 interface SharedWithDialogProps {
   scriptId: number;
@@ -37,6 +42,53 @@ export default function SharedWithDialog({ scriptId, onClose, onChange }: Shared
       onChange();
     }
     setRevokingId(null);
+  }
+
+  if (isNightTheme()) {
+    return (
+      <Modal
+        open
+        onClose={onClose}
+        title="Shared with"
+        paper
+        dismissOnBackdrop={false}
+        footer={
+          <Button variant="secondary" onClick={onClose}>
+            Close
+          </Button>
+        }
+      >
+        <p className="text-sm">
+          Revoking removes their access — it doesn't delete a copy they've already adopted.
+        </p>
+
+        <div className="mt-4">
+          {loading && <LoadingState label="Loading…" />}
+          {!loading && rows.length === 0 && (
+            <EmptyState title="Not shared with anyone." headingLevel={3} />
+          )}
+          {rows.length > 0 && (
+            <ul className="al-card-list">
+              {rows.map((row) => (
+                <Card key={row.share_id} as="li">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm truncate">{row.email}</span>
+                    <Button
+                      variant="destructive"
+                      disabled={revokingId === row.share_id}
+                      busy={revokingId === row.share_id}
+                      onClick={() => revoke(row.share_id)}
+                    >
+                      {revokingId === row.share_id ? "Revoking…" : "Revoke"}
+                    </Button>
+                  </div>
+                </Card>
+              ))}
+            </ul>
+          )}
+        </div>
+      </Modal>
+    );
   }
 
   return (

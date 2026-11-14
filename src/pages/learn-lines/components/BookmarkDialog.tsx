@@ -1,4 +1,8 @@
 import { useState } from "react";
+import { isNightTheme } from "../../../lib/theme";
+import Modal from "../../../components/ui/Modal";
+import Button from "../../../components/ui/Button";
+import { Field, Input } from "../../../components/ui/Field";
 
 const MAX_LEN = 20;
 
@@ -15,6 +19,66 @@ interface BookmarkDialogProps {
 export default function BookmarkDialog({ mode, existingLabel, onCancel, onSave, onDelete }: BookmarkDialogProps) {
   const [label, setLabel] = useState("");
   const trimmed = label.trim();
+
+  if (isNightTheme()) {
+    return mode === "create" ? (
+      <Modal
+        open
+        onClose={onCancel}
+        title="Add bookmark"
+        paper
+        footer={
+          <>
+            <Button variant="secondary" onClick={onCancel}>
+              Cancel
+            </Button>
+            <Button variant="primary" disabled={!trimmed} onClick={() => onSave?.(trimmed)}>
+              Save
+            </Button>
+          </>
+        }
+      >
+        <Field label="Bookmark name">
+          {(control) => (
+            <Input
+              {...control}
+              autoFocus
+              type="text"
+              maxLength={MAX_LEN}
+              value={label}
+              onChange={(e) => setLabel(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && trimmed) onSave?.(trimmed);
+                if (e.key === "Escape") onCancel();
+              }}
+            />
+          )}
+        </Field>
+        <div className="mt-1 text-right text-sm">
+          {label.length}/{MAX_LEN}
+        </div>
+      </Modal>
+    ) : (
+      <Modal
+        open
+        onClose={onCancel}
+        title={`🔖 ${existingLabel}`}
+        paper
+        footer={
+          <>
+            <Button variant="secondary" onClick={onCancel}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={onDelete}>
+              Delete
+            </Button>
+          </>
+        }
+      >
+        <p className="text-sm">Delete this bookmark?</p>
+      </Modal>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onCancel}>

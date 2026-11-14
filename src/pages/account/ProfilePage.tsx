@@ -3,6 +3,13 @@ import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../auth/AuthContext";
 import { verifyMfaCode, mfaRetryMessage } from "../../auth/mfaVerify";
 import LicencePanel from "./LicencePanel";
+import { isNightTheme } from "../../lib/theme";
+import { Container } from "../../components/ui/Layout";
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
+import Callout from "../../components/ui/Callout";
+import { ConfirmDialog } from "../../components/ui/Modal";
+import { Field, Input } from "../../components/ui/Field";
 
 export default function ProfilePage() {
   const { session, profile, refreshProfile, signOut } = useAuth();
@@ -67,6 +74,82 @@ export default function ProfilePage() {
     const { error } = await supabase.rpc("delete_own_account");
     if (error) { setMessage(error.message); return; }
     await signOut();
+  }
+
+  if (isNightTheme()) {
+    // Night look (slice 5b): same handlers, calls, 2FA flow and delete-account RPC as the default look.
+    // Delete confirm is a dialog (design spec: destructive action = destructive button + confirm dialog).
+    return (
+      <Container size="formWide" className="al-members">
+        <div className="space-y-6">
+          <Card as="div" tone="dense">
+            <h1 className="al-page-title">Your profile</h1>
+            <p className="al-page-intro">{session?.user.email}</p>
+            {message && <Callout tone="note" className="mt-4">{message}</Callout>}
+            <form onSubmit={saveName} className="mt-4">
+              <Field label="Display name">
+                {(control) => (
+                  <Input {...control} maxLength={40} value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)} />
+                )}
+              </Field>
+              <Button type="submit" className="mt-4">Save</Button>
+            </form>
+          </Card>
+
+          <LicencePanel />
+
+          <Card as="section" tone="dense" title="Two-factor authentication" headingLevel={2}>
+            {factorId ? (
+              <div className="mt-3">
+                <p>✅ On — you'll be asked for a code from your authenticator app at sign-in.</p>
+                <Button variant="secondary" onClick={disable2fa} className="mt-4">Turn off 2FA</Button>
+              </div>
+            ) : enrolQr ? (
+              <form onSubmit={confirmEnrol} className="mt-3">
+                <p>
+                  1. Scan this QR code with an authenticator app (Google Authenticator,
+                  Microsoft Authenticator, Authy…).<br />2. Enter the 6-digit code it shows.
+                </p>
+                <img src={enrolQr} alt="2FA enrolment QR code" className="my-4 w-40 h-40 rounded-md bg-white p-2" />
+                <Field label="Authenticator code" required>
+                  {(control) => (
+                    <Input {...control} inputMode="numeric" required placeholder="123456" value={enrolCode}
+                      onChange={(e) => setEnrolCode(e.target.value)} />
+                  )}
+                </Field>
+                <Button type="submit" className="mt-4">Confirm</Button>
+              </form>
+            ) : (
+              <div className="mt-3">
+                <p>Off. We strongly recommend turning it on — it protects your account even
+                  if your password leaks.</p>
+                <Button onClick={startEnrol} className="mt-4">Set up 2FA</Button>
+              </div>
+            )}
+          </Card>
+
+          <Card as="section" tone="dense" title="Delete account" headingLevel={2}>
+            <p className="mt-2">
+              Permanently removes your account, requests, comments and votes. This cannot
+              be undone.
+            </p>
+            <Button variant="secondary" onClick={() => setConfirmDelete(true)} className="mt-4">
+              Delete my account…
+            </Button>
+            <ConfirmDialog
+              open={confirmDelete}
+              onClose={() => setConfirmDelete(false)}
+              onConfirm={() => { setConfirmDelete(false); void deleteAccount(); }}
+              title="Delete account"
+              description="Permanently removes your account, requests, comments and votes. This cannot be undone."
+              confirmLabel="Yes, delete everything"
+              destructive
+            />
+          </Card>
+        </div>
+      </Container>
+    );
   }
 
   return (

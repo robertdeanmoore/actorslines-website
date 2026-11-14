@@ -3,6 +3,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import TurnstileWidget, { turnstileConfigured } from "../../components/TurnstileWidget";
 import type { TurnstileInstance } from "@marsidev/react-turnstile";
+import { isNightTheme } from "../../lib/theme";
+import { Container } from "../../components/ui/Layout";
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
+import Callout from "../../components/ui/Callout";
+import { Field, Input, Select, Textarea } from "../../components/ui/Field";
 
 const FREQUENCIES = [
   "Every session", "Most sessions", "Occasionally", "Rarely, but it matters when I need it",
@@ -58,6 +64,86 @@ export default function NewRequestPage() {
       return;
     }
     navigate(`/requests/${data.request_id}`, { replace: true });
+  }
+
+  if (isNightTheme()) {
+    // Night look (slice 5b): same fields, validation, submit handler (dispatch function) and Turnstile gating
+    // as the default look. Labels keep their "*" because the shared validation message says "starred boxes".
+    return (
+      <Container size="formWide" className="al-members">
+        <Card as="div" tone="dense">
+          <h1 className="al-page-title">Suggest an enhancement</h1>
+          <p className="al-page-intro">
+            Tell us what would make Actors Lines better for you. No technical knowledge
+            needed — describe it the way you'd describe it to another actor. Our system
+            reviews every suggestion and the strongest go to a community vote.{" "}
+            <Link to="/requests" className="al-back-link">See your previous requests</Link>.
+          </p>
+          {error && <Callout tone="error" className="mt-4">{error}</Callout>}
+
+          <form onSubmit={submit} className="mt-6">
+            <Field label="A short title for your idea *">
+              {(control) => (
+                <Input {...control} required minLength={5} maxLength={80} value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="e.g. Slow down the other characters' voices" />
+              )}
+            </Field>
+
+            <Field label="What are you trying to achieve? *"
+              help="The problem or wish — not the solution. What's getting in your way today?">
+              {(control) => (
+                <Textarea {...control} required rows={3} maxLength={2000} value={goal}
+                  onChange={(e) => setGoal(e.target.value)}
+                  placeholder="e.g. When I'm first learning a scene the cue lines come too fast for me to think…" />
+              )}
+            </Field>
+
+            <Field label="Where in the app would this fit? *"
+              help="Name the screen or moment — Practice, the scene list, importing…">
+              {(control) => (
+                <Input {...control} required minLength={10} maxLength={300} value={whereInApp}
+                  onChange={(e) => setWhereInApp(e.target.value)}
+                  placeholder="e.g. Practice mode, while the other characters are speaking" />
+              )}
+            </Field>
+
+            <Field label="How might it work? *"
+              help="Your best guess is fine — a slider? a button? something automatic?">
+              {(control) => (
+                <Textarea {...control} required rows={3} maxLength={2000} value={howItWorks}
+                  onChange={(e) => setHowItWorks(e.target.value)}
+                  placeholder="e.g. A speed control on the run screen, like audiobook apps have…" />
+              )}
+            </Field>
+
+            <Field label="How often would you use it?">
+              {(control) => (
+                <Select {...control} value={frequency} onChange={(e) => setFrequency(e.target.value)}>
+                  <option value="">Choose…</option>
+                  {FREQUENCIES.map((f) => <option key={f} value={f}>{f}</option>)}
+                </Select>
+              )}
+            </Field>
+
+            <Field label="Anything else?">
+              {(control) => (
+                <Textarea {...control} rows={2} maxLength={2000} value={extra}
+                  onChange={(e) => setExtra(e.target.value)}
+                  placeholder="Optional — examples from other apps, edge cases, anything." />
+              )}
+            </Field>
+
+            <TurnstileWidget ref={turnstileRef} onToken={setCaptchaToken} theme="dark" className="mt-5 max-w-full min-h-[65px] overflow-hidden" />
+            <Button type="submit" block busy={busy} className="mt-6"
+              disabledReason={turnstileConfigured && !captchaToken ? "Complete the security check to continue." : undefined}
+              disabled={busy || (turnstileConfigured && !captchaToken)}>
+              {busy ? "Submitting…" : "Submit suggestion"}
+            </Button>
+          </form>
+        </Card>
+      </Container>
+    );
   }
 
   const field = "w-full rounded-md border border-gray-300 px-3 py-2 text-sm";

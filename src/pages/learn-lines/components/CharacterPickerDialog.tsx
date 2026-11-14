@@ -1,5 +1,8 @@
 import { useState } from "react";
 import type { CharacterExport } from "../../../lib/learnLines/types";
+import { isNightTheme } from "../../../lib/theme";
+import Modal from "../../../components/ui/Modal";
+import Button from "../../../components/ui/Button";
 
 interface CharacterPickerDialogProps {
   characters: CharacterExport[];
@@ -13,6 +16,54 @@ interface CharacterPickerDialogProps {
 export default function CharacterPickerDialog({ characters, onConfirm, onCancel, busy }: CharacterPickerDialogProps) {
   const preselected = characters.find((c) => c.isMyCharacter)?.characterName ?? null;
   const [selected, setSelected] = useState<string | null>(preselected);
+
+  if (isNightTheme()) {
+    return (
+      <Modal
+        open
+        onClose={onCancel}
+        title="Who are you playing?"
+        paper
+        dismissOnBackdrop={false}
+        footer={
+          <>
+            <Button variant="secondary" onClick={onCancel}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              disabled={!selected || busy}
+              busy={busy}
+              onClick={() => selected && onConfirm(selected)}
+            >
+              {busy ? "Importing…" : "Continue"}
+            </Button>
+          </>
+        }
+      >
+        <p className="text-sm">Required — pick the character you'll be learning.</p>
+        <div className="mt-4 space-y-1">
+          {characters.map((c) => (
+            <label
+              key={c.characterName}
+              className="flex items-center gap-2 rounded-md px-2 py-2 cursor-pointer text-sm"
+            >
+              <input
+                type="radio"
+                name="character"
+                checked={selected === c.characterName}
+                onChange={() => setSelected(c.characterName)}
+              />
+              <span>
+                <span className="font-medium">{c.characterName}</span>
+                {c.actorName && <span> — {c.actorName}</span>}
+              </span>
+            </label>
+          ))}
+        </div>
+      </Modal>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
