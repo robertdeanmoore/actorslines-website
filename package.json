@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "test:edge": "node --test \"worker/*.test.ts\" \"supabase/functions/telemetry/*.test.ts\" \"supabase/functions/dispatch/*.test.ts\""
+    "test:edge": "node --test \"worker/*.test.ts\" \"supabase/functions/telemetry/*.test.ts\" \"supabase/functions/dispatch/*.test.ts\" \"supabase/functions/lifecycle/*.test.ts\""
   },
   "dependencies": {
     "@marsidev/react-turnstile": "^1.5.3",
