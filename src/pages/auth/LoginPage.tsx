@@ -2,10 +2,16 @@ import { useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../auth/AuthContext";
-import TurnstileWidget, { turnstileConfigured } from "../../components/TurnstileWidget";
+import TurnstileWidget, { turnstileConfigured, useNightWidgetSize } from "../../components/TurnstileWidget";
 import type { TurnstileInstance } from "@marsidev/react-turnstile";
 import { checkTrusted, issueTrustedDevice } from "../../auth/trustedDevice";
 import { verifyMfaCode, mfaRetryMessage } from "../../auth/mfaVerify";
+import { isNightTheme } from "../../lib/theme";
+import { Container } from "../../components/ui/Layout";
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
+import Callout from "../../components/ui/Callout";
+import { Checkbox, Field, Input } from "../../components/ui/Field";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -17,6 +23,7 @@ export default function LoginPage() {
   const [busy, setBusy] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const turnstileRef = useRef<TurnstileInstance>(null);
+  const widgetSize = useNightWidgetSize();
   const navigate = useNavigate();
   const location = useLocation();
   const { refreshProfile } = useAuth();
@@ -65,6 +72,65 @@ export default function LoginPage() {
     if (trustDevice) await issueTrustedDevice();
     await refreshProfile();
     navigate(dest, { replace: true });
+  }
+
+  if (isNightTheme()) {
+    // Night look (slice 5a): same fields, names, autoComplete, handlers, MFA flow and Turnstile gating as below.
+    return (
+      <div className="al-auth">
+        <Container size="form">
+          <Card as="div" tone="dense">
+            <h1 className="al-auth__title">Sign in</h1>
+            {error && <Callout tone="error" className="al-auth__error">{error}</Callout>}
+
+            {stage === "credentials" ? (
+              <form onSubmit={submitCredentials} className="al-auth__form">
+                <Field label="Email" id="email" required>
+                  {(control) => (
+                    <Input {...control} type="email" name="email" autoComplete="username" required value={email}
+                      onChange={(e) => setEmail(e.target.value)} />
+                  )}
+                </Field>
+                <Field label="Password" id="password" required>
+                  {(control) => (
+                    <Input {...control} type="password" name="password" autoComplete="current-password" required value={password}
+                      onChange={(e) => setPassword(e.target.value)} />
+                  )}
+                </Field>
+                <TurnstileWidget ref={turnstileRef} onToken={setCaptchaToken} theme="dark" size={widgetSize} className="al-auth__captcha" />
+                <Button type="submit" block busy={busy} className="al-auth__submit"
+                  disabledReason={turnstileConfigured && !captchaToken ? "Complete the security check to continue." : undefined}
+                  disabled={busy || (turnstileConfigured && !captchaToken)}>
+                  {busy ? "Signing in…" : "Sign in"}
+                </Button>
+                <div className="al-auth__links">
+                  <Link to="/reset-password" className="al-auth__link">Forgotten password?</Link>
+                  <Link to="/register" className="al-auth__link">Create account</Link>
+                </div>
+              </form>
+            ) : (
+              <form onSubmit={submitMfa} className="al-auth__form">
+                <p className="al-auth__text">
+                  Enter the 6-digit code from your authenticator app.
+                </p>
+                <Field label="Authenticator code" id="otp" required>
+                  {(control) => (
+                    <Input {...control} inputMode="numeric" name="otp" autoComplete="one-time-code" autoFocus required
+                      placeholder="123456" value={mfaCode} className="al-auth__otp"
+                      onChange={(e) => setMfaCode(e.target.value)} />
+                  )}
+                </Field>
+                <Checkbox checked={trustDevice} onChange={(e) => setTrustDevice(e.target.checked)}
+                  label="Trust this device for 30 days" />
+                <Button type="submit" block busy={busy} className="al-auth__submit" disabled={busy}>
+                  {busy ? "Checking…" : "Verify"}
+                </Button>
+              </form>
+            )}
+          </Card>
+        </Container>
+      </div>
+    );
   }
 
   return (

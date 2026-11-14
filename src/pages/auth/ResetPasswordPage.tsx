@@ -1,7 +1,13 @@
 import { useRef, useState } from "react";
 import { supabase } from "../../lib/supabase";
-import TurnstileWidget, { turnstileConfigured } from "../../components/TurnstileWidget";
+import TurnstileWidget, { turnstileConfigured, useNightWidgetSize } from "../../components/TurnstileWidget";
 import type { TurnstileInstance } from "@marsidev/react-turnstile";
+import { isNightTheme } from "../../lib/theme";
+import { Container } from "../../components/ui/Layout";
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
+import Callout from "../../components/ui/Callout";
+import { Field, Input } from "../../components/ui/Field";
 
 export default function ResetPasswordPage() {
   const [email, setEmail] = useState("");
@@ -9,6 +15,7 @@ export default function ResetPasswordPage() {
   const [error, setError] = useState("");
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const turnstileRef = useRef<TurnstileInstance>(null);
+  const widgetSize = useNightWidgetSize();
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -21,6 +28,41 @@ export default function ResetPasswordPage() {
       setError(error.message);
       turnstileRef.current?.reset(); setCaptchaToken(null);
     } else setSent(true);
+  }
+
+  if (isNightTheme()) {
+    // Night look (slice 5a): same field, name, autoComplete, handler and Turnstile gating as the default look.
+    return (
+      <div className="al-auth">
+        <Container size="form">
+          <Card as="div" tone="dense">
+            <h1 className="al-auth__title">Reset your password</h1>
+            {sent ? (
+              <p className="al-auth__text">
+                If an account exists for <strong>{email}</strong>, a reset link is on its
+                way. Follow it to choose a new password.
+              </p>
+            ) : (
+              <form onSubmit={submit} className="al-auth__form">
+                {error && <Callout tone="error" className="al-auth__error">{error}</Callout>}
+                <Field label="Your account email" id="email" required>
+                  {(control) => (
+                    <Input {...control} type="email" name="email" autoComplete="email" required value={email}
+                      onChange={(e) => setEmail(e.target.value)} />
+                  )}
+                </Field>
+                <TurnstileWidget ref={turnstileRef} onToken={setCaptchaToken} theme="dark" size={widgetSize} className="al-auth__captcha" />
+                <Button type="submit" block className="al-auth__submit"
+                  disabledReason={turnstileConfigured && !captchaToken ? "Complete the security check to continue." : undefined}
+                  disabled={turnstileConfigured && !captchaToken}>
+                  Send reset link
+                </Button>
+              </form>
+            )}
+          </Card>
+        </Container>
+      </div>
+    );
   }
 
   return (

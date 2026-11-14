@@ -1,8 +1,14 @@
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
-import TurnstileWidget, { turnstileConfigured } from "../../components/TurnstileWidget";
+import TurnstileWidget, { turnstileConfigured, useNightWidgetSize } from "../../components/TurnstileWidget";
 import type { TurnstileInstance } from "@marsidev/react-turnstile";
+import { isNightTheme } from "../../lib/theme";
+import { Container } from "../../components/ui/Layout";
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
+import Callout from "../../components/ui/Callout";
+import { Field, Input } from "../../components/ui/Field";
 
 // Open self-serve registration is closed — accounts are invite-only for now (see
 // AdminInvitesPage / the `invite` edge function). Flip to true (and redeploy) if
@@ -11,6 +17,22 @@ const REGISTRATION_ENABLED = false;
 
 export default function RegisterPage() {
   if (!REGISTRATION_ENABLED) {
+    if (isNightTheme()) {
+      return (
+        <div className="al-auth">
+          <Container size="form">
+            <Card as="div" tone="dense" className="al-auth__card--center">
+              <h1 className="al-auth__title">Invite only</h1>
+              <p className="al-auth__text">
+                Actors Lines is currently invite-only. If you've received an invite email,
+                use the link in it to create your account.
+              </p>
+              <Link to="/" className="al-auth__link al-auth__action">Back to home</Link>
+            </Card>
+          </Container>
+        </div>
+      );
+    }
     return (
       <div className="max-w-sm mx-auto bg-white rounded-xl shadow-sm p-8 text-center">
         <h1 className="text-xl font-bold text-brand">Invite only</h1>
@@ -36,6 +58,7 @@ function RegisterForm() {
   const [done, setDone] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const turnstileRef = useRef<TurnstileInstance>(null);
+  const widgetSize = useNightWidgetSize();
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -54,6 +77,74 @@ function RegisterForm() {
       return;
     }
     setDone(true);
+  }
+
+  if (isNightTheme()) {
+    // Night look (slice 5a): same fields, names, autoComplete, validation, handlers and Turnstile gating as the default look.
+    if (done) {
+      return (
+        <div className="al-auth">
+          <Container size="form">
+            <Card as="div" tone="dense" className="al-auth__card--center">
+              <h1 className="al-auth__title">Check your email</h1>
+              <p className="al-auth__text">
+                We've sent a confirmation link to <strong>{email}</strong>. Click it, then
+                sign in. (Check your spam folder if it doesn't arrive within a minute.)
+              </p>
+              <Link to="/login" className="al-auth__link al-auth__action">Go to sign in</Link>
+            </Card>
+          </Container>
+        </div>
+      );
+    }
+    return (
+      <div className="al-auth">
+        <Container size="form">
+          <Card as="div" tone="dense">
+            <h1 className="al-auth__title">Create your account</h1>
+            <p className="al-auth__text">
+              Free, for actors. You'll get the knowledge base and a voice in what we build
+              next. See our <Link to="/privacy">privacy policy</Link>.
+            </p>
+            {error && <Callout tone="error" className="al-auth__error">{error}</Callout>}
+            <form onSubmit={submit} className="al-auth__form">
+              <Field label="Display name" id="name" help="Shown on comments." required>
+                {(control) => (
+                  <Input {...control} name="name" autoComplete="name" required maxLength={40}
+                    value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
+                )}
+              </Field>
+              <Field label="Email" id="email" required>
+                {(control) => (
+                  <Input {...control} type="email" name="email" autoComplete="email" required value={email}
+                    onChange={(e) => setEmail(e.target.value)} />
+                )}
+              </Field>
+              <Field label="Password" id="new-password" help="8 characters or more." required>
+                {(control) => (
+                  <Input {...control} type="password" name="new-password" autoComplete="new-password" required minLength={8}
+                    value={password} onChange={(e) => setPassword(e.target.value)} />
+                )}
+              </Field>
+              <TurnstileWidget ref={turnstileRef} onToken={setCaptchaToken} theme="dark" size={widgetSize} className="al-auth__captcha" />
+              <p className="al-auth__text">
+                By creating an account you confirm you are 18 or over. See our{" "}
+                <Link to="/terms">Terms</Link> and <Link to="/privacy">Privacy Policy</Link>.
+              </p>
+              <Button type="submit" block busy={busy} className="al-auth__submit"
+                disabledReason={turnstileConfigured && !captchaToken ? "Complete the security check to continue." : undefined}
+                disabled={busy || (turnstileConfigured && !captchaToken)}>
+                {busy ? "Creating…" : "Create account"}
+              </Button>
+            </form>
+            <p className="al-auth__fine">
+              After signing in, we recommend enabling two-factor authentication from your
+              profile page.
+            </p>
+          </Card>
+        </Container>
+      </div>
+    );
   }
 
   if (done) {
