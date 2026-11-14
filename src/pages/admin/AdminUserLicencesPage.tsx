@@ -4,6 +4,16 @@ import { supabase } from "../../lib/supabase";
 import { fetchEntitlementsFor, formatDate } from "../../lib/entitlements";
 import type { EntitlementsResult, Licence, LicenceAuditRow, ProductCode } from "../../lib/types";
 import { PRODUCT_LABELS } from "../../lib/types";
+import { isNightTheme } from "../../lib/theme";
+import { Container } from "../../components/ui/Layout";
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
+import LinkButton from "../../components/ui/LinkButton";
+import { Badge } from "../../components/ui/Badge";
+import Callout from "../../components/ui/Callout";
+import { Field, Input, Select } from "../../components/ui/Field";
+import Table, { TableActionButton } from "../../components/ui/Table";
+import { LoadingState } from "../../components/ui/States";
 
 // Product select must list inactive products too (comp_rolling, admin_full, the inert group
 // products) -- that's what makes them grantable with no extra UI, and what lets a company be
@@ -99,7 +109,116 @@ export default function AdminUserLicencesPage() {
 
   const card = "bg-white rounded-xl shadow-sm p-6";
 
+  if (loading && isNightTheme()) return <LoadingState label="Loading…" />;
   if (loading) return <p className="p-8 text-center text-gray-500">Loading…</p>;
+
+  if (isNightTheme()) {
+    return (
+      <Container size="page" className="al-members space-y-6">
+        <div className="al-page-head">
+          <h1 className="al-page-title">User licences</h1>
+          <LinkButton to="/admin/licences" variant="ghost">← Search</LinkButton>
+        </div>
+
+        <Card as="article">
+          <h2 className="al-card__title">Current entitlement</h2>
+          <p className="mt-2 text-sm">
+            <span className="font-semibold">{entitlements?.tierLabel ?? "Free"}</span>
+            {entitlements?.licenceEndsAtEpochMs && (
+              <> — until {formatDate(new Date(entitlements.licenceEndsAtEpochMs).toISOString())}</>
+            )}
+          </p>
+        </Card>
+
+        <Card as="article">
+          <h2 className="al-card__title">Grant a licence</h2>
+          {message && <Callout tone="note" className="mt-2">{message}</Callout>}
+          <div className="mt-3 flex flex-wrap gap-2">
+            {PRESETS.map((p) => (
+              <Button key={p.label} variant="secondary" onClick={() => applyPreset(p)}>
+                {p.label}
+              </Button>
+            ))}
+          </div>
+          <form onSubmit={grant} className="mt-4 flex flex-wrap items-end gap-2">
+            <Field label="Product">
+              {(control) => (
+                <Select {...control} value={product} onChange={(e) => setProduct(e.target.value as ProductCode)}>
+                  {ALL_PRODUCTS.map((p) => (
+                    <option key={p.code} value={p.code}>
+                      {PRODUCT_LABELS[p.code]}{p.grantOnly ? " (grant-only)" : ""}
+                    </option>
+                  ))}
+                </Select>
+              )}
+            </Field>
+            <Field label="Ends">
+              {(control) => (
+                <Input {...control} type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+              )}
+            </Field>
+            <Button type="submit" busy={granting}>
+              {granting ? "Granting…" : "Grant"}
+            </Button>
+          </form>
+        </Card>
+
+        <Card as="article">
+          <h2 className="al-card__title">Licences</h2>
+          <Table caption="Licences" captionHidden label="Licences" className="mt-3">
+            <thead>
+              <tr>
+                <th scope="col">Product</th>
+                <th scope="col">Dates</th>
+                <th scope="col">Source</th>
+                <th scope="col">Status</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {licences.map((l) => (
+                <tr key={l.id}>
+                  <td>{PRODUCT_LABELS[l.product_code]}</td>
+                  <td>{formatDate(l.starts_at)} – {formatDate(l.ends_at)}</td>
+                  <td>{l.source}</td>
+                  <td><Badge tone={l.status === "active" ? "ok" : "neutral"}>{l.status}</Badge></td>
+                  <td>
+                    {l.status === "active" && (
+                      <TableActionButton onClick={() => revoke(l.id)}>Revoke</TableActionButton>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+          {licences.length === 0 && <p className="mt-3 text-sm text-fg-muted">No licences yet.</p>}
+        </Card>
+
+        <Card as="article">
+          <h2 className="al-card__title">Audit (last 50)</h2>
+          <Table caption="Audit (last 50)" captionHidden label="Audit (last 50)" className="mt-3">
+            <thead>
+              <tr>
+                <th scope="col">Action</th>
+                <th scope="col">Via</th>
+                <th scope="col">When</th>
+              </tr>
+            </thead>
+            <tbody>
+              {audit.map((a) => (
+                <tr key={a.id}>
+                  <td>{a.action}</td>
+                  <td>{a.via ?? "—"}</td>
+                  <td>{new Date(a.created_at).toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+          {audit.length === 0 && <p className="mt-3 text-sm text-fg-muted">No audit entries yet.</p>}
+        </Card>
+      </Container>
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">

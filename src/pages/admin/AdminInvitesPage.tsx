@@ -2,6 +2,15 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import type { Invite } from "../../lib/types";
+import { isNightTheme } from "../../lib/theme";
+import { Container } from "../../components/ui/Layout";
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
+import LinkButton from "../../components/ui/LinkButton";
+import Callout from "../../components/ui/Callout";
+import { Badge } from "../../components/ui/Badge";
+import { Field, Input } from "../../components/ui/Field";
+import { LoadingState } from "../../components/ui/States";
 
 function inviteStatus(invite: Invite): { label: string; className: string } {
   if (invite.accepted_at) return { label: "Accepted", className: "bg-green-100 text-green-800" };
@@ -45,6 +54,70 @@ export default function AdminInvitesPage() {
   }
 
   const card = "bg-white rounded-xl shadow-sm p-6";
+
+  if (isNightTheme()) {
+    // Night look: same email/busy/flash state, sendInvite handler and inviteStatus labels as below.
+    return (
+      <Container size="detail" className="al-members">
+        <div className="al-page-head">
+          <h1 className="al-page-title">Invites</h1>
+          <LinkButton to="/admin" variant="secondary">← Request queue</LinkButton>
+        </div>
+
+        <Card as="div" className="mt-6">
+          <h2 className="al-card__title">Send an invite</h2>
+          <p className="mt-1 text-sm al-panel-text">
+            Registration is invite-only. Enter an email to send a single-use sign-up link
+            (expires in 14 days). The recipient sets their own password and gets a normal,
+            non-admin account.
+          </p>
+          {flash && (
+            <Callout tone={flash.startsWith("Failed") ? "error" : "success"} className="mt-3">
+              {flash}
+            </Callout>
+          )}
+          <form onSubmit={sendInvite} className="mt-4 flex items-end gap-2">
+            <Field label="Email" required className="flex-1">
+              {(control) => (
+                <Input {...control} type="email" required placeholder="name@example.com"
+                  value={email} onChange={(e) => setEmail(e.target.value)} />
+              )}
+            </Field>
+            <Button type="submit" busy={busy}>
+              {busy ? "Sending…" : "Send invite"}
+            </Button>
+          </form>
+        </Card>
+
+        <Card as="div" className="mt-6">
+          <h2 className="al-card__title">Sent invites</h2>
+          <div className="mt-3">
+            {loading && <LoadingState label="Loading…" />}
+            {!loading && invites.length === 0 && (
+              <p className="text-sm">No invites sent yet.</p>
+            )}
+            {invites.length > 0 && (
+              <ul className="al-card-list">
+                {invites.map((invite) => {
+                  const status = inviteStatus(invite);
+                  const tone = status.label === "Accepted" ? "ok" : status.label === "Pending" ? "warn" : "neutral";
+                  return (
+                    <li key={invite.id} className="flex items-center gap-3 py-2">
+                      <span className="flex-1 text-sm truncate">{invite.email}</span>
+                      <span className="text-sm">
+                        {new Date(invite.created_at).toLocaleDateString()}
+                      </span>
+                      <Badge tone={tone}>{status.label}</Badge>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+        </Card>
+      </Container>
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
