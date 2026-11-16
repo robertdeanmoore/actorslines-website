@@ -4,6 +4,9 @@
   <url><loc>https://actorslines.app/kb</loc></url>
   <url><loc>https://actorslines.app/privacy</loc></url>
   <url><loc>https://actorslines.app/terms</loc></url>
+  <!-- GO-LIVE (WIP #257): add /features, /faq and /support here, as url entries, in the same
+       commit that removes useNoindex() from MarketingHead. Until then they stay out of this file;
+       worker/discoverability.test.ts fails if they appear early. -->
   <url><loc>https://actorslines.app/kb/abbreviate-long-lines</loc></url>
   <url><loc>https://actorslines.app/kb/accuracy-heatmap</loc></url>
   <url><loc>https://actorslines.app/kb/anonymous-data</loc></url>

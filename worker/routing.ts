@@ -99,16 +99,31 @@ export function isIndexableHost(hostname: string): boolean {
   return INDEXABLE_HOSTS.has(hostname.toLowerCase());
 }
 
-/** Adds X-Robots-Tag: noindex, nofollow on non-canonical hosts so previews never enter search indexes. */
-function withRobotsPolicy(res: Response, hostname: string): Response {
-  if (isIndexableHost(hostname)) return res;
+// GO-LIVE (WIP #257): delete this list and its use in withRobotsPolicy in the same commit that
+// removes useNoindex() from MarketingHead and adds /features, /faq and /support to public/sitemap.xml.
+// Until then these pages answer X-Robots-Tag: noindex on every host, so non-JS crawlers skip them too.
+export const PRE_LAUNCH_NOINDEX_PATHS: readonly string[] = ["/features", "/faq", "/support"];
+
+export function isPreLaunchNoindexPath(pathname: string): boolean {
+  const path = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
+  return PRE_LAUNCH_NOINDEX_PATHS.includes(path);
+}
+
+/**
+ * Adds X-Robots-Tag on non-canonical hosts (noindex, nofollow) so previews never enter search indexes,
+ * and (noindex) on the pre-launch marketing paths on any host.
+ */
+function withRobotsPolicy(res: Response, hostname: string, pathname: string): Response {
+  const nonCanonical = !isIndexableHost(hostname);
+  if (!nonCanonical && !isPreLaunchNoindexPath(pathname)) return res;
   // Response.redirect() and fetched responses can have immutable headers: copy first.
   const headers = new Headers(res.headers);
-  headers.set("x-robots-tag", "noindex, nofollow");
+  headers.set("x-robots-tag", nonCanonical ? "noindex, nofollow" : "noindex");
   return new Response(res.body, { status: res.status, statusText: res.statusText, headers });
 }
 
 export async function handle(request: Request, env: Env): Promise<Response> {
   const res = await route(request, env);
-  return withRobotsPolicy(res, new URL(request.url).hostname);
+  const { hostname, pathname } = new URL(request.url);
+  return withRobotsPolicy(res, hostname, pathname);
 }

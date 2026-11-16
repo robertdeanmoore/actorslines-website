@@ -36,6 +36,20 @@ const STATIC_META: Record<string, Partial<RouteMeta>> = {
     description: "Create an Actors Lines account.",
   },
   "/tutorials": { title: `Tutorials${SUFFIX}` },
+  // WIP #257 marketing pages (copy: Clarity 2026-11-14). Reachable and noindex until go-live.
+  "/features": {
+    title: `Features${SUFFIX}`,
+    description:
+      "How Actors Lines helps actors learn lines: scan a script, hide and reveal your lines, hear the other parts, check how each line went.",
+  },
+  "/faq": {
+    title: `Frequently asked questions${SUFFIX}`,
+    description: "Answers to common questions about Actors Lines: getting started, using the app, and your data.",
+  },
+  "/support": {
+    title: `Support${SUFFIX}`,
+    description: "Get help with Actors Lines: guides, email support and how to suggest a feature.",
+  },
 };
 
 /** Title and description for a pathname. Unknown routes get the site defaults. */

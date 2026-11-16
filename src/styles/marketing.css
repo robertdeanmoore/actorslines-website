@@ -1,0 +1,68 @@
+/* Marketing pages (/features, /faq, /support), WIP #257. Tokens only; :where() in @layer components
+   so Tailwind utilities override (LL0071). */
+
+@layer components {
+  :where(.al-mkt) {
+    padding-bottom: 3rem;
+  }
+  :where(.al-mkt-head) {
+    margin-bottom: 2rem;
+  }
+  :where(.al-mkt-lead) {
+    margin-top: 1rem;
+    max-width: var(--measure-lead);
+    font-size: var(--text-lead);
+    color: var(--fg-muted);
+  }
+  :where(.al-mkt-stack) {
+    display: grid;
+    gap: 1.5rem;
+  }
+  :where(.al-mkt-stack > * + *) {
+    margin-top: 0;
+  }
+  :where(.al-mkt-group) {
+    margin-top: 2.5rem;
+  }
+  :where(.al-mkt-group > h2) {
+    margin-bottom: 1rem;
+    font-family: var(--al-font-display);
+    font-weight: 600;
+    font-size: var(--text-h3);
+    color: var(--fg);
+  }
+  :where(.al-mkt p, .al-mkt li) {
+    color: var(--fg);
+    max-width: var(--measure-card);
+  }
+  :where(.al-mkt p + p, .al-mkt p + ul, .al-mkt ul + p) {
+    margin-top: 0.75rem;
+  }
+  :where(.al-mkt-list) {
+    margin-top: 0.75rem;
+    padding-left: 1.25rem;
+    list-style: disc;
+  }
+  :where(.al-mkt-list li + li) {
+    margin-top: 0.5rem;
+  }
+  :where(.al-mkt-note) {
+    font-size: var(--text-small);
+    color: var(--fg-muted);
+  }
+  :where(.al-mkt a:not(.al-btn)) {
+    color: var(--link);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  :where(.al-mkt a:not(.al-btn):hover) {
+    color: var(--link-hi);
+  }
+  :where(.al-mkt-actions) {
+    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+  }
+}

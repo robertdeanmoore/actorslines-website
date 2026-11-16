@@ -67,7 +67,7 @@ test("sitemap.xml lists exactly the public pages and every KB article, canonical
   assert.deepEqual([...locs].sort(), [...expected].sort());
   assert.equal(new Set(locs).size, locs.length, "no duplicates");
   for (const loc of locs) assert.ok(loc === "https://actorslines.app/" || !loc.endsWith("/"), loc);
-  for (const hidden of ["/tutorials", "/admin", "/login", "/register", "/profile", "/learn-lines", "/board", "/requests"]) {
+  for (const hidden of ["/tutorials", "/features", "/faq", "/support", "/admin", "/login", "/register", "/profile", "/learn-lines", "/board", "/requests"]) {
     assert.ok(!locs.some((l) => l.includes(hidden)), `${hidden} must not be listed`);
   }
 });
@@ -104,6 +104,17 @@ test("routeMeta: /privacy, /terms, /login, /register have their own description"
     assert.notEqual(m.description, DEFAULT_DESCRIPTION, p);
     assert.ok(m.description.length > 10, p);
     assert.doesNotMatch(m.description, /[£$€]\s?\d|rehears/i, p);
+  }
+});
+
+test("routeMeta: /features, /faq, /support have their own title and description, no price or Rehearse", () => {
+  const kb = () => undefined;
+  for (const p of ["/features", "/faq", "/support"]) {
+    const m = routeMeta(p, kb);
+    assert.notEqual(m.title, DEFAULT_TITLE, p);
+    assert.notEqual(m.description, DEFAULT_DESCRIPTION, p);
+    assert.ok(m.title.endsWith(" | Actors Lines"), p);
+    assert.doesNotMatch(`${m.title} ${m.description}`, /[£$€]\s?\d|rehears|\bfree\b|\btrial|\bprice|\bpricing|licen[cs]e/i, p);
   }
 });
 
