@@ -85,7 +85,7 @@ export default function FeaturesPage() {
           </p>
         </Card>
 
-        <div id="selftape">
+        <div id="selftape" className="al-anchor-target">
           <Card as="section" tone="marketing" headingLevel={2} title="Selftape">
             <p>
               Prefer a real voice to a synthetic one? Record your scene partners (or friends)

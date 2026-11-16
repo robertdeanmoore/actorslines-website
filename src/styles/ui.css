@@ -68,6 +68,10 @@
   :where(.al-card--marketing .al-card__title) {
     color: var(--accent);
   }
+  /* In-page anchor target: clear the sticky header (about 72px) with a little air. */
+  :where(.al-anchor-target) {
+    scroll-margin-top: 6rem;
+  }
   :where(.al-card--dense .al-card__title) {
     color: var(--fg);
   }
