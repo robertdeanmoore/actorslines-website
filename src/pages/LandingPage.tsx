@@ -9,6 +9,10 @@ import LinkButton from "../components/ui/LinkButton";
 import ScreenshotPair, { practiceShot } from "../components/ui/ScreenshotPair";
 import { isNightTheme } from "../lib/theme";
 
+// Interim notify route while the Android notify list is not built (WIP #257, ADR-0160): a plain mailto to the
+// support mailbox. Clicking stores nothing; a sent email sits in the hello@ mailbox (Privacy "Emails you send us").
+const NOTIFY_MAILTO = "mailto:hello@actorslines.app?subject=Tell%20me%20when%20Actors%20Lines%20is%20ready";
+
 const features = [
   ["Import any script", "Scan a paper script with your camera or import a PDF — Actors Lines reads it on your device and builds your scenes, characters and lines automatically."],
   ["Practise with a full cast", "Synthesised voices (or your own recordings) speak every other character's lines while you play your part. Your lines stay hidden until you say them."],
@@ -58,12 +62,7 @@ export default function LandingPage() {
               word-perfect performance, with every other part read aloud for you.
             </p>
             <div className="al-hero__cta">
-              {/* [PLACEHOLDER: Robert/Clarity per Interview Pack CTA]: label and target are not final */}
-              {!session && (
-                <Link to="/register" className="al-btn al-btn--primary">
-                  Create account
-                </Link>
-              )}
+              {!session && <LinkButton href={NOTIFY_MAILTO}>Tell me when it is ready</LinkButton>}
               {session ? (
                 <Link to="/board" className="al-btn al-btn--primary">
                   Enhancement board
@@ -74,6 +73,11 @@ export default function LandingPage() {
                 </Link>
               )}
             </div>
+            {!session && (
+              <p className="al-panel-text" style={{ margin: "1rem auto 0" }}>
+                The Android app is coming soon to Google Play.
+              </p>
+            )}
             {/* Decorative duplicate of the Practice screen shown with its caption below (Clarity: alt="" is fine). */}
             <DeviceFrame shot={{ ...practiceShot, alt: "" }} priority />
           </div>
@@ -137,15 +141,21 @@ export default function LandingPage() {
               <NotifyIphoneSection />
             </Container>
           </Section>
-          {/* [PLACEHOLDER: Robert/Clarity per Interview Pack CTA]: heading and targets are not final */}
           <Section className="al-cta-band">
-            <h2 className="al-cta-band__title">Start learning your lines</h2>
+            <h2 className="al-cta-band__title">
+              {session ? "Start learning your lines" : "Coming soon to Google Play"}
+            </h2>
+            {!session && (
+              <p className="al-panel-text" style={{ margin: "0.75rem auto 0" }}>
+                Actors Lines is not on Google Play yet. Email me and I will tell you when it is ready.
+              </p>
+            )}
             <div className="al-cta-band__actions">
               {session ? (
                 <LinkButton to="/board">Enhancement board</LinkButton>
               ) : (
                 <>
-                  <LinkButton to="/register">Create account</LinkButton>
+                  <LinkButton href={NOTIFY_MAILTO}>Tell me when it is ready</LinkButton>
                   <LinkButton to="/login" variant="secondary">Sign in</LinkButton>
                 </>
               )}
