@@ -36,3 +36,22 @@
 [data-theme="night"] .al-legal a { color: var(--link); text-decoration: underline; text-underline-offset: 0.2em; }
 [data-theme="night"] .al-legal a:hover { color: var(--link-hi); }
 [data-theme="night"] .al-legal .al-prose__meta { margin-top: 0.5rem; font-size: var(--text-caption); color: var(--fg-muted); }
+
+/* Tables on the legal pages (WIP #257 legal v2), night only. */
+[data-theme="night"] .al-legal-table-wrap { margin-top: 0.75rem; overflow-x: auto; }
+[data-theme="night"] .al-legal-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-caption);
+  line-height: 1.5;
+  color: var(--fg);
+  overflow-wrap: normal;
+}
+[data-theme="night"] .al-legal-table :is(th, td) {
+  border: 1px solid var(--line);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+  min-width: 8rem;
+}
+[data-theme="night"] .al-legal-table th { font-weight: 600; color: var(--fg); }

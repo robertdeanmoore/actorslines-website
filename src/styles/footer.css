@@ -81,4 +81,9 @@
     font-size: var(--text-caption);
     color: var(--fg-faint);
   }
+  :where(.al-footer__legal a) {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 0.2rem;
+  }
 }
