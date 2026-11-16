@@ -36,7 +36,7 @@ const STATIC_META: Record<string, Partial<RouteMeta>> = {
     description: "Actors Lines sign-up is by invitation.",
   },
   "/tutorials": { title: `Tutorials${SUFFIX}` },
-  // WIP #257 marketing pages (copy: Clarity 2026-11-14). Reachable and noindex until go-live.
+  // WIP #257 marketing pages (copy: Clarity 2026-11-14). Indexable from go-live (WIP #257 slice 6a).
   "/features": {
     title: `Features${SUFFIX}`,
     description:

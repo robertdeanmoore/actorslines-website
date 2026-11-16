@@ -2,7 +2,7 @@
 
 **Purpose:** a separate page listing about 20 short how-to videos (title, duration, poster, one or two sentences, optional category). Decision: WIP 257 D4 (videos live on their own page, not as a hero embed). Until videos exist the page shows "Videos coming soon".
 
-**Status:** route exists on every host (hidden: not in the production nav, not in the sitemap, `noindex` while empty). The "Tutorials" nav link shows only under the night theme flag (`data-theme="night"`, previews).
+**Status:** route exists on every host (hidden: not in the production nav, not in the sitemap, `noindex` while empty). There is no "Tutorials" nav link (hidden under night too) until the first video exists.
 
 **Key files**
 - `src/content/tutorials.ts`: the typed `TUTORIALS` array. One object per video; this is the only file to edit to add a video.

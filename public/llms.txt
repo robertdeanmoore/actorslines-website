@@ -14,6 +14,9 @@ Availability: Android. Not yet on Google Play.
 ## Pages
 
 - [Home](https://actorslines.app/): what Actors Lines is.
+- [Features](https://actorslines.app/features): what the app does, in plain words.
+- [FAQ](https://actorslines.app/faq): answers to common questions.
+- [Support](https://actorslines.app/support): how to get help.
 - [Knowledge base](https://actorslines.app/kb): guides to using the app and to learning lines.
 - [Getting started](https://actorslines.app/kb/getting-started-with-actors-lines): from a paper script to a first practice run.
 - [Privacy policy](https://actorslines.app/privacy)

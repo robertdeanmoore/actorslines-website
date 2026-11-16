@@ -1,7 +1,6 @@
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { supabaseConfigured } from "../lib/supabase";
-import { isNightTheme } from "../lib/theme";
 import { useRouteFocus } from "../lib/useRouteFocus";
 import { useRouteMeta } from "../lib/useRouteMeta";
 import Footer from "./Footer";
@@ -10,7 +9,12 @@ import SkipLink from "./ui/SkipLink";
 
 type NavItem = { to: string; label: string };
 
-const PUBLIC_LINKS: NavItem[] = [{ to: "/kb", label: "Help" }];
+const PUBLIC_LINKS: NavItem[] = [
+  { to: "/features", label: "Features" },
+  { to: "/faq", label: "FAQ" },
+  { to: "/support", label: "Support" },
+  { to: "/kb", label: "Help" },
+];
 
 const MEMBER_LINKS: NavItem[] = [
   { to: "/learn-lines", label: "Learn Lines" },
@@ -19,9 +23,7 @@ const MEMBER_LINKS: NavItem[] = [
   { to: "/requests", label: "My requests" },
 ];
 
-// Dark-launched nav entry (WIP 257): the /tutorials route exists on every host, but the link only shows
-// while the night theme flag is on, so production navigation is unchanged until the go-live release.
-const NIGHT_ONLY_LINKS: NavItem[] = [{ to: "/tutorials", label: "Tutorials" }];
+// /tutorials has no nav link: the page is an empty state until Robert supplies the first video (WIP 257).
 
 const ADMIN_LINKS: NavItem[] = [
   { to: "/admin", label: "Admin" },
@@ -36,7 +38,7 @@ export default function Layout() {
 
   const signedIn = Boolean(session && profile);
   const isAdmin = profile?.role === "admin";
-  const links = [...(signedIn ? MEMBER_LINKS : PUBLIC_LINKS), ...(isNightTheme() ? NIGHT_ONLY_LINKS : [])];
+  const links = signedIn ? MEMBER_LINKS : PUBLIC_LINKS;
   // The landing page lays out its own full-width sections; every other page keeps the 5xl column.
   const fullBleed = pathname === "/";
 
