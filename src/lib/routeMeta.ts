@@ -32,8 +32,8 @@ const STATIC_META: Record<string, Partial<RouteMeta>> = {
     description: "Sign in to your Actors Lines account.",
   },
   "/register": {
-    title: `Create your account${SUFFIX}`,
-    description: "Create an Actors Lines account.",
+    title: `Invite only${SUFFIX}`,
+    description: "Actors Lines sign-up is by invitation.",
   },
   "/tutorials": { title: `Tutorials${SUFFIX}` },
   // WIP #257 marketing pages (copy: Clarity 2026-11-14). Reachable and noindex until go-live.
