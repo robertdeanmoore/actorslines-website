@@ -25,7 +25,8 @@ export function nightThemeRequested(
   store?: ThemeStore,
 ): boolean {
   // Production hosts never go night, whatever the build env, query or store says (checked first).
-  if (PRODUCTION_HOSTS.has(hostname.toLowerCase())) return false;
+  // Normalised first: a single trailing dot (absolute FQDN) is the same host.
+  if (PRODUCTION_HOSTS.has(hostname.toLowerCase().replace(/\.$/, ""))) return false;
   if (envTheme === "night") return true;
   const param = new URLSearchParams(search).get("theme");
   if (param === "night") {

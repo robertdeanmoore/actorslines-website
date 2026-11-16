@@ -64,3 +64,23 @@ test("a throwing store falls back safely", () => {
   assert.equal(nightThemeRequested("preview.example.dev", "?theme=standard", undefined, store), false);
   assert.equal(nightThemeRequested("preview.example.dev", "", undefined, store), false);
 });
+
+test("trailing-dot production hosts are never night and never touch the store", () => {
+  const boom = () => {
+    throw new Error("store must not be touched");
+  };
+  const store = { getItem: boom, setItem: boom, removeItem: boom };
+  for (const host of ["actorslines.app.", "www.actorslines.app.", "ActorsLines.App."]) {
+    assert.equal(nightThemeRequested(host, "?theme=night", "night", store), false);
+    assert.equal(nightThemeRequested(host, "?theme=standard", undefined, store), false);
+    assert.equal(nightThemeRequested(host, "", undefined, store), false);
+  }
+});
+
+test("non-production hosts are unaffected by normalisation", () => {
+  const store = memoryStore();
+  assert.equal(nightThemeRequested("preview.example.dev.", "?theme=night", undefined, store), true);
+  assert.equal(store.data.get("al-theme"), "night");
+  assert.equal(nightThemeRequested("notactorslines.app", "?theme=night", undefined, memoryStore()), true);
+  assert.equal(nightThemeRequested("preview.example.dev", "", undefined, memoryStore()), false);
+});
