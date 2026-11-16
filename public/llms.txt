@@ -9,7 +9,7 @@ What the app does:
 - Selftape mode: record cue lines in your own voice for self-tapes and practice runs.
 - Progress tracking: accuracy heat-maps by line and scene.
 
-Availability: Android. An iPhone version is being explored; nothing is promised yet.
+Availability: Android. Not yet on Google Play.
 
 ## Pages
 
