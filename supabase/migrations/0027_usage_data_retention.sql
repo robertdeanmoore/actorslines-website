@@ -3,7 +3,8 @@
 --   * support messages (request_messages): 12 months after the case closes
 -- NOT YET APPLIED. Gated step: Holly review + Robert data-risk sign-off, then
 -- Scripts/supabase_migrate.sh --gate WIP#257 (Skills/applying-supabase-migration). The first
--- run after apply deletes the whole backlog older than 12 months, irreversibly.
+-- run after apply deletes the telemetry/report backlog older than 12 months, irreversibly
+-- (request threads of already-closed cases are not in that backlog: see the back-fill below).
 -- Design: RobLife Deliverables "Actors Lines - Usage Data Purge Design 2026-11-14.md".
 -- Scheduled from the daily `lifecycle` edge function (redeploy it after applying this).
 -- Enhancement requests, board posts, comments, votes and AI reports are NOT purged here: the
@@ -33,10 +34,12 @@ create trigger enhancement_requests_set_closed_at
   before update of status on public.enhancement_requests
   for each row execute function public.set_request_closed_at();
 
--- One-off back-fill for cases already closed: best available date is updated_at (at worst the
--- creation date, so older cases are treated as closed earlier, never later, than they were).
+-- One-off back-fill for cases already closed: the real close date is unknown (updated_at is
+-- untouched by status changes, so it is about the creation date and would purge threads of
+-- recently closed old cases up to 12 months early, irreversibly). Grace instead: treat them as
+-- closed at apply time, so their threads are first purged 12 months after this migration.
 update public.enhancement_requests
-   set closed_at = updated_at
+   set closed_at = now()
  where status in ('implemented', 'closed', 'rejected', 'abandoned') and closed_at is null;
 
 -- 2. Age index for the purge (0017 only indexes status + time).
