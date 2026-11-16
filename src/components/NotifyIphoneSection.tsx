@@ -71,7 +71,7 @@ export default function NotifyIphoneSection() {
         <Card as="div" tone="marketing">
           <h2 id="iphone-heading" className="al-card__title">On iPhone? Get notified</h2>
           <p className="al-panel-text al-notify__lead">
-            Actors Lines is on Android now. An iPhone version is being explored: nothing is promised yet.
+            An iPhone version is being explored: nothing is promised. The Android app is not yet on Google Play.
             Leave your email and we will tell you once if that changes.
           </p>
           {done ? (

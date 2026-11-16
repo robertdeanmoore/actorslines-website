@@ -11,7 +11,7 @@ import { isNightTheme } from "../lib/theme";
 
 // Interim notify route while the Android notify list is not built (WIP #257, ADR-0160): a plain mailto to the
 // support mailbox. Clicking stores nothing; a sent email sits in the hello@ mailbox (Privacy "Emails you send us").
-const NOTIFY_MAILTO = "mailto:hello@actorslines.app?subject=Tell%20me%20when%20Actors%20Lines%20is%20ready";
+const NOTIFY_MAILTO = "mailto:hello@actorslines.app?subject=Actors%20Lines%20-%20tell%20me%20when%20it%27s%20ready";
 
 const features = [
   ["Import any script", "Scan a paper script with your camera or import a PDF — Actors Lines reads it on your device and builds your scenes, characters and lines automatically."],
@@ -62,7 +62,7 @@ export default function LandingPage() {
               word-perfect performance, with every other part read aloud for you.
             </p>
             <div className="al-hero__cta">
-              {!session && <LinkButton href={NOTIFY_MAILTO}>Tell me when it is ready</LinkButton>}
+              {!session && <LinkButton href={NOTIFY_MAILTO}>Tell me when it's ready</LinkButton>}
               {session ? (
                 <Link to="/board" className="al-btn al-btn--primary">
                   Enhancement board
@@ -147,7 +147,7 @@ export default function LandingPage() {
             </h2>
             {!session && (
               <p className="al-panel-text" style={{ margin: "0.75rem auto 0" }}>
-                Actors Lines is not on Google Play yet. Email me and I will tell you when it is ready.
+                Actors Lines is not on Google Play yet. Email us and ask to be told when it is ready.
               </p>
             )}
             <div className="al-cta-band__actions">
@@ -155,7 +155,7 @@ export default function LandingPage() {
                 <LinkButton to="/board">Enhancement board</LinkButton>
               ) : (
                 <>
-                  <LinkButton href={NOTIFY_MAILTO}>Tell me when it is ready</LinkButton>
+                  <LinkButton href={NOTIFY_MAILTO}>Tell me when it's ready</LinkButton>
                   <LinkButton to="/login" variant="secondary">Sign in</LinkButton>
                 </>
               )}
