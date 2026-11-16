@@ -81,7 +81,6 @@ export default function Layout() {
                 ) : (
                   <>
                     <Link to="/login" className="al-btn al-btn--ghost">Sign in</Link>
-                    <Link to="/register" className="al-btn al-btn--primary">Create account</Link>
                   </>
                 )}
               </div>
@@ -105,11 +104,6 @@ export default function Layout() {
                   ) : (
                     <>
                       <Link to="/login" className="al-menu-link">Sign in</Link>
-                      <div className="al-menu-cta">
-                        <Link to="/register" className="al-btn al-btn--primary al-btn--block">
-                          Create account
-                        </Link>
-                      </div>
                     </>
                   )}
                 </nav>

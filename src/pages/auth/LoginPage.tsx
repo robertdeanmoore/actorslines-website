@@ -105,7 +105,6 @@ export default function LoginPage() {
                 </Button>
                 <div className="al-auth__links">
                   <Link to="/reset-password" className="al-auth__link">Forgotten password?</Link>
-                  <Link to="/register" className="al-auth__link">Create account</Link>
                 </div>
               </form>
             ) : (
@@ -153,7 +152,6 @@ export default function LoginPage() {
           </button>
           <div className="text-sm text-gray-500 flex justify-between">
             <Link to="/reset-password" className="hover:text-brand">Forgotten password?</Link>
-            <Link to="/register" className="hover:text-brand">Create account</Link>
           </div>
         </form>
       ) : (
