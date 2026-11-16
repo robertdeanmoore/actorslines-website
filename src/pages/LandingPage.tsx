@@ -93,14 +93,6 @@ export default function LandingPage() {
             in your pocket.
           </p>
           <div className="mt-8 flex justify-center gap-4">
-            {!session && (
-              <Link
-                to="/register"
-                className="px-6 py-3 rounded-lg bg-brand text-white font-semibold hover:bg-brand-light"
-              >
-                Coming soon
-              </Link>
-            )}
             <Link
               to={session ? "/board" : "/login"}
               className="px-6 py-3 rounded-lg border border-brand text-brand font-semibold hover:bg-gray-100"

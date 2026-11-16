@@ -111,7 +111,7 @@ export default function NotifyIphoneSection() {
     <section className="bg-white rounded-xl shadow-sm p-8 max-w-2xl mx-auto w-full" aria-labelledby="iphone-heading">
       <h2 id="iphone-heading" className="text-2xl font-bold text-brand text-center">On iPhone? Get notified</h2>
       <p className="mt-3 text-gray-600 text-center">
-        Actors Lines is on Android now. An iPhone version is being explored: nothing is promised yet.
+        An iPhone version is being explored: nothing is promised. The Android app is not yet on Google Play.
         Leave your email and we will tell you once if that changes.
       </p>
       {done ? (
