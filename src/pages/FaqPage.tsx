@@ -30,7 +30,8 @@ export default function FaqPage() {
             {/* [CTA pending] interim wording until the notify CTA decision */}
             <p>
               Actors Lines is not on Google Play yet. Email{" "}
-              <a href={"mailto:" + SUPPORT_EMAIL}>{SUPPORT_EMAIL}</a> and I will let you know.
+              <a href={"mailto:" + SUPPORT_EMAIL}>{SUPPORT_EMAIL}</a> and ask to be told when it is
+              ready.
             </p>
           </AccordionItem>
           <AccordionItem summary="How do I get an account?">
@@ -112,7 +113,7 @@ export default function FaqPage() {
           </AccordionItem>
           <AccordionItem summary="Does Google see my scripts?">
             <p>
-              We do not send your scripts to Google. But the scanner library the app uses (Google ML
+              We do not upload your scripts to Google. When you say a line, your phone&apos;s speech service may process your speech (see above). The scanner library the app uses (Google ML
               Kit) sends Google some device information, such as app version and error data, and
               Android backup, if you turn it on, saves your plays to your own Google account.
             </p>

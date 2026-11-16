@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import MarketingHead from "../components/marketing/MarketingHead";
 import Card from "../components/ui/Card";
+import LinkButton from "../components/ui/LinkButton";
 
 export default function FeaturesPage() {
   return (
@@ -51,8 +52,8 @@ export default function FeaturesPage() {
           </p>
           <ul className="al-mkt-list">
             <li>
-              Ten natural voices ship with the app, four of them British. Download the voice pack
-              once; until then the app uses your phone&apos;s own voice.
+              Ten natural voices (four British) are a one-off download. Until you download them, the
+              app uses your phone&apos;s own voice.
             </li>
             <li>
               Blend voices to make your own, or record the other parts yourself (see{" "}
@@ -113,6 +114,15 @@ export default function FeaturesPage() {
             other members.
           </p>
           <p className="al-mkt-note">Accounts are by invitation at present.</p>
+        </Card>
+
+        <Card as="section" tone="marketing" headingLevel={2} title="Want to try it?">
+          <p>
+            Actors Lines is not on Google Play yet. Email us and ask to be told when it is ready.
+          </p>
+          <LinkButton href="mailto:hello@actorslines.app?subject=Actors%20Lines%20-%20tell%20me%20when%20it%27s%20ready">
+            Tell me when it&apos;s ready
+          </LinkButton>
         </Card>
       </div>
     </div>
