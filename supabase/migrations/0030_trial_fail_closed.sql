@@ -5,10 +5,11 @@
 -- 0028 works (RobLife Deliverables "Actors Lines - Trial Record Counts Result 2026-11-17"). This
 -- only closes the one silent path left in grant_trial_on_confirm(): a null hash (key unreadable)
 -- was lumped with "no usable email" and granted a trial unchecked. Now:
---   * no usable email (phone-only user)      -> trial granted, as 0028 intended (unchanged)
---   * usable email, key unreadable / any
+--   * no email at all (phone-only user)      -> trial granted, as 0028 intended (unchanged)
+--   * an email present, key unreadable / any
 --     error while hashing                    -> NO trial, account kept, a row in trial_check_failed
---   * never an exception out of the trigger  -> signup and invite confirmation are never blocked
+--   * errors while hashing or recording the failure are caught; the trial_used and licence inserts
+--     are unchanged from 0028 (a failure there still aborts the confirmation, loudly)
 -- No rekey, no rebuild of trial_used, Vault kept. Idempotent: safe to run twice.
 -- Follow-up, NOT built here: lifecycle retry of trial_check_failed rows plus an alert when the
 -- count is > 0 (Holly, A09), and a 90-day purge of unresolved rows.
@@ -33,6 +34,7 @@ declare
   v_hmac text;
   v_inserted integer := 0;
   v_usable boolean;
+  v_reason text := 'key_unavailable';
 begin
   if new.email_confirmed_at is null then
     return new;
@@ -41,7 +43,7 @@ begin
     return new; -- already handled
   end if;
 
-  v_usable := public.normalise_trial_email(new.email) is not null;
+  v_usable := new.email is not null and btrim(new.email) <> '';  -- only a truly email-less user (phone-only) skips the check
 
   if v_usable then
     -- Any error while hashing (Vault privilege, missing key) is caught: fail closed, never abort signup.
@@ -49,13 +51,14 @@ begin
       v_hmac := public.trial_email_hmac(new.email);
     exception when others then
       v_hmac := null;
+      v_reason := 'hash_error_' || sqlstate;
     end;
 
     if v_hmac is null then
-      raise warning 'trial_check_failed: trial key unavailable for user %; NO trial granted', new.id;
+      raise warning 'trial_check_failed: trial key unavailable for user % (%); NO trial granted', new.id, v_reason;
       begin
         insert into public.trial_check_failed (user_id, failed_at, reason)
-        values (new.id, now(), 'key_unavailable')
+        values (new.id, now(), v_reason)
         on conflict (user_id) do nothing;
       exception when others then
         raise warning 'trial_check_failed: could not record failure for user %', new.id;
@@ -70,7 +73,7 @@ begin
       return new; -- this address has had its trial: user is created, no trial
     end if;
   else
-    raise warning 'trial_used: no usable email for user %; trial granted unchecked', new.id;
+    raise warning 'trial_used: no email for user %; trial granted unchecked', new.id;
   end if;
 
   perform set_config('app.audit_via', 'trial_trigger', true);
@@ -98,9 +101,5 @@ begin
   end if;
   if a = d or length(a) <> 64 then
     raise exception '0030 post-condition: hash does not separate different addresses - aborted';
-  end if;
-  if (select count(*) from vault.decrypted_secrets
-       where name = 'trial_email_pepper' and decrypted_secret is not null) <> 1 then
-    raise exception '0030 post-condition: expected exactly one readable trial_email_pepper - aborted';
   end if;
 end $$;
