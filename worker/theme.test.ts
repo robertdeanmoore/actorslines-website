@@ -38,6 +38,14 @@ test("/_ui-gallery: hidden on production hosts, open on previews and dev builds"
   assert.equal(uiGalleryAllowed("localhost", true), true);
 });
 
+test("trailing-dot hosts: dotted production hosts are production, dotted others are not", () => {
+  assert.equal(uiGalleryAllowed("actorslines.app.", false), false);
+  assert.equal(uiGalleryAllowed("WWW.ActorsLines.App.", false), false);
+  assert.equal(resolveTheme("actorslines.app.", "?theme=standard", "standard"), "night");
+  assert.equal(uiGalleryAllowed("preview.example.dev.", false), true);
+  assert.equal(resolveTheme("preview.example.dev.", "?theme=standard", undefined), "standard");
+});
+
 test("index.html paints night before JS runs (data-theme, theme-color, color-scheme)", () => {
   const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
   assert.match(html, /<html[^>]*data-theme="night"/);

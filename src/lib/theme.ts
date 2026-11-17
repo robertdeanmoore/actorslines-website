@@ -18,7 +18,8 @@ const NIGHT_THEME_COLOR = "#120845";
 const PAPER_THEME_COLOR = "#FBF7EF";
 
 function isProductionHost(hostname: string): boolean {
-  return PRODUCTION_HOSTS.has(hostname.toLowerCase());
+  // One trailing dot (absolute FQDN form, "actorslines.app.") is the same host.
+  return PRODUCTION_HOSTS.has(hostname.toLowerCase().replace(/\.$/, ""));
 }
 
 /**

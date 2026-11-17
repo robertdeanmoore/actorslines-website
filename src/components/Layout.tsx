@@ -12,8 +12,8 @@ type NavItem = { to: string; label: string };
 const PUBLIC_LINKS: NavItem[] = [
   { to: "/features", label: "Features" },
   { to: "/faq", label: "FAQ" },
-  { to: "/support", label: "Support" },
   { to: "/kb", label: "Help" },
+  { to: "/support", label: "Support" },
 ];
 
 const MEMBER_LINKS: NavItem[] = [
@@ -21,6 +21,7 @@ const MEMBER_LINKS: NavItem[] = [
   { to: "/kb", label: "Knowledge base" },
   { to: "/board", label: "Enhancement board" },
   { to: "/requests", label: "My requests" },
+  { to: "/support", label: "Support" },
 ];
 
 // /tutorials has no nav link: the page is an empty state until Robert supplies the first video (WIP 257).

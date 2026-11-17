@@ -6,7 +6,7 @@
 export const SITE_URL = "https://actorslines.app";
 export const DEFAULT_TITLE = "Actors Lines";
 export const DEFAULT_DESCRIPTION =
-  "Actors Lines — the on-device line-learning companion for actors. Learn your lines, your way.";
+  "Actors Lines: the Android line-learning app for actors. Scan your script, hide and reveal your lines, and hear the other parts read aloud.";
 
 const SUFFIX = " | Actors Lines";
 

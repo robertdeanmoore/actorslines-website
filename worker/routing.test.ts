@@ -166,6 +166,17 @@ test("isIndexableHost: only apex and www", () => {
     assert.equal(isIndexableHost(h), false, h);
 });
 
+test("trailing-dot hosts: dotted production hosts are canonical and indexable, dotted others are not", () => {
+  assert.equal(isIndexableHost("actorslines.app."), true);
+  assert.equal(isIndexableHost("www.actorslines.app."), true);
+  assert.equal(isIndexableHost("localhost."), false);
+  assert.equal(isIndexableHost("evil-actorslines.app."), false);
+  assert.equal(canonicalRedirect(u("https://www.actorslines.app./privacy")), "https://actorslines.app/privacy");
+  assert.equal(canonicalRedirect(u("http://actorslines.app./kb")), "https://actorslines.app/kb");
+  assert.equal(canonicalRedirect(u("https://actorslines.app./")), null);
+  assert.equal(canonicalRedirect(u("https://abc-actorslines-website.robertdeanmoore.workers.dev./")), null);
+});
+
 test("canonical host responses carry no X-Robots-Tag", async () => {
   const r = await handle(new Request("https://actorslines.app/kb"), env({ "/": "shell" }));
   assert.equal(r.headers.get("x-robots-tag"), null);

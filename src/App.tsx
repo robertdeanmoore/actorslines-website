@@ -32,6 +32,7 @@ import TutorialsPage from "./pages/TutorialsPage";
 import FeaturesPage from "./pages/FeaturesPage";
 import FaqPage from "./pages/FaqPage";
 import SupportPage from "./pages/SupportPage";
+import NotFound from "./components/ui/NotFound";
 
 export default function App() {
   return (
@@ -77,6 +78,8 @@ export default function App() {
             <Route path="/admin/telemetry" element={<TelemetryPage />} />
           </Route>
         </Route>
+        {/* Catch-all. HTTP status stays 200 (SPA shell) until the worker has a route list. */}
+        <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
   );

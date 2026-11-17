@@ -23,7 +23,7 @@ export interface Env {
 
 /** Where this request must be redirected to, or null if it is already canonical. */
 export function canonicalRedirect(url: URL): string | null {
-  const host = url.hostname.toLowerCase();
+  const host = url.hostname.toLowerCase().replace(/\.$/, "");
   if (host !== CANONICAL_HOST && !REDIRECT_HOSTS.has(host)) return null;
   if (host === CANONICAL_HOST && url.protocol === "https:") return null;
   return `https://${CANONICAL_HOST}${url.pathname}${url.search}`;
@@ -96,7 +96,7 @@ async function route(request: Request, env: Env): Promise<Response> {
 const INDEXABLE_HOSTS = new Set([CANONICAL_HOST, `www.${CANONICAL_HOST}`]);
 
 export function isIndexableHost(hostname: string): boolean {
-  return INDEXABLE_HOSTS.has(hostname.toLowerCase());
+  return INDEXABLE_HOSTS.has(hostname.toLowerCase().replace(/\.$/, ""));
 }
 
 /**

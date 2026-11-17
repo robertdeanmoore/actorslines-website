@@ -14,6 +14,7 @@ import { Field, Input } from "../../components/ui/Field";
 // AdminInvitesPage / the `invite` edge function). Flip to true (and redeploy) if
 // self-serve sign-up is ever reopened.
 const REGISTRATION_ENABLED = false;
+const SUPPORT_EMAIL = "hello@actorslines.app";
 
 export default function RegisterPage() {
   if (!REGISTRATION_ENABLED) {
@@ -24,8 +25,9 @@ export default function RegisterPage() {
             <Card as="div" tone="dense" className="al-auth__card--center">
               <h1 className="al-auth__title">Invite only</h1>
               <p className="al-auth__text">
-                Actors Lines is currently invite-only. If you've received an invite email,
-                use the link in it to create your account.
+                Actors Lines is currently invite-only. If you have an invite email, use the link in
+                it to create your account. To ask for an invitation, email{" "}
+                <a href={"mailto:" + SUPPORT_EMAIL}>{SUPPORT_EMAIL}</a>.
               </p>
               <Link to="/" className="al-auth__link al-auth__action">Back to home</Link>
             </Card>
@@ -37,8 +39,9 @@ export default function RegisterPage() {
       <div className="max-w-sm mx-auto bg-white rounded-xl shadow-sm p-8 text-center">
         <h1 className="text-xl font-bold text-brand">Invite only</h1>
         <p className="mt-3 text-sm text-gray-600">
-          Actors Lines is currently invite-only. If you've received an invite email,
-          use the link in it to create your account.
+          Actors Lines is currently invite-only. If you have an invite email, use the link in it
+          to create your account. To ask for an invitation, email{" "}
+          <a href={"mailto:" + SUPPORT_EMAIL} className="text-brand hover:underline">{SUPPORT_EMAIL}</a>.
         </p>
         <Link to="/" className="mt-4 inline-block text-sm text-brand hover:underline">
           Back to home
