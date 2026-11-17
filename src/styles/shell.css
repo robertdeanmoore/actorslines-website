@@ -275,7 +275,18 @@
     gap: 0.75rem;
   }
   [data-theme="night"] .al-header__bar .al-nav,
-  [data-theme="night"] .al-header__bar .al-actions {
+  [data-theme="night"] .al-header__bar .al-actions,
+  [data-theme="night"] .al-header__bar .al-brand {
     flex-shrink: 0;
+  }
+}
+/* Around 1024 the unshrinkable brand plus seven nav items plus actions exceed the bar: claw back ~36px
+   so the brand no longer overlaps "Learn Lines" and nothing overflows. */
+@media (min-width: 48rem) and (max-width: 68rem) {
+  [data-theme="night"] .al-header__bar {
+    gap: 0.5rem;
+  }
+  [data-theme="night"] .al-header__bar .al-nav-link {
+    padding-inline: 0.375rem;
   }
 }
