@@ -24,7 +24,7 @@ import Table, { TableActionButton } from "../../components/ui/Table";
 import VideoCard, { VIDEO_PRIVACY_NOTE } from "../../components/ui/VideoCard";
 import type { RequestStatus } from "../../lib/types";
 
-const STATUSES: RequestStatus[] = ["submitted", "reported", "published", "planned", "implemented", "closed", "rejected", "abandoned"];
+const STATUSES: RequestStatus[] = ["submitted", "reported", "published", "planned", "ready_for_dev", "implemented", "closed", "rejected", "abandoned"];
 
 const DEMO_ITEMS = [
   { title: "Demo item one", body: "One plain sentence of demo body text." },

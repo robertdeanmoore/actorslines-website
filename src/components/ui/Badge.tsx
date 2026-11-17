@@ -27,6 +27,7 @@ const STATUS_TONE: Record<RequestStatus, BadgeTone | "closed"> = {
   reported: "info",
   published: "lilac",
   planned: "lilac",
+  ready_for_dev: "info",
   implemented: "ok",
   closed: "closed",
   rejected: "danger",
