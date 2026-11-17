@@ -237,6 +237,12 @@ by a merge; they are separate gated steps. One ordered sequence (Holly's Group 3
      `public.purge_notify_signups()` daily (service role) and reports `notifyPurged` /
      `notifyPurgeErrors` in its summary. Before `0025` exists that call fails and is only logged
      (`notifyPurgeErrors`); the other lifecycle steps are unaffected.
+   - `lifecycle` MUST also be redeployed after `0027` (usage-data retention) is applied: it calls
+     `public.purge_usage_data()` daily (service role), reports `usagePurged` / `usagePurgeErrors`,
+     and deletes telemetry events and recognition reports older than 12 months and request messages
+     12 months after the case closes. The first run after apply deletes the whole backlog; Slog's
+     pre-count query is in the RobLife design doc. Before `0027` exists the call fails and is only
+     logged.
    - The FIRST deploy of `notify-list` must be this CLI route, not the dashboard. `verify_jwt`
      stays ON (the default; do not pass `--no-verify-jwt`). The site calls it with
      `supabase.functions.invoke`, which sends the anon key as the bearer token, so signed-out
