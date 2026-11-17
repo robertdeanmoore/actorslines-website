@@ -22,7 +22,7 @@ export const practiceShot = {
   alt: "Phone screen of the Actors Lines Practice view in the Light Paper theme: the same scene with some words blanked out as underlines, mode tabs Notes, All, Blank, Word and Random, a counter reading Total 14, Hidden 4, Ratio 28%, and a Run this scene button.",
 };
 
-// Hero image under the Enhancement board button. Play title redacted (blocked out) in the pixels.
+// Hero image under the hero call-to-action button. Play title redacted (blocked out) in the pixels.
 export const scenesShot = {
   src: `${DIR}/al-scenes-864.webp`,
   srcSet: `${DIR}/al-scenes-540.webp 540w, ${DIR}/al-scenes-864.webp 864w`,

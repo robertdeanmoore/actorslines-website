@@ -64,8 +64,8 @@ export default function LandingPage() {
             <div className="al-hero__cta">
               {!session && <LinkButton href={NOTIFY_MAILTO}>Tell me when it's ready</LinkButton>}
               {session ? (
-                <Link to="/board" className="al-btn al-btn--primary">
-                  Enhancement board
+                <Link to="/kb" className="al-btn al-btn--primary">
+                  Knowledge base
                 </Link>
               ) : (
                 <Link to="/login" className="al-btn al-btn--secondary">
@@ -93,10 +93,10 @@ export default function LandingPage() {
           </p>
           <div className="mt-8 flex justify-center gap-4">
             <Link
-              to={session ? "/board" : "/login"}
+              to={session ? "/kb" : "/login"}
               className="px-6 py-3 rounded-lg border border-brand text-brand font-semibold hover:bg-gray-100"
             >
-              {session ? "Enhancement board" : "Sign in"}
+              {session ? "Knowledge base" : "Sign in"}
             </Link>
           </div>
         </section>
