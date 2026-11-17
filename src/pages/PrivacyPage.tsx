@@ -88,7 +88,7 @@ export default function PrivacyPage() {
           [
             <>
               <strong>Support messages</strong> you send us (request messages). The text of a request is processed by an
-              AI service (Anthropic) and may be compared with other members&apos; requests
+              AI service (via OpenRouter) and may be compared with other members&apos; requests
             </>,
             "To answer you",
             "Legitimate interests; contract",
@@ -146,16 +146,16 @@ export default function PrivacyPage() {
         You need to give us an email address and password to have an account. Without them we cannot provide it.
         Everything else is optional unless the table says it is needed to give you a feature you ask for.
       </p>
-      {/* ANTHROPIC-GOLIVE-GATE: this paragraph and the Anthropic rows describe request analysis through an Anthropic
-          API key (Commercial Terms). That is true only after ActorsVoice PR 72 is merged and the GitHub Actions
-          secrets are switched to the API key. Until then the consumer-subscription route breaches Anthropic's terms
-          (Holly 2026-11-17): do not go live before it. Must not say "not used to train" (API-key training default
-          unverified). */}
+      {/* OPENROUTER-GOLIVE-GATE: this paragraph and the OpenRouter rows describe request analysis through OpenRouter
+          (zero data retention, US allow-listed hosts). True only after the OpenRouter triage build is live and
+          Robert's OpenRouter dashboard settings are done (Holly ruling 2026-11-17, checklist steps 1-9). Do not write
+          "never stored" or claim training status of the host: CSAM/safety screening retention exception exists. */}
       <p className={P}>
         We do <strong>not</strong> sell your information and do not use it for marketing. We do not use automated
-        decision-making that has legal effects on you. Enhancement requests are analysed by automated AI tooling
-        (Anthropic) to produce development reports, and may be compared with other members&apos; requests during that
-        analysis (see &ldquo;Who else handles your information&rdquo;).
+        decision-making that has legal effects on you. Enhancement requests are analysed by an automated AI service
+        (provided through OpenRouter and a United States hosting provider) to produce development reports, and may be
+        compared with other members&apos; requests during that analysis (see &ldquo;Who else handles your
+        information&rdquo;).
       </p>
 
       <h2 className="mt-6 font-semibold">What the Actors Lines app sends</h2>
@@ -210,8 +210,11 @@ export default function PrivacyPage() {
           names no region until Robert reads the Brevo DPA and tells Holly. Do not write "EU" before then. */}
       {/* VERIFY (Supabase): the London claim rests on the project region setting; Robert or Kate confirm eu-west-2 in
           the Supabase dashboard. */}
-      {/* ANTHROPIC-GOLIVE-GATE (processors row below): true only after ActorsVoice PR 72 is merged and the secrets are
-          switched to an Anthropic API key. */}
+      {/* OPENROUTER-GOLIVE-GATE (processors row below): true only after the OpenRouter triage build is live and
+          Robert's dashboard settings are done. GitHub stays in the row honestly: it triggers the triage through
+          GitHub Actions, and the old Actions workflows still run until they are retired. GitHub also stays above for
+          the public status file (IP logs). Anthropic removed for the request-analysis role only; re-add if Anthropic is
+          used for anything else with member data (it must not be). */}
       <LegalTable
         caption="Who else handles your information"
         head={["Who", "What they do", "Data", "Where"]}
@@ -244,10 +247,10 @@ export default function PrivacyPage() {
           ],
           [
             <>
-              <strong>Anthropic</strong> (AI service) and <strong>GitHub</strong>
+              <strong>OpenRouter</strong> (AI routing service), the AI model host it uses, and <strong>GitHub</strong>
             </>,
-            "Request text you submit is passed to automated AI analysis run through GitHub Actions on our private repository, using an Anthropic API account. It may be compared with other members' requests",
-            "The text of your request",
+            "Request text you submit is passed, with identifying details removed where we can, through OpenRouter to an AI model run by a hosting company in the United States, triggered from GitHub Actions on our private repository. We require zero data retention, so the text is not kept by OpenRouter or the host after the answer is produced. It may be compared with other members' requests",
+            "The text of your request (email addresses and phone numbers are removed first)",
             "Outside the UK (United States)",
           ],
           [
@@ -260,14 +263,16 @@ export default function PrivacyPage() {
           ],
         ]}
       />
-      {/* ANTHROPIC-GOLIVE-GATE / ROBERT-CONFIRM: "Anthropic's Commercial Terms" in the next paragraph is marked VERIFY
-          by Holly (Commercial Terms and DPA not fetched). Cut that name from the list if it cannot be confirmed. */}
+      {/* OPENROUTER-GOLIVE-GATE / ROBERT-CONFIRM: "OpenRouter's data processing agreement" needs the DPA accepted and
+          saved (Holly checklist step 8); the last sentence of the paragraph stays until the model host's own transfer
+          mechanism is confirmed (step 9). If the DPA cannot be accepted, escalate to Holly: blocks go-live. */}
       <p className={P}>
         Some of these providers are outside the UK, mainly in the United States. Where your information goes outside the
         UK, the provider relies on a UK-approved safeguard: the UK Data Bridge (the UK extension to the Data Privacy
         Framework) where the provider is certified, or the International Data Transfer Addendum to the EU standard
-        contractual clauses (Cloudflare, Supabase, GitHub, and Anthropic&apos;s Commercial Terms). Google (Gmail) uses
-        its own safeguards under its terms. Videos are explained in the &ldquo;Videos&rdquo; section below.
+        contractual clauses (Cloudflare, Supabase, GitHub, and OpenRouter&apos;s data processing agreement). Our AI model
+        host relies on its own safeguards; we have restricted routing to providers in the United States. Google (Gmail)
+        uses its own safeguards under its terms. Videos are explained in the &ldquo;Videos&rdquo; section below.
       </p>
 
       <h2 className="mt-6 font-semibold">How long we keep it</h2>

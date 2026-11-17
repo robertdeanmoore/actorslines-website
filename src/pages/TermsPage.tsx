@@ -76,8 +76,8 @@ export default function TermsPage() {
       </p>
 
       <h2 className="mt-6 font-semibold">5. Using the service</h2>
-      {/* ANTHROPIC-GOLIVE-GATE: the Requests and AI bullet is true of an Anthropic API-key route only after ActorsVoice
-          PR 72 is merged and the secrets are switched. It must not say "not used to train" (API-key default unverified). */}
+      {/* OPENROUTER-GOLIVE-GATE: the Requests and AI bullet is true only after the OpenRouter triage build is live and
+          Robert's dashboard settings are done. It must not say "not used to train" or "never stored". */}
       <ul className={UL}>
         <li>
           Learn Lines, the knowledge base, the enhancement board and requests: no abuse, spam, unlawful content,
@@ -96,7 +96,7 @@ export default function TermsPage() {
         </li>
         <li>
           <strong>Requests and AI.</strong> The text of requests and enhancement suggestions is processed by an AI
-          service (Anthropic) to help us analyse them, and may be compared with other members&apos; requests. See the{" "}
+          service (provided through OpenRouter) to help us analyse them, and may be compared with other members&apos; requests. See the{" "}
           <Link to="/privacy">Privacy Policy</Link>.
         </li>
         <li>
