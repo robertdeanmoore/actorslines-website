@@ -6,7 +6,7 @@ import DeviceFrame from "../components/ui/DeviceFrame";
 import { FeatureSection } from "../components/ui/FeatureRow";
 import { Container, Section } from "../components/ui/Layout";
 import LinkButton from "../components/ui/LinkButton";
-import ScreenshotPair, { practiceShot } from "../components/ui/ScreenshotPair";
+import ScreenshotPair, { scenesShot } from "../components/ui/ScreenshotPair";
 import { isNightTheme } from "../lib/theme";
 
 // Interim notify route while the Android notify list is not built (WIP #257, ADR-0160): a plain mailto to the
@@ -64,8 +64,8 @@ export default function LandingPage() {
             <div className="al-hero__cta">
               {!session && <LinkButton href={NOTIFY_MAILTO}>Tell me when it's ready</LinkButton>}
               {session ? (
-                <Link to="/board" className="al-btn al-btn--primary">
-                  Enhancement board
+                <Link to="/kb" className="al-btn al-btn--primary">
+                  Knowledge base
                 </Link>
               ) : (
                 <Link to="/login" className="al-btn al-btn--secondary">
@@ -78,8 +78,7 @@ export default function LandingPage() {
                 The Android app is coming soon to Google Play.
               </p>
             )}
-            {/* Decorative duplicate of the Practice screen shown with its caption below (Clarity: alt="" is fine). */}
-            <DeviceFrame shot={{ ...practiceShot, alt: "" }} priority />
+            <DeviceFrame shot={scenesShot} priority />
           </div>
         </section>
       ) : (
@@ -94,10 +93,10 @@ export default function LandingPage() {
           </p>
           <div className="mt-8 flex justify-center gap-4">
             <Link
-              to={session ? "/board" : "/login"}
+              to={session ? "/kb" : "/login"}
               className="px-6 py-3 rounded-lg border border-brand text-brand font-semibold hover:bg-gray-100"
             >
-              {session ? "Enhancement board" : "Sign in"}
+              {session ? "Knowledge base" : "Sign in"}
             </Link>
           </div>
         </section>

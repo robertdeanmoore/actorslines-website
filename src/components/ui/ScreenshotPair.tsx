@@ -22,6 +22,16 @@ export const practiceShot = {
   alt: "Phone screen of the Actors Lines Practice view in the Light Paper theme: the same scene with some words blanked out as underlines, mode tabs Notes, All, Blank, Word and Random, a counter reading Total 14, Hidden 4, Ratio 28%, and a Run this scene button.",
 };
 
+// Hero image under the hero call-to-action button. Play title redacted (blocked out) in the pixels.
+export const scenesShot = {
+  src: `${DIR}/al-scenes-864.webp`,
+  srcSet: `${DIR}/al-scenes-540.webp 540w, ${DIR}/al-scenes-864.webp 864w`,
+  sizes: SIZES,
+  width: 864,
+  height: 1829,
+  alt: "Phone screen of the Actors Lines scenes list in the Light Paper theme: a search bar, then five scene cards, each showing its recording status for All and C2C, its section, line and hidden counts, its hidden-line ratio, and a coloured bar of who speaks.",
+};
+
 // Captions: Clarity-approved text (Screenshots Copy Review 2026-11-13). Android screens only.
 /** Edit and Practice screens side by side (stacked on a phone). Night look only. */
 export default function ScreenshotPair() {
