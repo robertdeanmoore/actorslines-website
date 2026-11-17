@@ -286,8 +286,7 @@ export default function PrivacyPage() {
         UK, the provider relies on a UK-approved safeguard: the UK Data Bridge (the UK extension to the Data Privacy
         Framework) where the provider is certified, or the International Data Transfer Addendum to the EU standard
         contractual clauses (Cloudflare, Supabase, GitHub, Brevo&apos;s data processing agreement and OpenRouter&apos;s data processing
-        agreement). Our AI model hosts are chosen from an approved list and may be in the United States or Asia; OpenRouter&apos;s data processing agreement covers the transfer to OpenRouter, and
-        each host relies on its own safeguards. Google (Gmail)
+        agreement). Our AI model hosts are chosen from an approved list and may be in the United States or Asia. OpenRouter&apos;s data processing agreement covers the transfer to OpenRouter. We send the hosts only the text of your request, with email addresses and phone numbers removed first, and only to hosts that state a zero-data-retention policy; we have not verified each host&apos;s transfer safeguard separately. Google (Gmail)
         uses its own safeguards under its terms. Videos are explained in the &ldquo;Videos&rdquo; section below.
       </p>
 
