@@ -9,8 +9,8 @@ enhancement-request pipeline backed by AI triage.
   https://actorslines.app (also reachable at https://actorslines-website.robertdeanmoore.workers.dev).
 - **Backend**: Supabase (auth incl. TOTP 2FA, Postgres with row-level security,
   edge functions).
-- **AI pipeline**: GitHub Actions in the (private) ActorsVoice app repository run
-  Claude Code to triage requests, write implementation plans, and open PRs.
+- **AI triage**: the `dispatch` edge function calls OpenRouter to write a developer report
+  for each enhancement request. No other AI runs on the website.
 
 ## First-time setup
 
@@ -41,6 +41,6 @@ src/auth/            session + 2FA context and route guards
 src/lib/             supabase client, types, kb loader
 src/content/kb/      knowledge-base articles (markdown)
 supabase/migrations/ database schema + row-level security
-supabase/functions/  dispatch (GitHub bridge), lifecycle (inactivity policy)
+supabase/functions/  dispatch (request intake + AI triage), lifecycle (inactivity policy)
 .github/workflows/   CI build + daily lifecycle/keep-alive
 ```
