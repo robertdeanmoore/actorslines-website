@@ -5,12 +5,12 @@ date: 2026-07-05
 ---
 
 Welcome! This walkthrough takes you from installing the app to running your first
-scene with a synthetic cast.
+scene with a cast that reads the other parts aloud.
 
 ## 1. Import your script
 
 Open the app, tap **Import**, and either scan your paper script with the camera or
-pick a PDF. Actors Lines reads it **on your device** — nothing is uploaded — and
+pick a PDF. Actors Lines reads it on your phone and does not upload it to us, and
 builds your scenes, characters and lines automatically. Review the result and fix
 any lines the scanner misread.
 
