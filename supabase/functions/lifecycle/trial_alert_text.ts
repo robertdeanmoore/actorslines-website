@@ -2,9 +2,14 @@
 // never user ids, emails, names or reasons. Pure, no Deno APIs.
 
 export function trialAlertSubject(): string {
-  throw new Error("not implemented");
+  return "Actors Lines: trial checks need attention";
 }
 
-export function trialAlertBody(_count: number, _runTimeIso: string): string {
-  throw new Error("not implemented");
+export function trialAlertBody(count: number, runTimeIso: string): string {
+  return [
+    `Trial maintenance run at ${runTimeIso}.`,
+    `${count} account${count === 1 ? "" : "s"} confirmed their email, but the free-trial check could not run.`,
+    "No free trial was given to these accounts.",
+    "The daily job retries the check automatically; no action is needed unless this keeps happening.",
+  ].join("\n");
 }
