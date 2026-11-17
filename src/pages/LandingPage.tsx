@@ -6,7 +6,7 @@ import DeviceFrame from "../components/ui/DeviceFrame";
 import { FeatureSection } from "../components/ui/FeatureRow";
 import { Container, Section } from "../components/ui/Layout";
 import LinkButton from "../components/ui/LinkButton";
-import ScreenshotPair, { practiceShot } from "../components/ui/ScreenshotPair";
+import ScreenshotPair, { scenesShot } from "../components/ui/ScreenshotPair";
 import { isNightTheme } from "../lib/theme";
 
 // Interim notify route while the Android notify list is not built (WIP #257, ADR-0160): a plain mailto to the
@@ -78,8 +78,7 @@ export default function LandingPage() {
                 The Android app is coming soon to Google Play.
               </p>
             )}
-            {/* Decorative duplicate of the Practice screen shown with its caption below (Clarity: alt="" is fine). */}
-            <DeviceFrame shot={{ ...practiceShot, alt: "" }} priority />
+            <DeviceFrame shot={scenesShot} priority />
           </div>
         </section>
       ) : (
