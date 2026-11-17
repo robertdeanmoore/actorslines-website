@@ -51,7 +51,7 @@ export default function SupportPage() {
         <ul className="al-mkt-list">
           <li>Suggestions are not commitments to build anything by any date.</li>
           <li>
-            The text is processed by an AI service (Anthropic) to help us analyse it, and may be
+            The text is processed by an AI service (provided through OpenRouter) to help us analyse it, and may be
             compared with other members&apos; suggestions. See our{" "}
             <Link to="/privacy">privacy policy</Link>.
           </li>
@@ -67,7 +67,9 @@ export default function SupportPage() {
         <h2 id="al-support-account">Your account and data</h2>
         <ul className="al-mkt-list">
           <li>Reset password: sign-in page, &quot;Forgot password&quot;.</li>
-          <li>Delete your account and its data: Profile page.</li>
+          <li>
+            Delete your account: Profile page. It removes your details, scripts, votes and requests; comments you wrote on other people&apos;s requests stay without your name; a coded version of your email address (not the address itself) and your trial start date are kept for 24 months to stop the free trial being repeated. See the <Link to="/privacy">privacy policy</Link>.
+          </li>
           <li>
             Questions about privacy:{" "}
             <a href={"mailto:" + SUPPORT_EMAIL}>{SUPPORT_EMAIL}</a>, or see the{" "}
