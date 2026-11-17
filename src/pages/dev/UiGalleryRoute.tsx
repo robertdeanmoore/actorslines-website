@@ -1,16 +1,15 @@
 import { lazy, Suspense } from "react";
 import { Navigate } from "react-router-dom";
-import { isNightTheme } from "../../lib/theme";
+import { uiGalleryAllowed } from "../../lib/theme";
 
 const UiGalleryPage = lazy(() => import("./UiGalleryPage"));
 
 /**
- * /_ui-gallery exists only while the night theme flag is on (previews, VITE_THEME=night). Everywhere
- * else, production included, it redirects home, and the gallery code is a separate chunk that is
- * never downloaded.
+ * /_ui-gallery is a dev/preview tool with placeholder copy. On production hosts it redirects home
+ * and the gallery code (a separate chunk) is never downloaded. Previews and dev builds still show it.
  */
 export default function UiGalleryRoute() {
-  if (!isNightTheme()) return <Navigate to="/" replace />;
+  if (!uiGalleryAllowed(window.location.hostname, import.meta.env.DEV)) return <Navigate to="/" replace />;
   return (
     <Suspense fallback={null}>
       <UiGalleryPage />

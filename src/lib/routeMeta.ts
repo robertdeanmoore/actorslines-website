@@ -6,9 +6,14 @@
 export const SITE_URL = "https://actorslines.app";
 export const DEFAULT_TITLE = "Actors Lines";
 export const DEFAULT_DESCRIPTION =
-  "Actors Lines — the on-device line-learning companion for actors. Learn your lines, your way.";
+  "Actors Lines: the Android line-learning app for actors. Scan your script, hide and reveal your lines, and hear the other parts read aloud.";
 
 const SUFFIX = " | Actors Lines";
+
+/** Title of the catch-all 404 view; useRouteMeta keeps it instead of the site default. */
+export const NOT_FOUND_TITLE = `Page not found${SUFFIX}`;
+/** Attribute NotFound puts on its robots meta so the route-meta effect knows the 404 view is showing. */
+export const NOT_FOUND_MARKER = "data-al-notfound";
 
 export type RouteMeta = { title: string; description: string };
 
@@ -36,7 +41,7 @@ const STATIC_META: Record<string, Partial<RouteMeta>> = {
     description: "Actors Lines sign-up is by invitation.",
   },
   "/tutorials": { title: `Tutorials${SUFFIX}` },
-  // WIP #257 marketing pages (copy: Clarity 2026-11-14). Reachable and noindex until go-live.
+  // WIP #257 marketing pages (copy: Clarity 2026-11-14). Indexable from go-live (WIP #257 slice 6a).
   "/features": {
     title: `Features${SUFFIX}`,
     description:

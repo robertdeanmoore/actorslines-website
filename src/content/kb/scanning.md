@@ -4,7 +4,7 @@ summary: Page layouts, image types, and how to get a clean import.
 date: 2026-10-03
 ---
 
-Actors Lines reads your script on the device — nothing is uploaded — and keeps the layout so
+Actors Lines reads your script on your phone and does not upload it to us. It keeps the layout so
 it can tell apart character cues, dialogue and stage directions.
 
 ## What you can import

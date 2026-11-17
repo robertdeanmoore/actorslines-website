@@ -27,7 +27,6 @@ export default function FaqPage() {
             </p>
           </AccordionItem>
           <AccordionItem summary="How do I get the app?">
-            {/* [CTA pending] interim wording until the notify CTA decision */}
             <p>
               Actors Lines is not on Google Play yet. Email{" "}
               <a href={"mailto:" + SUPPORT_EMAIL}>{SUPPORT_EMAIL}</a> and ask to be told when it is

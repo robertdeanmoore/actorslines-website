@@ -29,6 +29,7 @@
     }
   }
   :where(.al-footer__brand) {
+    align-self: start;
     display: flex;
     align-items: center;
     gap: 0.625rem;

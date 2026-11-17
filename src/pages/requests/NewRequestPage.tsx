@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
-import TurnstileWidget, { turnstileConfigured } from "../../components/TurnstileWidget";
+import TurnstileWidget, { turnstileConfigured, useNightWidgetSize } from "../../components/TurnstileWidget";
 import type { TurnstileInstance } from "@marsidev/react-turnstile";
 import { isNightTheme } from "../../lib/theme";
 import { Container } from "../../components/ui/Layout";
@@ -26,6 +26,7 @@ export default function NewRequestPage() {
   const [busy, setBusy] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const turnstileRef = useRef<TurnstileInstance>(null);
+  const widgetSize = useNightWidgetSize();
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -134,7 +135,7 @@ export default function NewRequestPage() {
               )}
             </Field>
 
-            <TurnstileWidget ref={turnstileRef} onToken={setCaptchaToken} theme="dark" className="mt-5 max-w-full min-h-[65px] overflow-hidden" />
+            <TurnstileWidget ref={turnstileRef} onToken={setCaptchaToken} theme="dark" size={widgetSize} className="mt-5 max-w-full min-h-[65px] overflow-hidden" />
             <Button type="submit" block busy={busy} className="mt-6"
               disabledReason={turnstileConfigured && !captchaToken ? "Complete the security check to continue." : undefined}
               disabled={busy || (turnstileConfigured && !captchaToken)}>

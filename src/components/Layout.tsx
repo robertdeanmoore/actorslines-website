@@ -10,7 +10,12 @@ import SkipLink from "./ui/SkipLink";
 
 type NavItem = { to: string; label: string };
 
-const PUBLIC_LINKS: NavItem[] = [{ to: "/kb", label: "Help" }];
+const PUBLIC_LINKS: NavItem[] = [
+  { to: "/features", label: "Features" },
+  { to: "/faq", label: "FAQ" },
+  { to: "/kb", label: "Help" },
+  { to: "/support", label: "Support" },
+];
 
 const MEMBER_LINKS: NavItem[] = [
   { to: "/learn-lines", label: "Learn Lines" },
@@ -19,9 +24,12 @@ const MEMBER_LINKS: NavItem[] = [
   { to: "/requests", label: "My requests" },
 ];
 
-// Dark-launched nav entry (WIP 257): the /tutorials route exists on every host, but the link only shows
-// while the night theme flag is on, so production navigation is unchanged until the go-live release.
-const NIGHT_ONLY_LINKS: NavItem[] = [{ to: "/tutorials", label: "Tutorials" }];
+// Support joins the signed-in header in the night look only: with it the standard look's header
+// wraps to two lines at 1080-1280, where main stays on one (WIP 257 D8). /support stays reachable by URL;
+// the standard look is a rollback/preview look only.
+const NIGHT_MEMBER_LINKS: NavItem[] = [{ to: "/support", label: "Support" }];
+
+// /tutorials has no nav link: the page is an empty state until Robert supplies the first video (WIP 257).
 
 const ADMIN_LINKS: NavItem[] = [
   { to: "/admin", label: "Admin" },
@@ -36,7 +44,7 @@ export default function Layout() {
 
   const signedIn = Boolean(session && profile);
   const isAdmin = profile?.role === "admin";
-  const links = [...(signedIn ? MEMBER_LINKS : PUBLIC_LINKS), ...(isNightTheme() ? NIGHT_ONLY_LINKS : [])];
+  const links = signedIn ? [...MEMBER_LINKS, ...(isNightTheme() ? NIGHT_MEMBER_LINKS : [])] : PUBLIC_LINKS;
   // The landing page lays out its own full-width sections; every other page keeps the 5xl column.
   const fullBleed = pathname === "/";
 
@@ -68,7 +76,7 @@ export default function Layout() {
             </nav>
 
             <div className="al-actions">
-              <div className="hidden md:flex items-center gap-2">
+              <div className="al-actions__desk hidden md:flex items-center gap-2">
                 {signedIn ? (
                   <>
                     <NavLink to="/profile" className="al-nav-link">

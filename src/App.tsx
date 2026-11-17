@@ -32,6 +32,7 @@ import TutorialsPage from "./pages/TutorialsPage";
 import FeaturesPage from "./pages/FeaturesPage";
 import FaqPage from "./pages/FaqPage";
 import SupportPage from "./pages/SupportPage";
+import NotFound from "./components/ui/NotFound";
 
 export default function App() {
   return (
@@ -41,7 +42,7 @@ export default function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/terms" element={<TermsPage />} />
-        {/* Preview only (night flag on): component gallery for WIP 257 slice 2. Redirects home otherwise. */}
+        {/* Preview/dev only: component gallery for WIP 257 slice 2. Redirects home on production hosts. */}
         <Route path="/_ui-gallery" element={<UiGalleryRoute />} />
         <Route path="/tutorials" element={<TutorialsPage />} />
         <Route path="/features" element={<FeaturesPage />} />
@@ -77,6 +78,8 @@ export default function App() {
             <Route path="/admin/telemetry" element={<TelemetryPage />} />
           </Route>
         </Route>
+        {/* Catch-all. HTTP status stays 200 (SPA shell) until the worker has a route list. */}
+        <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
   );

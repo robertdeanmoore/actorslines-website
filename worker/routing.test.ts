@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { CMS_CSP, PRE_LAUNCH_NOINDEX_PATHS, canonicalRedirect, canonicalUrl, handle, isCmsPath, isIndexableHost, isPageRoute } from "./routing.ts";
+import { CMS_CSP, canonicalRedirect, canonicalUrl, handle, isCmsPath, isIndexableHost, isPageRoute } from "./routing.ts";
 
 const u = (s: string) => new URL(s);
 
@@ -166,6 +166,17 @@ test("isIndexableHost: only apex and www", () => {
     assert.equal(isIndexableHost(h), false, h);
 });
 
+test("trailing-dot hosts: dotted production hosts are canonical and indexable, dotted others are not", () => {
+  assert.equal(isIndexableHost("actorslines.app."), true);
+  assert.equal(isIndexableHost("www.actorslines.app."), true);
+  assert.equal(isIndexableHost("localhost."), false);
+  assert.equal(isIndexableHost("evil-actorslines.app."), false);
+  assert.equal(canonicalRedirect(u("https://www.actorslines.app./privacy")), "https://actorslines.app/privacy");
+  assert.equal(canonicalRedirect(u("http://actorslines.app./kb")), "https://actorslines.app/kb");
+  assert.equal(canonicalRedirect(u("https://actorslines.app./")), null);
+  assert.equal(canonicalRedirect(u("https://abc-actorslines-website.robertdeanmoore.workers.dev./")), null);
+});
+
 test("canonical host responses carry no X-Robots-Tag", async () => {
   const r = await handle(new Request("https://actorslines.app/kb"), env({ "/": "shell" }));
   assert.equal(r.headers.get("x-robots-tag"), null);
@@ -205,21 +216,15 @@ test("preview host: noindex wrapper keeps Cache-Control and CSP headers", async 
   assert.equal(r.headers.get("x-frame-options"), "DENY");
 });
 
-test("pre-launch marketing paths: X-Robots-Tag noindex on the canonical host only for those paths", async () => {
-  assert.deepEqual([...PRE_LAUNCH_NOINDEX_PATHS], ["/features", "/faq", "/support"]);
+test("go-live: /features, /faq, /support carry no X-Robots-Tag on the canonical host", async () => {
   const e = env({ "/": "shell" });
-  for (const p of ["/features", "/faq", "/support", "/faq/", "/features?x=1"]) {
-    const r = await handle(new Request("https://actorslines.app" + p), e);
-    assert.equal(r.status, 200, p);
-    assert.equal(r.headers.get("x-robots-tag"), "noindex", p);
-  }
-  for (const p of ["/", "/kb", "/tutorials", "/privacy", "/features/x", "/faqs"]) {
+  for (const p of ["/", "/features", "/faq", "/support", "/faq/", "/kb", "/privacy"]) {
     const r = await handle(new Request("https://actorslines.app" + p), e);
     assert.equal(r.headers.get("x-robots-tag"), null, p);
   }
 });
 
-test("pre-launch marketing paths: non-canonical hosts keep noindex, nofollow", async () => {
+test("go-live: non-canonical hosts keep noindex, nofollow", async () => {
   const e = env({ "/": "shell" });
   for (const p of ["/features", "/faq", "/support", "/kb"]) {
     const r = await handle(new Request("https://abc-actorslines-website.robertdeanmoore.workers.dev" + p), e);

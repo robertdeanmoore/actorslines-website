@@ -141,9 +141,7 @@ export default function ProfilePage() {
 
           <Card as="section" tone="dense" title="Delete account" headingLevel={2}>
             <p className="mt-2">
-              Permanently deletes your account and its data, including your requests, comments, votes
-              and Learn Lines scripts. To stop the free trial being repeated, we keep a coded version of your email address (not the address itself) and your trial start date for 24 months, then delete them. If you bought a licence, we keep only a minimal order record, as
-              the law requires.
+              Deleting your account removes your details, scripts, votes and requests, including any request on the public board and its message threads. Comments you wrote on other people&apos;s requests stay on the board without your name. To stop the free trial being repeated, we keep a coded version of your email address (not the address itself) and your trial start date for 24 months, then delete them.
             </p>
             {deleteError && <Callout tone="error" className="mt-4">{deleteError}</Callout>}
             <Button variant="secondary" onClick={() => setConfirmDelete(true)} className="mt-4">
@@ -154,7 +152,7 @@ export default function ProfilePage() {
               onClose={() => setConfirmDelete(false)}
               onConfirm={() => { setConfirmDelete(false); void deleteAccount(); }}
               title="Delete account"
-              description="Permanently deletes your account and its data, including your requests, comments, votes and Learn Lines scripts. To stop the free trial being repeated, we keep a coded version of your email address (not the address itself) and your trial start date for 24 months, then delete them. If you bought a licence we keep only a minimal order record, as the law requires. This cannot be undone."
+              description="Deleting your account removes your details, scripts, votes and requests, including any request on the public board and its message threads. Comments you wrote on other people's requests stay on the board without your name. To stop the free trial being repeated, we keep a coded version of your email address (not the address itself) and your trial start date for 24 months, then delete them. This cannot be undone."
               confirmLabel="Yes, delete my account"
               destructive
             />
@@ -223,8 +221,7 @@ export default function ProfilePage() {
       <div className="bg-white rounded-xl shadow-sm p-6">
         <h2 className="font-semibold text-red-700">Delete account</h2>
         <p className="mt-2 text-sm text-gray-600">
-          Permanently removes your account, requests, comments and votes. To stop the free trial being repeated, we keep a coded version of your email address (not the address itself) and your trial start date for 24 months, then delete them. This cannot
-          be undone.
+          Deleting your account removes your details, scripts, votes and requests, including any request on the public board and its message threads. Comments you wrote on other people&apos;s requests stay on the board without your name. To stop the free trial being repeated, we keep a coded version of your email address (not the address itself) and your trial start date for 24 months, then delete them. This cannot be undone.
         </p>
         {confirmDelete ? (
           <div className="mt-3 flex gap-3">

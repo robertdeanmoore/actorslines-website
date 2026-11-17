@@ -120,9 +120,9 @@ export default function LandingPage() {
           </Section>
           <Section title="Help shape Actors Lines">
             <p className="al-panel-text">
-              Read our line-learning knowledge base, no account needed. Registered members also get a
-              direct line to development: suggest enhancements, vote on other actors' ideas and see
-              which ones we take forward.
+              Read our line-learning knowledge base, no account needed. Members, who join by
+              invitation at present, also get a direct line to development: suggest enhancements,
+              vote on other actors' ideas and see which ones we take forward.
             </p>
             <div className="al-notify__cta">
               <LinkButton to="/kb" variant="secondary">Read the knowledge base</LinkButton>

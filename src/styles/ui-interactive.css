@@ -301,6 +301,9 @@
     line-height: var(--leading-heading);
     letter-spacing: var(--track-heading);
   }
+  :where(.al-notfound h1 + p) {
+    margin-top: 1rem;
+  }
   :where(.al-notfound p + p) {
     margin-top: 1rem;
   }
