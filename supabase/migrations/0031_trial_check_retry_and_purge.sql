@@ -13,7 +13,8 @@
 --     safe against a concurrent run (for update skip locked).
 --   * purge_trial_check_failed(p_batch)  -- deletes unresolved rows older than 90 days.
 --     Resolved rows no longer exist (closing a row deletes it). trial_used is NOT touched
---     (it has its own 24-month purge_trial_used, 0028).
+--     (it has its own 24-month purge_trial_used, 0028). Also removes stale rows whose user already
+--     holds a trial_30d licence (defensive; nothing left to retry).
 -- Both return counts only. Idempotent: create or replace.
 
 create or replace function public.retry_trial_check_failed(p_batch integer default 200)
@@ -46,7 +47,13 @@ begin
         continue;
       end if;
 
-      if v_confirmed is null or v_email is null or btrim(v_email) = '' then
+      if v_email is null or btrim(v_email) = '' then
+        delete from public.trial_check_failed where user_id = r.user_id; -- phone-only: never belongs here
+        v_closed := v_closed + 1;
+        continue;
+      end if;
+
+      if v_confirmed is null then
         v_failing := v_failing + 1; -- not a state the trigger writes; leave, grant nothing
         continue;
       end if;
@@ -76,7 +83,7 @@ begin
     exception when others then
       -- subtransaction rolled back: row stays, nothing granted for it
       v_failing := v_failing + 1;
-      raise warning 'retry_trial_check_failed: error for one row (%)', sqlstate;
+      raise warning 'retry_trial_check_failed: error on one row';  -- no id, no code (WIP 262 E4)
     end;
   end loop;
   return jsonb_build_object('granted', v_granted, 'closed', v_closed, 'still_failing', v_failing);
@@ -94,6 +101,8 @@ begin
    where user_id in (
      select user_id from public.trial_check_failed
       where failed_at < now() - interval '90 days'
+         or exists (select 1 from public.licences l
+                     where l.user_id = trial_check_failed.user_id and l.product_code = 'trial_30d')
       order by failed_at limit b);
   get diagnostics n = row_count;
   return n;

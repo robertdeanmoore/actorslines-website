@@ -1,8 +1,8 @@
 // Daily trial-check upkeep (WIP #262, follow-up of DEF555), driven by migration 0031:
 //   1. retry unresolved trial_check_failed rows (grant one trial if the key now reads and the
 //      address has had none; close the row; otherwise leave it, grant nothing: fail closed)
-//   2. alert (count only) when rows are still unresolved
-//   3. purge trial_check_failed rows older than 90 days
+//   2. purge trial_check_failed rows older than 90 days
+//   3. count what is left; alert (count only) when > 0
 //   4. purge trial_used rows older than 24 months (purge_trial_used, 0028)
 // Pure of Deno APIs so node --test can run it. Logs codes and counts only, never row content.
 // The grant itself is in SQL (retry_trial_check_failed), never here.
@@ -79,27 +79,7 @@ export async function runTrialMaintenance(
     s.errors++;
   }
 
-  // 2. alert on what is still unresolved (counted before the 90-day purge, so a row is alerted on
-  // for its whole life). No count, no alert: a failed count is an error, not a zero.
-  try {
-    const { count, error } = await deps.countUnresolved();
-    if (error || count === null) {
-      console.error(`[lifecycle] trial unresolved count failed code=${error?.code ?? "unknown"}`);
-      s.errors++;
-    } else {
-      s.unresolved = asCount(count);
-      if (s.unresolved > 0) {
-        s.alertSent = await deps.sendAlert(trialAlertSubject(), trialAlertBody(s.unresolved, deps.now().toISOString()));
-        if (!s.alertSent) s.errors++;
-      }
-    }
-  } catch {
-    console.error("[lifecycle] trial alert threw");
-    s.errors++;
-  }
-
-  // 3 and 4. purges, independent of each other and of the steps above
-  for (const [name, key] of [["purge_trial_check_failed", "checkFailedPurged"], ["purge_trial_used", "trialUsedPurged"]] as const) {
+  const purgeStep = async (name: string, key: "checkFailedPurged" | "trialUsedPurged") => {
     try {
       const r = await purgeLoop(deps.rpc, name, purgeBatch, maxPasses);
       s[key] = r.n;
@@ -111,6 +91,34 @@ export async function runTrialMaintenance(
       console.error(`[lifecycle] ${name} threw`);
       s.errors++;
     }
+  };
+
+  // 2. 90-day purge of trial_check_failed (and stale rows whose user already holds a trial)
+  await purgeStep("purge_trial_check_failed", "checkFailedPurged");
+
+  // 3. count what is still unresolved (after retry and purge) and alert when > 0 (count only).
+  // No count, no alert: a failed count is an error, not a zero.
+  try {
+    const { count, error } = await deps.countUnresolved();
+    if (error || count === null) {
+      console.error(`[lifecycle] trial unresolved count failed code=${error?.code ?? "unknown"}`);
+      s.errors++;
+    } else {
+      s.unresolved = asCount(count);
+      if (s.unresolved > 0) {
+        s.alertSent = await deps.sendAlert(trialAlertSubject(), trialAlertBody(s.unresolved, deps.now().toISOString()));
+        if (!s.alertSent) {
+          console.error(`[lifecycle] trial alert not sent unresolved=${s.unresolved}`);
+          s.errors++;
+        }
+      }
+    }
+  } catch {
+    console.error("[lifecycle] trial alert threw");
+    s.errors++;
   }
+
+  // 4. 24-month purge of trial_used (purge_trial_used, 0028)
+  await purgeStep("purge_trial_used", "trialUsedPurged");
   return s;
 }
