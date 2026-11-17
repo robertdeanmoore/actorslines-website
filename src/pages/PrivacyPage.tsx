@@ -165,7 +165,7 @@ export default function PrivacyPage() {
       <p className={P}>
         We do <strong>not</strong> sell your information and do not use it for marketing. We do not use automated
         decision-making that has legal effects on you. Enhancement requests are analysed by an automated AI service
-        (provided through OpenRouter and the AI model hosting companies it chooses from an approved list) to produce
+        (provided through OpenRouter and the AI model hosting providers it chooses from an approved list, which may be outside the UK, including the United States and Asia) to produce
         development reports, and may be compared with other members&apos; requests during that analysis (see &ldquo;Who else handles your
         information&rdquo;).
       </p>
@@ -221,9 +221,8 @@ export default function PrivacyPage() {
       {/* VERIFY (Supabase): the London claim rests on the project region setting; Robert or Kate confirm eu-west-2 in
           the Supabase dashboard. */}
       {/* OPENROUTER-GOLIVE-GATE (processors row below): true only after the OpenRouter triage build is live and
-          Robert's dashboard settings are done. GitHub stays in the row honestly: it triggers the triage through
-          GitHub Actions, and the old Actions workflows still run until they are retired. GitHub also stays above for
-          the public status file (IP logs). Anthropic removed for the request-analysis role only; re-add if Anthropic is
+          Robert's dashboard settings are done. After PR 70 triage runs in the dispatch edge function and calls OpenRouter
+          directly (no GitHub trigger), so GitHub has its own row for model downloads and the public status file (IP logs). Anthropic removed for the request-analysis role only; re-add if Anthropic is
           used for anything else with member data (it must not be). */}
       <LegalTable
         caption="Who else handles your information"
@@ -257,11 +256,17 @@ export default function PrivacyPage() {
           ],
           [
             <>
-              <strong>OpenRouter</strong> (AI routing service), the AI model host it uses, and <strong>GitHub</strong>
+              <strong>OpenRouter</strong> (AI routing service) and the AI model hosting provider it uses
             </>,
-            "The text of a request you submit is passed, with email addresses and phone numbers removed first, through OpenRouter (an AI routing service) to an AI model run by a hosting company from an approved list, triggered from GitHub Actions on our private repository. We require OpenRouter to use only hosts with a zero-data-retention policy that do not collect data, so the text is not kept after the answer is produced, except that OpenRouter or the host may keep content for limited abuse and safety screening. The text may be compared with other members' requests",
+            "The text of a request you submit is passed, with email addresses and phone numbers removed first, through OpenRouter (an AI routing service) to an AI model run by one of several AI model hosting providers from an approved list, which may be outside the UK, including the United States and Asia. It is sent from our database and functions service (Supabase). We set OpenRouter to use only hosts that state a zero-data-retention policy and do not collect data; OpenRouter or the host may still keep content briefly for abuse and safety screening. The text may be compared with other members' requests",
             "The text of your request (email addresses and phone numbers are removed first)",
-            "Outside the UK: the United States, and possibly other countries depending on the host used",
+            "Outside the UK, including the United States and Asia, depending on the host used",
+          ],
+          [
+            <strong key="g">GitHub</strong>,
+            "Hosts the public voice and speech model downloads and the small status file the app checks. It sees your phone's IP address and request details when the app fetches them",
+            "IP address and request details only; no account, script or request data",
+            "Outside the UK, mainly the United States",
           ],
           [
             <>
@@ -281,8 +286,7 @@ export default function PrivacyPage() {
         UK, the provider relies on a UK-approved safeguard: the UK Data Bridge (the UK extension to the Data Privacy
         Framework) where the provider is certified, or the International Data Transfer Addendum to the EU standard
         contractual clauses (Cloudflare, Supabase, GitHub, Brevo&apos;s data processing agreement and OpenRouter&apos;s data processing
-        agreement). Our AI model hosts are chosen from an approved list and may be in the United States or other
-        countries outside the UK; OpenRouter&apos;s data processing agreement covers the transfer to OpenRouter, and
+        agreement). Our AI model hosts are chosen from an approved list and may be in the United States or Asia; OpenRouter&apos;s data processing agreement covers the transfer to OpenRouter, and
         each host relies on its own safeguards. Google (Gmail)
         uses its own safeguards under its terms. Videos are explained in the &ldquo;Videos&rdquo; section below.
       </p>
@@ -301,9 +305,9 @@ export default function PrivacyPage() {
         </li>
         <li>
           <strong>Requests, comments and votes:</strong> until you delete your account or it is deleted for inactivity.
-          Notes our AI service and we write about a request are kept with it and removed with it. Requests you have made
-          public on the board, and the comments on them, stay visible while the request is live; comments you wrote stay
-          without your name if you delete your account.
+          Deleting it deletes your requests, including any on the public board and the comments others made on them, the
+          message threads on them, and the notes our AI service and we wrote about them. Votes you cast are deleted.
+          Comments you wrote on other people&apos;s requests stay on the board without your name.
         </li>
         <li>
           <strong>Trusted-device records:</strong> expire after 30 days and are removed within 90 days.
