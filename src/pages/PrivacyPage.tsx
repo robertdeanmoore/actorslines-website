@@ -1,5 +1,5 @@
 import LegalTable from "../components/LegalTable";
-import { LAST_UPDATED } from "../lib/legalMeta";
+import { LAST_UPDATED, MAILBOX_PROVIDER } from "../lib/legalMeta";
 import { isNightTheme } from "../lib/theme";
 
 // Night look: the al-legal rules in legal.css (unlayered, so they beat the legacy Tailwind colour
@@ -117,10 +117,10 @@ export default function PrivacyPage() {
           ],
           [
             <>
-              <strong>Emails you send us</strong> to hello@actorslines.app, including asking for an invitation or a
-              notify-list change
+              <strong>Emails you send us</strong> to hello@actorslines.app, including asking for an invitation, asking
+              to be told when the Android app is on Google Play, or asking us to change the iPhone notify list
             </>,
-            "To reply and keep a record",
+            "To reply, keep a record and, if you asked, tell you once when the Android app is on Google Play",
             "Legitimate interests",
           ],
           [
@@ -155,28 +155,31 @@ export default function PrivacyPage() {
 
       <h2 className="mt-6 font-semibold">What the Actors Lines app sends</h2>
       <p className={P}>
-        Your scripts are stored on your phone, not uploaded to us. The same goes for your recordings and notes. (The
+        Your scripts are stored on your phone, not uploaded to us. The same goes for your recordings and notes. The
+        only script text that ever leaves the app is a recognition report you choose to send (see the table above). (The
         separate Learn Lines page on the website is different: scripts you upload there are stored on our server, as the
         table above says.) The app connects to the internet to:
       </p>
       <ul className={UL}>
         <li>
           sign you in and check what access your account has (your email and password go to our account service,
-          Supabase; redeeming a code sends the code);
+          Supabase; redeeming a code sends the code; the sign-in screen shows a Cloudflare Turnstile check to confirm
+          you are not a bot, which loads from our website and Cloudflare);
         </li>
         <li>download voice and speech models from public GitHub releases when you ask (only the download request is sent);</li>
         <li>
-          use your phone&apos;s speech recogniser to score your lines. Depending on your phone, your speech may be
+          use your phone&apos;s speech recogniser to score your lines. The app asks for the microphone permission for
+          this. Depending on your phone, your speech may be
           processed by the recogniser&apos;s provider (for example Google) rather than on the phone. We do not receive
           it;
         </li>
         <li>
-          check for app updates (through Google Play, once the app is listed there) and a small public status file of
-          ours (no personal data sent);
+          check for app updates (through Google Play, once the app is listed there) and a small public status file
+          (your phone&apos;s IP address is visible to whichever server hosts it; no account details are sent);
         </li>
         <li>
           send anonymous usage data, <strong>only if you turn it on</strong> (off by default). It contains which
-          features you use, how often and how long, the app version, a rough device model and a random identifier not
+          features you use, how often and how long, the app version, your phone&apos;s make, model and Android version and a random identifier not
           linked to your name, email or account. You can reset or switch it off at any time.
         </li>
       </ul>
@@ -186,9 +189,11 @@ export default function PrivacyPage() {
         version, performance and error data and installation identifiers (see Google&apos;s ML Kit data disclosure).
       </p>
       <p className={P}>
-        <strong>Android backup.</strong> If Android&apos;s backup is on, Android copies the app&apos;s data (plays,
-        scripts, notes, recordings) to your own Google account. We cannot see it. Your sign-in details and access record
-        are left out.
+        <strong>Android backup.</strong> If Android&apos;s backup is on, Android copies the app&apos;s data (your plays,
+        scripts and notes) to your own Google account. We cannot see it. Your sign-in details and access record, your
+        anonymous usage ID, and your voice recordings are left out of Google backup, so after a restore you sign in
+        again and your recordings are not restored. If you move to a new phone using Android&apos;s phone-to-phone
+        transfer, recordings may be copied across.
       </p>
 
       <h2 className="mt-6 font-semibold">Who else handles your information (processors)</h2>
@@ -203,13 +208,13 @@ export default function PrivacyPage() {
             <strong key="s">Supabase</strong>,
             "Database, sign-in, file and functions hosting",
             "All account, access, script, request and notify data above",
-            "The region of our Supabase project",
+            "London, United Kingdom (AWS eu-west-2)",
           ],
           [
             <strong key="m">Our email provider for hello@actorslines.app</strong>,
             "Holds emails you send us",
             "Sender address, content, headers",
-            "Provider to be named",
+            MAILBOX_PROVIDER,
           ],
           [
             <strong key="c">Cloudflare</strong>,
@@ -242,8 +247,8 @@ export default function PrivacyPage() {
         ]}
       />
       <p className={P}>
-        Some of these providers are outside the UK. Where so, transfers rely on the UK&apos;s approved safeguards
-        (adequacy decisions or the International Data Transfer Addendum). Videos are explained in the &ldquo;Videos&rdquo;
+        Some of these providers are outside the UK. Where so, we rely on the safeguards the law allows, such as a UK
+        adequacy decision or standard contractual terms with the UK addendum. Videos are explained in the &ldquo;Videos&rdquo;
         section below.
       </p>
 
@@ -253,9 +258,11 @@ export default function PrivacyPage() {
       {/* PR60-FOLLOW-UP: the "removed within 90 days" lines (trusted devices, invitations) need Holly's follow-up purge migration. */}
       <ul className={UL}>
         <li>
-          <strong>Account and Learn Lines data:</strong> until you delete your account (Profile page, deletes all its
-          data) or the account is inactive for 6 months. We email a warning after about 5 months and a final reminder
-          about 2 weeks later.
+          <strong>Account and Learn Lines data:</strong> until you delete your account (Profile page, which deletes your
+          account details, scripts and votes; see the next line for requests and comments) or the account is inactive
+          for 6 months. We email a warning after about 5 months and a final reminder about 2 weeks later. Anonymous
+          usage data is not linked to your account, so deleting your account does not remove it; it is deleted after 12
+          months (see below).
         </li>
         <li>
           <strong>Requests, comments and votes:</strong> until you delete your account or it is deleted for inactivity.
@@ -278,11 +285,13 @@ export default function PrivacyPage() {
           request. Threads on open requests are kept while we are helping you.
         </li>
         <li>
-          <strong>Invitations:</strong> until used or expired, then removed within 90 days.
+          <strong>Invitations:</strong> until used or expired, then removed within 90 days. Deleting your account does
+          not remove an invitation record sooner.
         </li>
         <li>
-          <strong>Emails to us:</strong> while we help you, then deleted within 12 months; invitation requests we do not
-          act on are deleted within 3 months.
+          <strong>Emails to us:</strong> while we help you, then deleted within 12 months. Invitation requests we do not
+          act on are deleted within 3 months. If you ask to be told when the Android app is on Google Play, we keep your
+          email until we have told you, or for 12 months, whichever is first.
         </li>
         <li>
           <strong>Email logs at Brevo:</strong> per Brevo&apos;s own policy.
@@ -324,7 +333,8 @@ export default function PrivacyPage() {
         </li>
       </ul>
       <p className={P}>
-        These are strictly necessary, so no cookie banner is needed. If we add analytics later we will ask first.
+        We do not show a cookie banner because we set no advertising or analytics cookies. If we add analytics later we
+        will ask first.
       </p>
 
       <h2 className="mt-6 font-semibold">Age</h2>
@@ -336,7 +346,7 @@ export default function PrivacyPage() {
 
       <h2 className="mt-6 font-semibold">Videos</h2>
       <p className={P}>
-        Our tutorial videos are hosted by YouTube. Videos use a click-to-play preview, so nothing is requested from
+        Tutorial videos, when shown, are hosted by YouTube. Videos use a click-to-play preview, so nothing is requested from
         YouTube until you press play. When you do, the video loads from YouTube&apos;s privacy-enhanced domain
         (youtube-nocookie.com), YouTube receives your IP address and device details, and YouTube may set cookies or
         similar identifiers on your device. We do not receive that information. YouTube&apos;s use of it is covered by

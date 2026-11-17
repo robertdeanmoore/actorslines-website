@@ -41,8 +41,7 @@ export default function TermsPage() {
           Accounts are <strong>by invitation</strong>. Sign-up is closed.
         </li>
         <li>
-          We do not charge for the website or for access to the app. Nothing is on sale, and we will never charge you
-          without clear notice before you pay.
+          We do not charge for the website or for access to the app, and nothing is on sale.
         </li>
         <li>
           We may change, add or withdraw features, and may open or close invitations. Nothing here promises a feature, a
