@@ -15,7 +15,7 @@
 -- The HMAC key ("pepper") is generated inside this migration into Supabase Vault under the
 -- name trial_email_pepper. It is never in the repo. Only security-definer functions read it.
 -- The hash is pseudonymised, NOT anonymous: say so in Privacy (Holly's wording, DEF555 ruling).
--- Rotating the pepper un-blocks every earlier hash: do not rotate without a decision.
+-- Rotating the pepper un-blocks every earlier hash: NEVER rotate the pepper (runbook rule).
 --
 -- Slog apply/verify checklist (after apply, from outside):
 --   [ ] Account deletion succeeds (delete_own_account) for a member holding a trial licence, and
@@ -25,8 +25,8 @@
 --       variant) creates the user with NO trial licence; a different address gets a trial.
 --   [ ] anon and authenticated cannot select from public.trial_used, and cannot execute
 --       purge_trial_used / trial_email_hmac / normalise_trial_email (no table or function grants).
---   [ ] select count(*) from public.trial_used >= number of trial_30d licences held by existing
---       users (backfill), and vault.decrypted_secrets has exactly one trial_email_pepper row.
+--   [ ] select count(*) from public.trial_used > 0 and <= number of trial_30d licences (dedupe
+--       by normalised address lowers it), and vault.decrypted_secrets has exactly one trial_email_pepper row.
 --   [ ] Lifecycle inactivity deletion: errors from deleteUser are counted as errors, not deleted.
 --   [ ] Admin notes: never put an email address in licence_audit.details.note (orphans keep it).
 
@@ -94,12 +94,12 @@ end $$;
 -- alternative then: a one-row private table (RLS on, no policies, no grants) filled with
 -- encode(gen_random_bytes(32),'hex'), read only by trial_email_hmac().
 create extension if not exists supabase_vault;
-create extension if not exists pgcrypto;
+create extension if not exists pgcrypto with schema extensions;
 
 do $$
 begin
   if not exists (select 1 from vault.secrets where name = 'trial_email_pepper') then
-    perform vault.create_secret(encode(gen_random_bytes(32), 'hex'), 'trial_email_pepper',
+    perform vault.create_secret(encode(extensions.gen_random_bytes(32), 'hex'), 'trial_email_pepper',
                                 'HMAC key for trial_used email hashes (DEF555). Do not rotate.');
   end if;
 end $$;
@@ -161,7 +161,7 @@ begin
   if v_key is null then
     return null;
   end if;
-  return encode(hmac(convert_to(v_norm, 'UTF8'), convert_to(v_key, 'UTF8'), 'sha256'), 'hex');
+  return encode(extensions.hmac(convert_to(v_norm, 'UTF8'), convert_to(v_key, 'UTF8'), 'sha256'), 'hex');
 end $$;
 
 revoke execute on function public.normalise_trial_email(text) from public, anon, authenticated;
@@ -221,6 +221,17 @@ select h.hmac, min(l.starts_at)
  where l.product_code = 'trial_30d' and h.hmac is not null
  group by h.hmac
 on conflict (email_hmac) do nothing;
+
+-- Fail loudly if the backfill silently inserted nothing (e.g. pepper present but undecryptable).
+do $$
+begin
+  if exists (
+       select 1 from public.licences l join auth.users u on u.id = l.user_id
+        where l.product_code = 'trial_30d' and public.normalise_trial_email(u.email) is not null)
+     and (select count(*) from public.trial_used) = 0 then
+    raise exception 'trial_used backfill inserted no rows although trial licences with usable emails exist: pepper unreadable? aborted';
+  end if;
+end $$;
 
 -- ── 8. retention: 24 months from trial start ─────────────────────────────────────────────
 -- Separate from purge_usage_data (PR 60) so this PR does not depend on it. Batched like it.

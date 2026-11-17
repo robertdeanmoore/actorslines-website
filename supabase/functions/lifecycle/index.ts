@@ -34,7 +34,7 @@ async function sendEmail(to: string, subject: string, text: string): Promise<boo
   });
   if (!resp.ok) {
     const detail = await resp.text().catch(() => "");
-    console.error(`[lifecycle] brevo send failed to=${to} subject="${subject}" status=${resp.status} body=${detail.slice(0, 300)}`);
+    console.error(`[lifecycle] brevo send failed subject="${subject}" status=${resp.status} body=${detail.slice(0, 300)}`);
   }
   return resp.ok;
 }
@@ -67,6 +67,7 @@ Deno.serve(async (req) => {
     .select("id")
     .eq("product_code", "comp_rolling")
     .eq("status", "active")
+    .not("user_id", "is", null) // orphaned (account deleted, DEF555): no holder, must lapse, not be extended
     .gt("ends_at", new Date(now).toISOString());
   if (compQueryErr) {
     console.error("[lifecycle] failed to query comp_rolling licences", compQueryErr);
@@ -174,7 +175,7 @@ Deno.serve(async (req) => {
         } else summary.errors++;
       }
     } catch (e) {
-      console.error(`[lifecycle] failed processing profile id=${p.id} email=${email}`, e);
+      console.error(`[lifecycle] failed processing profile id=${p.id}`, e);
       summary.errors++;
     }
   }
