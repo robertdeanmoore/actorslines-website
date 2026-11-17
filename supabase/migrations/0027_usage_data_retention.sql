@@ -1,6 +1,7 @@
 -- WIP #257 blocker B2: enforce the retention the Privacy page promises.
 --   * anonymous usage data (telemetry_events) and recognition reports: 12 months from collection
 --   * support messages (request_messages): 12 months after the case closes
+--   * trusted-device records and invitation records: "removed within 90 days" (Privacy page, PR 67)
 -- NOT YET APPLIED. Gated step: Holly review + Robert data-risk sign-off, then
 -- Scripts/supabase_migrate.sh --gate WIP#257 (Skills/applying-supabase-migration). The first
 -- run after apply deletes the telemetry/report backlog older than 12 months, irreversibly
@@ -56,6 +57,8 @@ declare
   n_events integer;
   n_reports integer;
   n_messages integer;
+  n_devices integer;
+  n_invites integer;
 begin
   delete from public.telemetry_events
    where id in (select id from public.telemetry_events where received_at < cutoff order by received_at limit b);
@@ -74,8 +77,30 @@ begin
       limit b);
   get diagnostics n_messages = row_count;
 
+  -- Trusted devices: the Privacy page says records expire after 30 days and are removed within
+  -- 90 days. expires_at is created_at + 30 days (not sliding), so 30 days past the earlier of
+  -- expiry and revocation is at most about 60 days after creation: inside the promise with a
+  -- month spare for the daily schedule and any backlog. Live (unexpired, unrevoked) rows stay.
+  delete from public.trusted_devices
+   where id in (
+     select id from public.trusted_devices
+      where least(expires_at, coalesce(revoked_at, expires_at)) < now() - interval '30 days'
+      limit b);
+  get diagnostics n_devices = row_count;
+
+  -- Invitations: "until used or expired, then removed within 90 days". Clock starts at the earlier
+  -- of acceptance and expiry; delete 30 days later (same margin). Pending, unexpired invitations
+  -- stay. The email address on the row is what this removes; accepted_user_id is only a link.
+  delete from public.invites
+   where id in (
+     select id from public.invites
+      where least(expires_at, coalesce(accepted_at, expires_at)) < now() - interval '30 days'
+      limit b);
+  get diagnostics n_invites = row_count;
+
   return jsonb_build_object('batch', b, 'telemetry_events', n_events,
-                            'recognition_reports', n_reports, 'request_messages', n_messages);
+                            'recognition_reports', n_reports, 'request_messages', n_messages,
+                            'trusted_devices', n_devices, 'invites', n_invites);
 end;
 $$;
 revoke execute on function public.purge_usage_data(integer) from public, anon, authenticated;

@@ -56,7 +56,7 @@ Deno.serve(async (req) => {
     compExtended: 0, compErrors: 0,
     licence1moWarned: 0, licence1wkWarned: 0, licenceWarnErrors: 0,
     notifyPurged: 0, notifyPurgeErrors: 0,
-    usagePurged: { telemetry_events: 0, recognition_reports: 0, request_messages: 0 }, usagePurgeErrors: 0,
+    usagePurged: { telemetry_events: 0, recognition_reports: 0, request_messages: 0, trusted_devices: 0, invites: 0 }, usagePurgeErrors: 0,
   };
 
   // Box Office: comp_rolling licences are rolling, not perpetual (golden principle #1, rules.md)
@@ -188,7 +188,8 @@ Deno.serve(async (req) => {
   }
 
   // Retention (WIP #257 B2): anonymous usage data and recognition reports 12 months from
-  // collection; support messages 12 months after the case closes. public.purge_usage_data() is
+  // collection; support messages 12 months after the case closes; expired trusted-device and
+  // invitation records removed well inside the 90 days the Privacy page states. public.purge_usage_data() is
   // service_role only and returns counts, never content.
   const usage = await runUsagePurge((name, args) => admin.rpc(name, args));
   summary.usagePurged = usage.totals;

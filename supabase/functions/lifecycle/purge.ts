@@ -5,6 +5,8 @@ export type UsagePurgeCounts = {
   telemetry_events: number;
   recognition_reports: number;
   request_messages: number;
+  trusted_devices: number;
+  invites: number;
 };
 
 type RpcResult = { data: unknown; error: { code?: string } | null };
@@ -22,7 +24,9 @@ export async function runUsagePurge(
   batch = PURGE_BATCH,
   maxPasses = PURGE_MAX_PASSES,
 ): Promise<{ totals: UsagePurgeCounts; passes: number; errorCode: string | null }> {
-  const totals: UsagePurgeCounts = { telemetry_events: 0, recognition_reports: 0, request_messages: 0 };
+  const totals: UsagePurgeCounts = {
+    telemetry_events: 0, recognition_reports: 0, request_messages: 0, trusted_devices: 0, invites: 0,
+  };
   let passes = 0;
   while (passes < maxPasses) {
     const { data, error } = await rpc("purge_usage_data", { p_batch: batch });
@@ -33,10 +37,14 @@ export async function runUsagePurge(
       telemetry_events: asCount(r.telemetry_events),
       recognition_reports: asCount(r.recognition_reports),
       request_messages: asCount(r.request_messages),
+      trusted_devices: asCount(r.trusted_devices),
+      invites: asCount(r.invites),
     };
     totals.telemetry_events += got.telemetry_events;
     totals.recognition_reports += got.recognition_reports;
     totals.request_messages += got.request_messages;
+    totals.trusted_devices += got.trusted_devices;
+    totals.invites += got.invites;
     const full = Object.values(got).some((n) => n >= batch);
     if (!full) break;
   }
