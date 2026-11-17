@@ -1,19 +1,18 @@
-// Bridge between the website and GitHub Actions on the (private) ActorsVoice repo.
-// Fires a `repository_dispatch` event that starts one of the AI workflows.
+// Member-facing request API: saves enhancement requests and runs the AI triage report.
+// Triage calls OpenRouter directly from here (WIP #257); there is no GitHub bridge any more.
 //
-// Callers (all must be signed in; plan/implement require the admin role):
+// Callers (all must be signed in):
 //   { "action": "submit-request",      "turnstileToken": "...", "title": "...", "goal": "...",
 //                                       "where_in_app": "...", "how_it_works": "...",
 //                                       "usage_frequency": "...", "extra_notes": "..." }
 //        Saves the request (service role; clients cannot insert directly since migration 0024),
-//        emails Robert, and starts triage. One Turnstile token covers all of it.
+//        emails Robert, and starts triage in the background. One Turnstile token covers all of it.
 //   { "action": "triage-report",       "request_id": 123, "turnstileToken": "..." }
-//   { "action": "implementation-plan", "request_id": 123, "prompt": "...", "iteration": 2 }
-//   { "action": "implement-pr",        "request_id": 123, "plan_path": "docs/plans/requests/123-v2.md" }
+//        Runs triage now and returns when the report is stored. Non-admins: own request, one
+//        report only. Admins: any request, re-runnable, no captcha.
 //
 // Secrets (set with `supabase secrets set`, see SETUP.md):
-//   GH_DISPATCH_TOKEN    — fine-grained PAT, contents:read/write on ActorsVoice
-//   GH_REPO              — e.g. "robertdeanmoore/ActorsVoice"
+//   OPENROUTER_API_KEY_TRIAGE — dedicated, spend-capped OpenRouter key (triage.ts holds the routing).
 //   TURNSTILE_SECRET_KEY — Cloudflare Turnstile secret key, verifies the
 //                          submit-request / triage-report turnstileToken server-side.
 //   BREVO_API_KEY, MAIL_FROM — as in the invite/lifecycle functions.
@@ -22,8 +21,9 @@
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { captchaRequired, TRIAGE_REQUEST_WINDOW, triageRequestBucket } from "./policy.ts";
+import { FAILURE_PREFIX, runTriage, type TriageDeps } from "./triage.ts";
 
-const ALLOWED_ACTIONS = ["submit-request", "triage-report", "implementation-plan", "implement-pr"];
+const ALLOWED_ACTIONS = ["submit-request", "triage-report"];
 const SITE_URL = "https://actorslines.app";
 
 // Limits mirror the CHECK constraints in migrations 0001 and 0024.
@@ -68,16 +68,40 @@ async function sendEmail(to: string, subject: string, text: string): Promise<boo
   return resp.ok;
 }
 
-async function githubDispatch(eventType: string, payload: Record<string, unknown>): Promise<Response> {
-  return await fetch(`https://api.github.com/repos/${Deno.env.get("GH_REPO")}/dispatches`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${Deno.env.get("GH_DISPATCH_TOKEN")}`,
-      Accept: "application/vnd.github+json",
-      "Content-Type": "application/json",
+function triageDeps(admin: ReturnType<typeof createClient>): TriageDeps {
+  const failureLike = `${FAILURE_PREFIX}%`;
+  const must = <T>(r: { data: T; error: unknown }): T => {
+    if (r.error) throw new Error("db");
+    return r.data;
+  };
+  return {
+    fetch,
+    apiKey: Deno.env.get("OPENROUTER_API_KEY_TRIAGE") ?? "",
+    loadRequest: async (id) => must(await admin.from("enhancement_requests")
+      .select("id, title, goal, where_in_app, how_it_works, usage_frequency, extra_notes")
+      .eq("id", id).maybeSingle()) as never,
+    loadOthers: async (id) => {
+      const { data, error } = await admin.from("enhancement_requests").select("id, title, goal")
+        .neq("id", id).order("created_at", { ascending: false }).limit(200);
+      return error ? null : (data as { id: number; title: string; goal: string }[]);
     },
-    body: JSON.stringify({ event_type: eventType, client_payload: payload }),
-  });
+    countSuccessfulReports: async (id) => {
+      const { count, error } = await admin.from("ai_reports").select("id", { count: "exact", head: true })
+        .eq("request_id", id).not("report_md", "like", failureLike);
+      if (error) throw new Error("db");
+      return count ?? 0;
+    },
+    countFailureReports: async (id) => {
+      const { count, error } = await admin.from("ai_reports").select("id", { count: "exact", head: true })
+        .eq("request_id", id).like("report_md", failureLike);
+      if (error) throw new Error("db");
+      return count ?? 0;
+    },
+    saveReport: async (row) => { must(await admin.from("ai_reports").insert(row)); },
+    markReported: async (id) => {
+      must(await admin.from("enhancement_requests").update({ status: "reported" }).eq("id", id).eq("status", "submitted"));
+    },
+  };
 }
 
 // The live site is reachable at both the bare and www domains (neither redirects to the
@@ -147,7 +171,7 @@ Deno.serve(async (req) => {
     if (!body || typeof body !== "object") return fail(400, "Invalid request body");
     action = body.action;
     request_id = body.request_id;
-    const { prompt, iteration, plan_path, turnstileToken } = body;
+    const { turnstileToken } = body;
 
     if (!ALLOWED_ACTIONS.includes(action ?? "")) return fail(400, "Unknown action");
     if (action !== "submit-request" && !Number.isInteger(request_id)) return fail(400, "request_id required");
@@ -209,12 +233,14 @@ Deno.serve(async (req) => {
         console.error("[dispatch] REQUEST_NOTIFY_EMAIL not configured; skipping new-request email");
       }
 
-      let triageStarted = true;
-      const gh = await githubDispatch("triage-report", { request_id: created.id }).catch(() => null);
-      if (!gh || !gh.ok) {
-        triageStarted = false;
-        console.error(`[dispatch] triage dispatch failed request_id=${created.id} status=${gh?.status ?? "network"}`);
-      }
+      // Start triage in the background so the member is not kept waiting. The per-request guard
+      // slot stops a second run racing this one; any failure leaves a visible marker report.
+      await rateLimitOk(admin, triageRequestBucket(created.id), 1, TRIAGE_REQUEST_WINDOW);
+      const job = runTriage(triageDeps(admin), created.id, { isAdmin: false })
+        .catch((e) => console.error("[dispatch] background triage threw", e instanceof Error ? e.name : "unknown"));
+      const edge = (globalThis as { EdgeRuntime?: { waitUntil(p: Promise<unknown>): void } }).EdgeRuntime;
+      if (edge) edge.waitUntil(job); else await job;
+      const triageStarted = true;
       console.log(`[dispatch] ok action=submit-request request_id=${created.id} user=${user.id}`);
       return new Response(JSON.stringify({ ok: true, request_id: created.id, triage_started: triageStarted }), {
         headers: { ...cors, "Content-Type": "application/json" },
@@ -239,39 +265,25 @@ Deno.serve(async (req) => {
       }
       if (!isAdmin && !(await rateLimitOk(admin, `triage-h:${user.id}`, TRIAGE_PER_HOUR, "1 hour")))
         return fail(429, "Too many triage requests. Please try again later.");
-      // Duplicate-run guard: one manual run per request per window. Released below if GitHub refuses.
+      // Duplicate-run guard: one manual run per request per window. Released below if the run fails.
       if (!(await rateLimitOk(admin, triageRequestBucket(request_id!), 1, TRIAGE_REQUEST_WINDOW)))
         return fail(429, "A triage run was started for this request a few minutes ago. Wait 5 minutes, then try again.");
-    } else {
-      if (!isAdmin) return fail(403, "Admin only");
     }
 
-    let payload: Record<string, unknown> = { request_id };
-    if (action === "implementation-plan") {
-      if (typeof prompt !== "string" || prompt.length < 10) return fail(400, "prompt required");
-      const it = Number.isInteger(iteration) ? iteration : 1;
-      payload = { request_id, prompt, iteration: it };
-      await admin.from("plans").insert({ request_id, iteration: it, prompt, status: "requested" });
-    } else if (action === "implement-pr") {
-      if (typeof plan_path !== "string" || !plan_path.startsWith("docs/plans/"))
-        return fail(400, "plan_path required");
-      payload = { request_id, plan_path };
-    }
-
-    const ghResp = await githubDispatch(action!, payload);
-    if (!ghResp.ok) {
-      const detail = await ghResp.text().catch(() => "");
-      console.error(`[dispatch] github dispatch failed action=${action} request_id=${request_id} status=${ghResp.status} body=${detail.slice(0, 500)}`);
-      if (action === "triage-report") {
-        // The run never started, so free the duplicate-guard slot for an immediate retry.
+    const result = await runTriage(triageDeps(admin), request_id!, { isAdmin });
+    if (!result.ok) {
+      // A refused or failed run must not hold the duplicate-guard slot: free it for a retry.
+      if (result.code !== "already_reported") {
         await admin.from("rate_limit_events").delete().eq("bucket", triageRequestBucket(request_id!))
           .then(({ error }) => { if (error) console.error("[dispatch] guard release failed", error); });
       }
-      return fail(502, `GitHub dispatch failed: ${ghResp.status}`);
+      if (result.code === "already_reported") return fail(409, "This request already has an AI report.");
+      if (result.code === "too_many_failures") return fail(429, "The AI report keeps failing for this request. Please contact the team.");
+      return fail(502, `AI report failed (${result.code})`);
     }
 
     console.log(`[dispatch] ok action=${action} request_id=${request_id} user=${user.id}`);
-    return new Response(JSON.stringify({ ok: true }), {
+    return new Response(JSON.stringify({ ok: true, verdict: result.verdict }), {
       headers: { ...cors, "Content-Type": "application/json" },
     });
   } catch (e) {

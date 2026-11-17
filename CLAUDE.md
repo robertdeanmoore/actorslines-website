@@ -2,7 +2,7 @@
 
 Website for the Actors Lines Android app (repo: `../ActorsVoice`). React + Vite + TS +
 Tailwind SPA on Cloudflare Workers (static assets, `wrangler.jsonc`); Supabase backend (auth with TOTP 2FA, Postgres + RLS,
-edge functions); AI pipeline runs as GitHub Actions in the ActorsVoice repo.
+edge functions); AI triage runs in the `dispatch` edge function via OpenRouter.
 
 - **The setup state of truth** is `SETUP.md` (which external services are wired yet) and
   `docs/plans/actorslines-website-progress.md` in the ActorsVoice repo (what's built/pending).
@@ -35,9 +35,8 @@ edge functions); AI pipeline runs as GitHub Actions in the ActorsVoice repo.
   than overwriting it blind.
 - **Statuses**: request lifecycle enum in `src/lib/types.ts` mirrors `request_status` in SQL —
   change both together (plus the workflows that PATCH statuses).
-- **Workflows**: `dispatch` edge function ↔ `repository_dispatch` event names ↔
-  `.github/workflows/*.yml` in ActorsVoice must stay in sync (`triage-report`,
-  `implementation-plan`, `implement-pr`).
-- **Edge routing**: `worker/` (wrangler `main`, `run_worker_first`) 301s http/www/workers.dev to `https://actorslines.app`, returns real 404 for missing files (any extension, `/.well-known/*`; page routes keep the SPA fallback) and injects `<link rel="canonical">`. Logic in `worker/routing.ts`; a Worker entry may export only handlers. Tests: `npm run test:edge`.
-- **Telemetry limits**: `supabase/functions/telemetry/limits.ts` (body size, burst, daily caps counted in the DB). Over-cap batches get 200 `{inserted:0}` so the shipped app drops them.
+- **AI triage**: only `triage-report` exists (in `dispatch`, logic in `supabase/functions/dispatch/triage.ts`,
+  routing = the RobLife workhorse config). The implementation-plan and implement-PR workflows are
+  retired; do not add AI actions to the website. Failures write an "AI triage failed" row to
+  `ai_reports`. Tests: `npm run test:edge`.
 - Build check: `npm run build` (CI runs the same).
