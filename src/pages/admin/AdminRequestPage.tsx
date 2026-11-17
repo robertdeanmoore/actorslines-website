@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import Markdown from "react-markdown";
 import { supabase } from "../../lib/supabase";
 import type {
-  AiReport, BoardPost, DevNote, EnhancementRequest, Plan, RequestMessage, RequestStatus,
+  AiReport, BoardPost, DevNote, EnhancementRequest, RequestMessage, RequestStatus,
 } from "../../lib/types";
 import StatusBadge from "../../components/StatusBadge";
 import { isNightTheme } from "../../lib/theme";
@@ -11,7 +11,7 @@ import { Container } from "../../components/ui/Layout";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import LinkButton from "../../components/ui/LinkButton";
-import { Badge, StatusBadge as UiStatusBadge } from "../../components/ui/Badge";
+import { StatusBadge as UiStatusBadge } from "../../components/ui/Badge";
 import Callout from "../../components/ui/Callout";
 import { Field, Input, Textarea } from "../../components/ui/Field";
 import { LoadingState } from "../../components/ui/States";
@@ -24,10 +24,8 @@ export default function AdminRequestPage() {
   const [post, setPost] = useState<BoardPost | null>(null);
   const [messages, setMessages] = useState<RequestMessage[]>([]);
   const [notes, setNotes] = useState<DevNote[]>([]);
-  const [plans, setPlans] = useState<Plan[]>([]);
   const [summaryDraft, setSummaryDraft] = useState("");
   const [newNote, setNewNote] = useState("");
-  const [planPrompt, setPlanPrompt] = useState("");
   const [adminReply, setAdminReply] = useState("");
   const [flash, setFlash] = useState("");
   const [flashIsError, setFlashIsError] = useState(false);
@@ -40,7 +38,7 @@ export default function AdminRequestPage() {
 
   async function load() {
     const rid = Number(id);
-    const [{ data: r }, { data: rep }, { data: bp }, { data: msgs }, { data: dn }, { data: pl }] =
+    const [{ data: r }, { data: rep }, { data: bp }, { data: msgs }, { data: dn }] =
       await Promise.all([
         supabase.from("enhancement_requests").select("*").eq("id", rid).single(),
         supabase.from("ai_reports").select("*").eq("request_id", rid)
@@ -48,14 +46,12 @@ export default function AdminRequestPage() {
         supabase.from("board_posts").select("*").eq("request_id", rid).maybeSingle(),
         supabase.from("request_messages").select("*").eq("request_id", rid).order("created_at"),
         supabase.from("dev_notes").select("*").eq("request_id", rid).order("created_at", { ascending: false }),
-        supabase.from("plans").select("*").eq("request_id", rid).order("iteration", { ascending: false }),
       ]);
     setRequest(r as EnhancementRequest | null);
     setReport(rep as AiReport | null);
     setPost(bp as BoardPost | null);
     setMessages((msgs as RequestMessage[]) ?? []);
     setNotes((dn as DevNote[]) ?? []);
-    setPlans((pl as Plan[]) ?? []);
     if (rep && !bp) setSummaryDraft((rep as AiReport).summary_draft);
     if (bp) setSummaryDraft((bp as BoardPost).summary);
   }
@@ -66,22 +62,25 @@ export default function AdminRequestPage() {
     await load();
   }
 
-  async function dispatch(body: Record<string, unknown>) {
+  async function runTriage() {
     if (busy) return;
     setBusy(true);
-    showFlash("Starting...");
+    showFlash("Running the AI report...");
     try {
-      const { error } = await supabase.functions.invoke("dispatch", { body });
+      const { error } = await supabase.functions.invoke("dispatch", {
+        body: { action: "triage-report", request_id: Number(id) },
+      });
       if (error) {
         let msg = error.message;
         try {
           const j = await (error as { context?: Response }).context?.json();
           if (j?.error) msg = j.error;
         } catch {}
-        showFlash(`Dispatch failed: ${msg}`, true);
+        showFlash(`AI report failed: ${msg}`, true);
       } else {
-        showFlash("Started: the report will appear in a few minutes. Refresh this page to see it.");
+        showFlash("AI report ready.");
       }
+      await load();
     } finally {
       setBusy(false);
     }
@@ -116,23 +115,6 @@ export default function AdminRequestPage() {
     });
     setAdminReply("");
     await load();
-  }
-
-  async function requestPlan(e: React.FormEvent) {
-    e.preventDefault();
-    if (planPrompt.trim().length < 10) return;
-    const iteration = (plans[0]?.iteration ?? 0) + 1;
-    await dispatch({
-      action: "implementation-plan", request_id: Number(id),
-      prompt: planPrompt.trim(), iteration,
-    });
-    setPlanPrompt("");
-    await load();
-  }
-
-  async function approvePlan(p: Plan) {
-    await supabase.from("plans").update({ status: "approved" }).eq("id", p.id);
-    await setStatus("planned");
   }
 
   async function deleteRequest() {
@@ -172,8 +154,8 @@ export default function AdminRequestPage() {
             ))}
           </dl>
           <div className="mt-4 flex flex-wrap gap-2">
-            <Button onClick={() => dispatch({ action: "triage-report", request_id: Number(id) })} busy={busy}>
-              {busy ? "Starting..." : report ? "Re-run AI report" : "Run AI report"}
+            <Button onClick={() => runTriage()} busy={busy}>
+              {busy ? "Running..." : report ? "Re-run AI report" : "Run AI report"}
             </Button>
             <Button variant="secondary" onClick={() => setStatus("closed")}>Close</Button>
             <Button variant="destructive" onClick={() => setStatus("rejected")}>Reject</Button>
@@ -211,56 +193,6 @@ export default function AdminRequestPage() {
           <Button className="mt-2" onClick={publishSummary}>
             {post ? "Update summary" : "Approve & publish to board"}
           </Button>
-        </Card>
-
-        <Card as="article">
-          <h2 className="al-card__title">Implementation plans</h2>
-          <form onSubmit={requestPlan} className="mt-3">
-            <Field label="Your prompt to the code engine">
-              {(control) => (
-                <Textarea {...control} rows={3} value={planPrompt} onChange={(e) => setPlanPrompt(e.target.value)}
-                  placeholder="Your prompt to the code engine: how you'd like this enhancement approached…" />
-              )}
-            </Field>
-            <Button type="submit" className="mt-2">
-              Generate plan (iteration {(plans[0]?.iteration ?? 0) + 1})
-            </Button>
-          </form>
-          <ul className="al-card-list">
-            {plans.map((p) => (
-              <Card as="li" key={p.id} className="text-sm">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold">v{p.iteration}</span>
-                  <Badge tone="neutral">{p.status}</Badge>
-                  <span className="flex-1" />
-                  {p.repo_path && <code className="text-sm text-fg-muted">{p.repo_path}</code>}
-                </div>
-                <p className="mt-1 whitespace-pre-wrap">{p.prompt}</p>
-                {p.plan_md && (
-                  <Card className="mt-2 max-h-96 overflow-y-auto text-sm [&_h1]:font-bold [&_h2]:font-semibold [&_h2]:mt-3 [&_ul]:list-disc [&_ul]:ml-5 [&_ol]:list-decimal [&_ol]:ml-5">
-                    <Markdown>{p.plan_md}</Markdown>
-                  </Card>
-                )}
-                <div className="mt-2 flex gap-2">
-                  {p.status === "draft" && (
-                    <Button onClick={() => approvePlan(p)}>Approve plan</Button>
-                  )}
-                  {p.status === "approved" && p.repo_path && (
-                    <Button onClick={() => dispatch({
-                      action: "implement-pr", request_id: Number(id), plan_path: p.repo_path,
-                    })}>
-                      ⚡ Implement (opens PR)
-                    </Button>
-                  )}
-                  {p.pr_url && (
-                    <a href={p.pr_url} target="_blank" rel="noreferrer"
-                      className="al-back-link">View PR →</a>
-                  )}
-                </div>
-              </Card>
-            ))}
-          </ul>
-          {plans.length === 0 && <p className="mt-3 text-sm text-fg-muted">No plans yet.</p>}
         </Card>
 
         <Card as="article">
@@ -339,10 +271,10 @@ export default function AdminRequestPage() {
           ))}
         </dl>
         <div className="mt-4 flex flex-wrap gap-2">
-          <button onClick={() => dispatch({ action: "triage-report", request_id: Number(id) })}
+          <button onClick={() => runTriage()}
             disabled={busy}
             className={`${btn} bg-blue-100 text-blue-800 hover:bg-blue-200 disabled:opacity-50 disabled:cursor-not-allowed`}>
-            {busy ? "Starting..." : report ? "Re-run AI report" : "Run AI report"}
+            {busy ? "Running..." : report ? "Re-run AI report" : "Run AI report"}
           </button>
           <button onClick={() => setStatus("closed")} className={`${btn} bg-gray-200 hover:bg-gray-300`}>Close</button>
           <button onClick={() => setStatus("rejected")} className={`${btn} bg-red-100 text-red-800 hover:bg-red-200`}>Reject</button>
@@ -378,57 +310,6 @@ export default function AdminRequestPage() {
           className="mt-2 rounded-md bg-brand text-white px-4 py-2 text-sm font-semibold hover:bg-brand-light">
           {post ? "Update summary" : "Approve & publish to board"}
         </button>
-      </div>
-
-      <div className={card}>
-        <h2 className="font-semibold text-brand">Implementation plans</h2>
-        <form onSubmit={requestPlan} className="mt-3">
-          <textarea rows={3} value={planPrompt} onChange={(e) => setPlanPrompt(e.target.value)}
-            placeholder="Your prompt to the code engine: how you'd like this enhancement approached…"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm" />
-          <button className="mt-2 rounded-md bg-purple-700 text-white px-4 py-2 text-sm font-semibold hover:bg-purple-800">
-            Generate plan (iteration {(plans[0]?.iteration ?? 0) + 1})
-          </button>
-        </form>
-        <div className="mt-4 space-y-3">
-          {plans.map((p) => (
-            <div key={p.id} className="rounded-lg border border-gray-200 p-3 text-sm">
-              <div className="flex items-center gap-2">
-                <span className="font-semibold">v{p.iteration}</span>
-                <span className="text-xs rounded-full bg-gray-100 px-2 py-0.5">{p.status}</span>
-                <span className="flex-1" />
-                {p.repo_path && <code className="text-xs text-gray-500">{p.repo_path}</code>}
-              </div>
-              <p className="mt-1 text-gray-600 whitespace-pre-wrap">{p.prompt}</p>
-              {p.plan_md && (
-                <div className="mt-2 max-h-96 overflow-y-auto rounded-md border border-gray-200 bg-gray-50 p-3 text-sm [&_h1]:font-bold [&_h2]:font-semibold [&_h2]:mt-3 [&_ul]:list-disc [&_ul]:ml-5 [&_ol]:list-decimal [&_ol]:ml-5">
-                  <Markdown>{p.plan_md}</Markdown>
-                </div>
-              )}
-              <div className="mt-2 flex gap-2">
-                {p.status === "draft" && (
-                  <button onClick={() => approvePlan(p)}
-                    className={`${btn} bg-green-100 text-green-800 hover:bg-green-200`}>
-                    Approve plan
-                  </button>
-                )}
-                {p.status === "approved" && p.repo_path && (
-                  <button onClick={() => dispatch({
-                    action: "implement-pr", request_id: Number(id), plan_path: p.repo_path,
-                  })}
-                    className={`${btn} bg-brand text-white hover:bg-brand-light`}>
-                    ⚡ Implement (opens PR)
-                  </button>
-                )}
-                {p.pr_url && (
-                  <a href={p.pr_url} target="_blank" rel="noreferrer"
-                    className="text-xs text-brand hover:underline">View PR →</a>
-                )}
-              </div>
-            </div>
-          ))}
-          {plans.length === 0 && <p className="text-sm text-gray-500">No plans yet.</p>}
-        </div>
       </div>
 
       <div className={card}>

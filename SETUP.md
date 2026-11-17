@@ -103,24 +103,21 @@ needed there.
 On the live site: create your account, confirm the email, enable 2FA. Then do S1.7 so your
 account is the admin — the **Admin** menu item appears when you next sign in.
 
-## S6 — Wire the AI pipeline (~15 min, You + Claude Code)
+## S6 — Wire the AI triage (OpenRouter, ~5 min, Claude Code does it)
 
-This connects the website to the ActorsVoice repository's AI workflows.
+Triage runs inside the `dispatch` edge function and calls OpenRouter directly. There is no
+GitHub or Claude token any more, and the plan / implement-PR workflows are retired.
 
-1. **Claude subscription token**: in a terminal run `claude setup-token` and follow the
-   browser prompt. Copy the token it prints (starts `sk-ant-oat…`).
-2. **GitHub dispatch token**: github.com → your avatar → **Settings → Developer settings →
-   Personal access tokens → Fine-grained tokens → Generate new token**. Name:
-   `actorslines-dispatch`. Expiration: 1 year. Repository access: **Only select
-   repositories → ActorsVoice**. Permissions → Repository permissions → **Contents:
-   Read and write**. Generate, copy the token (starts `github_pat_…`).
-3. **Hand both tokens to Claude Code**, which will store them (they never enter any repo):
-   - On the **ActorsVoice** repo: secrets `CLAUDE_CODE_OAUTH_TOKEN`, `SUPABASE_URL`,
-     `SUPABASE_SERVICE_ROLE_KEY` (via `gh secret set`).
-   - On **Supabase**: `supabase secrets set GH_DISPATCH_TOKEN=… GH_REPO=robertdeanmoore/ActorsVoice`.
-4. **Test**: submit a test enhancement request on the site. Within a few minutes an AI
-   report should appear on that request's page in the Admin area. (Watch progress at
-   github.com/robertdeanmoore/ActorsVoice → Actions tab.)
+1. **OpenRouter key**: a dedicated, spend-capped key (set in the OpenRouter dashboard). Saved by
+   the team as `.secrets/openrouter_api_key_actorslines_triage`.
+2. **Supabase secret**: `OPENROUTER_API_KEY_TRIAGE` on the `actorslines` project.
+3. **Routing**: the same OpenRouter routing as the development workhorse (RobLife
+   `Data/Workhorse/active-models.json`: ZDR on, data collection denied, allowed hosts, price
+   cap). Snapshot lives in `supabase/functions/dispatch/triage.ts` (`ROUTING`); the workhorse
+   config and the website triage deliberately share it.
+4. **Test**: submit a test enhancement request. Within about a minute an AI report appears on the
+   request's page in the Admin area. On any failure the report area shows "AI triage failed
+   (<code>)" instead; the admin "Re-run AI report" button retries.
 
 ## S7 — Brevo email (~15 min, You) — needed before real users arrive
 
@@ -225,7 +222,7 @@ by a merge; they are separate gated steps. One ordered sequence (Holly's Group 3
    - `IP_HASH_SALT`: long random string. Salts the IP hash used only as a rate-limit bucket
      name. If unset, `notify-list` fails closed to one shared bucket; it never hashes without a salt.
    - Already present and reused: `TURNSTILE_SECRET_KEY`, `BREVO_API_KEY`, `MAIL_FROM`,
-     `GH_DISPATCH_TOKEN`, `GH_REPO`.
+     `OPENROUTER_API_KEY_TRIAGE` (WIP #257 triage; `GH_DISPATCH_TOKEN` and `GH_REPO` are no longer used and can be deleted after the deploy).
 3. Dry run of `0024` and `0025` on `origin/main`.
 4. Robert's data-risk sign-off.
 5. `supabase db push` (`0024_request_intake_hardening.sql`, then `0025_notify_signups.sql`). Both

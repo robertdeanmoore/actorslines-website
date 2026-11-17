@@ -51,7 +51,7 @@ export default function SupportPage() {
         <ul className="al-mkt-list">
           <li>Suggestions are not commitments to build anything by any date.</li>
           <li>
-            The text is processed by an AI service (Anthropic) to help us analyse it, and may be
+            The text is processed by an AI service (via OpenRouter, set not to keep or train on it) to help us analyse it, and may be
             compared with other members&apos; suggestions. See our{" "}
             <Link to="/privacy">privacy policy</Link>.
           </li>

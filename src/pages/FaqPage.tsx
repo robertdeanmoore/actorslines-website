@@ -131,7 +131,7 @@ export default function FaqPage() {
           </AccordionItem>
           <AccordionItem summary="What happens to my suggestions?">
             <p>
-              Suggestions are processed by an AI service (Anthropic) to help me analyse them, and
+              Suggestions are processed by an AI service (via OpenRouter, set not to keep or train on it) to help me analyse them, and
               may be compared with other members&apos; suggestions. They do not oblige us to build
               anything. See the <Link to="/privacy">privacy policy</Link>.
             </p>
