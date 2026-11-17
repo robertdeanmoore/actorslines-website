@@ -261,10 +261,23 @@
   }
 }
 
-/* Night header at desktop widths: a signed-in admin has seven nav items plus name and Sign out, which
-   wrapped labels onto two lines at 1280. Keep every label on one line and tighten the padding.
-   Night only: the standard look is untouched. */
-@media (min-width: 48rem) {
+/* Night header (WIP 257): a signed-in admin has five nav items plus name and Sign out, which does not
+   fit the bar below ~1100px (brand overlap at 1024, sideways scroll at 768). So night keeps the
+   Menu button up to 68.75rem and shows the inline nav only from there. Standard look: untouched
+   (its breakpoint stays 48rem, set by the md: utilities and MobileMenu's query). */
+@media (min-width: 48rem) and (max-width: 68.7499rem) {
+  [data-theme="night"] .al-header__bar .al-nav,
+  [data-theme="night"] .al-header__bar .al-actions__desk {
+    display: none;
+  }
+  [data-theme="night"] .al-header__bar .al-menu-btn {
+    display: inline-flex;
+  }
+  [data-theme="night"] .al-header__row .al-menu-panel:not([hidden]) {
+    display: block;
+  }
+}
+@media (min-width: 68.75rem) {
   [data-theme="night"] .al-header__bar :is(.al-brand span, .al-nav-link, .al-btn) {
     white-space: nowrap;
   }
@@ -278,15 +291,5 @@
   [data-theme="night"] .al-header__bar .al-actions,
   [data-theme="night"] .al-header__bar .al-brand {
     flex-shrink: 0;
-  }
-}
-/* Around 1024 the unshrinkable brand plus seven nav items plus actions exceed the bar: claw back ~36px
-   so the brand no longer overlaps "Learn Lines" and nothing overflows. */
-@media (min-width: 48rem) and (max-width: 68rem) {
-  [data-theme="night"] .al-header__bar {
-    gap: 0.5rem;
-  }
-  [data-theme="night"] .al-header__bar .al-nav-link {
-    padding-inline: 0.375rem;
   }
 }

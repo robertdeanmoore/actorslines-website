@@ -1,6 +1,7 @@
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { supabaseConfigured } from "../lib/supabase";
+import { isNightTheme } from "../lib/theme";
 import { useRouteFocus } from "../lib/useRouteFocus";
 import { useRouteMeta } from "../lib/useRouteMeta";
 import Footer from "./Footer";
@@ -21,8 +22,12 @@ const MEMBER_LINKS: NavItem[] = [
   { to: "/kb", label: "Knowledge base" },
   { to: "/board", label: "Enhancement board" },
   { to: "/requests", label: "My requests" },
-  { to: "/support", label: "Support" },
 ];
+
+// Support joins the signed-in header in the night look only: with it the standard look's header
+// wraps to two lines at 1080-1280, where main stays on one (WIP 257 D8). /support stays reachable by URL;
+// the standard look is a rollback/preview look only.
+const NIGHT_MEMBER_LINKS: NavItem[] = [{ to: "/support", label: "Support" }];
 
 // /tutorials has no nav link: the page is an empty state until Robert supplies the first video (WIP 257).
 
@@ -39,7 +44,7 @@ export default function Layout() {
 
   const signedIn = Boolean(session && profile);
   const isAdmin = profile?.role === "admin";
-  const links = signedIn ? MEMBER_LINKS : PUBLIC_LINKS;
+  const links = signedIn ? [...MEMBER_LINKS, ...(isNightTheme() ? NIGHT_MEMBER_LINKS : [])] : PUBLIC_LINKS;
   // The landing page lays out its own full-width sections; every other page keeps the 5xl column.
   const fullBleed = pathname === "/";
 
@@ -71,7 +76,7 @@ export default function Layout() {
             </nav>
 
             <div className="al-actions">
-              <div className="hidden md:flex items-center gap-2">
+              <div className="al-actions__desk hidden md:flex items-center gap-2">
                 {signedIn ? (
                   <>
                     <NavLink to="/profile" className="al-nav-link">

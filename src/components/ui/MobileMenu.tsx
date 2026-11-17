@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
+import { isNightTheme } from "../../lib/theme";
 
 const DESKTOP_QUERY = "(min-width: 48rem)";
+// The night look keeps the Menu button until 68.75rem (shell.css, night header block).
+const NIGHT_DESKTOP_QUERY = "(min-width: 68.75rem)";
 
 /**
  * Below 768px: a labelled "Menu" button and a full-width panel under the header (not off-canvas).
@@ -22,7 +25,7 @@ export default function MobileMenu({ children }: { children: ReactNode }) {
   }, [pathname]);
 
   useEffect(() => {
-    const mq = window.matchMedia(DESKTOP_QUERY);
+    const mq = window.matchMedia(isNightTheme() ? NIGHT_DESKTOP_QUERY : DESKTOP_QUERY);
     const onChange = () => {
       if (mq.matches) setOpen(false);
     };
