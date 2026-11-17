@@ -260,3 +260,22 @@
     text-align: center;
   }
 }
+
+/* Night header at desktop widths: a signed-in admin has seven nav items plus name and Sign out, which
+   wrapped labels onto two lines at 1280. Keep every label on one line and tighten the padding.
+   Night only: the standard look is untouched. */
+@media (min-width: 48rem) {
+  [data-theme="night"] .al-header__bar :is(.al-brand span, .al-nav-link, .al-btn) {
+    white-space: nowrap;
+  }
+  [data-theme="night"] .al-header__bar .al-nav-link {
+    padding-inline: 0.5rem;
+  }
+  [data-theme="night"] .al-header__bar {
+    gap: 0.75rem;
+  }
+  [data-theme="night"] .al-header__bar .al-nav,
+  [data-theme="night"] .al-header__bar .al-actions {
+    flex-shrink: 0;
+  }
+}

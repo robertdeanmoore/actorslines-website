@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import LinkButton from "./LinkButton";
+import { NOT_FOUND_MARKER, NOT_FOUND_TITLE } from "../../lib/routeMeta";
 
 /**
  * Neutral 404 view for unknown routes (design spec 03 section 18), routed as the catch-all `*` in
@@ -12,8 +13,9 @@ export default function NotFound() {
     const meta = document.createElement("meta");
     meta.name = "robots";
     meta.content = "noindex";
+    meta.setAttribute(NOT_FOUND_MARKER, "");
     document.head.appendChild(meta);
-    document.title = "Page not found | Actors Lines";
+    document.title = NOT_FOUND_TITLE;
     return () => {
       document.title = previousTitle;
       meta.remove();

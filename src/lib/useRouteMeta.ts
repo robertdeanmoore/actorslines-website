@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { kbArticle } from "./kb";
-import { jsonLdText, routeMeta, softwareApplicationJsonLd } from "./routeMeta";
+import { NOT_FOUND_MARKER, NOT_FOUND_TITLE, jsonLdText, routeMeta, softwareApplicationJsonLd } from "./routeMeta";
 
 const JSON_LD_ID = "al-jsonld-app";
 
@@ -16,7 +16,9 @@ export function useRouteMeta(): void {
 
   useEffect(() => {
     const meta = routeMeta(pathname, kbArticle);
-    document.title = meta.title;
+    // A child effect (NotFound) runs before this parent one, so it cannot set the title itself.
+    const notFound = document.querySelector(`meta[${NOT_FOUND_MARKER}]`) !== null;
+    document.title = notFound ? NOT_FOUND_TITLE : meta.title;
     document.querySelector('meta[name="description"]')?.setAttribute("content", meta.description);
 
     document.getElementById(JSON_LD_ID)?.remove();

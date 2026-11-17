@@ -10,6 +10,11 @@ export const DEFAULT_DESCRIPTION =
 
 const SUFFIX = " | Actors Lines";
 
+/** Title of the catch-all 404 view; useRouteMeta keeps it instead of the site default. */
+export const NOT_FOUND_TITLE = `Page not found${SUFFIX}`;
+/** Attribute NotFound puts on its robots meta so the route-meta effect knows the 404 view is showing. */
+export const NOT_FOUND_MARKER = "data-al-notfound";
+
 export type RouteMeta = { title: string; description: string };
 
 export type KbLookup = (slug: string) => { title: string; summary: string } | undefined;

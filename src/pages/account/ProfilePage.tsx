@@ -141,9 +141,10 @@ export default function ProfilePage() {
 
           <Card as="section" tone="dense" title="Delete account" headingLevel={2}>
             <p className="mt-2">
-              Permanently deletes your account and its data, including your requests, comments, votes
-              and Learn Lines scripts. If you bought a licence, we keep only a minimal order record, as
-              the law requires.
+              Permanently deletes your account details, Learn Lines scripts and votes. Your requests and
+              their message threads are deleted with the account. Comments you wrote stay on the board
+              without your name. If you bought a licence, we keep only a minimal order record, as the
+              law requires.
             </p>
             {deleteError && <Callout tone="error" className="mt-4">{deleteError}</Callout>}
             <Button variant="secondary" onClick={() => setConfirmDelete(true)} className="mt-4">
@@ -154,7 +155,7 @@ export default function ProfilePage() {
               onClose={() => setConfirmDelete(false)}
               onConfirm={() => { setConfirmDelete(false); void deleteAccount(); }}
               title="Delete account"
-              description="Permanently deletes your account and its data, including your requests, comments, votes and Learn Lines scripts. If you bought a licence we keep only a minimal order record, as the law requires. This cannot be undone."
+              description="Permanently deletes your account details, Learn Lines scripts and votes. Your requests and their message threads are deleted with the account. Comments you wrote stay without your name. If you bought a licence we keep only a minimal order record, as the law requires. This cannot be undone."
               confirmLabel="Yes, delete my account"
               destructive
             />
