@@ -138,7 +138,7 @@ export default function FaqPage() {
           </AccordionItem>
           <AccordionItem summary="Can I delete my account?">
             <p>
-              Yes. Use Delete account on your Profile page. It removes your details, scripts, votes and requests, including any request on the public board. Comments you wrote on other people&apos;s requests stay without your name. To stop the free trial being repeated, we keep a coded version of your email address and your trial start date for 24 months, then delete them. Accounts unused for 6 months are deleted the same way, after we email you a warning.
+              Yes. Use Delete account on your Profile page. It removes your details, scripts, votes and requests, including any request on the public board. Comments you wrote on other people&apos;s requests stay without your name. To stop the free trial being repeated, we keep a coded version of your email address (not the address itself) and your trial start date for 24 months, then delete them. Accounts unused for 6 months are deleted the same way, after we email you a warning.
             </p>
           </AccordionItem>
           <AccordionItem summary="Is it for children?">

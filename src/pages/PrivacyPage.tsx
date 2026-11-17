@@ -302,6 +302,14 @@ export default function PrivacyPage() {
           usage data is not linked to your account, so deleting your account does not remove it; it is deleted after 12
           months (see below).
         </li>
+        {/* TRIAL-CHECK-GOLIVE-GATE: true once migration 0030 is applied (fail-closed trial check writes the
+            internal ID and time on a check fault; the note is removed with the account). */}
+        <li>
+          <strong>Free-trial check records:</strong> if we cannot check whether an address has already had a free trial
+          (a rare technical fault), we give no trial and keep a note of your account&apos;s internal ID and the time, with
+          no name or email, so that we can fix it. It is deleted when you delete your account or it is deleted for
+          inactivity.
+        </li>
         <li>
           <strong>Requests, comments and votes:</strong> until you delete your account or it is deleted for inactivity.
           Deleting it deletes your requests, including any on the public board and the comments others made on them, the

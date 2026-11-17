@@ -142,7 +142,7 @@ export default function ProfilePage() {
           <Card as="section" tone="dense" title="Delete account" headingLevel={2}>
             <p className="mt-2">
               Permanently deletes your account and its data, including your requests, comments, votes
-              and Learn Lines scripts. If you bought a licence, we keep only a minimal order record, as
+              and Learn Lines scripts. To stop the free trial being repeated, we keep a coded version of your email address (not the address itself) and your trial start date for 24 months, then delete them. If you bought a licence, we keep only a minimal order record, as
               the law requires.
             </p>
             {deleteError && <Callout tone="error" className="mt-4">{deleteError}</Callout>}
@@ -154,7 +154,7 @@ export default function ProfilePage() {
               onClose={() => setConfirmDelete(false)}
               onConfirm={() => { setConfirmDelete(false); void deleteAccount(); }}
               title="Delete account"
-              description="Permanently deletes your account and its data, including your requests, comments, votes and Learn Lines scripts. If you bought a licence we keep only a minimal order record, as the law requires. This cannot be undone."
+              description="Permanently deletes your account and its data, including your requests, comments, votes and Learn Lines scripts. To stop the free trial being repeated, we keep a coded version of your email address (not the address itself) and your trial start date for 24 months, then delete them. If you bought a licence we keep only a minimal order record, as the law requires. This cannot be undone."
               confirmLabel="Yes, delete my account"
               destructive
             />
@@ -223,7 +223,7 @@ export default function ProfilePage() {
       <div className="bg-white rounded-xl shadow-sm p-6">
         <h2 className="font-semibold text-red-700">Delete account</h2>
         <p className="mt-2 text-sm text-gray-600">
-          Permanently removes your account, requests, comments and votes. This cannot
+          Permanently removes your account, requests, comments and votes. To stop the free trial being repeated, we keep a coded version of your email address (not the address itself) and your trial start date for 24 months, then delete them. This cannot
           be undone.
         </p>
         {confirmDelete ? (
