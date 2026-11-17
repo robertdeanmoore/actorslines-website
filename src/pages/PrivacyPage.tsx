@@ -8,7 +8,7 @@ const NIGHT_ARTICLE = "al-container al-container--prose al-doc al-legal";
 
 // Text: pre-payment Privacy Policy v2 (Clarity 2026-11-14) with Holly's replacements (2026-11-14, PR 60 review
 // 2026-11-16). No price, licence, refund or payment wording until payments launch.
-// Markers "ROBERT-CONFIRM" and "PR60" flag sentences whose truth depends on an open item; see the PR description.
+// Markers "ROBERT-CONFIRM", "PR60" and the "-GOLIVE-GATE" markers flag sentences whose truth depends on an open item; see the PR description.
 
 const P = "text-sm text-gray-700 mt-2";
 const UL = "text-sm text-gray-700 mt-2 list-disc pl-6";
@@ -142,19 +142,31 @@ export default function PrivacyPage() {
           ],
         ]}
       />
+      {/* TRIAL-USED-GOLIVE-GATE: the free-trial record paragraph and the "Free-trial record" retention bullet are true
+          once migration 0028 is applied (trial_used table, keyed email hash, 24-month purge). Never call the hash
+          anonymous (Holly 2026-11-17). */}
+      <p className={P}>
+        <strong>Free-trial record.</strong> When your free trial starts we store a one-way coded version of your email
+        address (a keyed hash) and the start date. If you delete your account we keep only that code and date, for 24
+        months from the trial start, then delete them. We do this to stop the free trial being used again by deleting
+        and re-creating an account (our legitimate interest in preventing abuse). The code is not your email address
+        and cannot be read back as one without a secret key that we hold, but because we could match it against an
+        address, we treat it as personal information. You can object by emailing{" "}
+        <a href="mailto:hello@actorslines.app">hello@actorslines.app</a>.
+      </p>
       <p className={P}>
         You need to give us an email address and password to have an account. Without them we cannot provide it.
         Everything else is optional unless the table says it is needed to give you a feature you ask for.
       </p>
       {/* OPENROUTER-GOLIVE-GATE: this paragraph and the OpenRouter rows describe request analysis through OpenRouter
-          (zero data retention, US allow-listed hosts). True only after the OpenRouter triage build is live and
+          (zero data retention required; hosts chosen from an approved list). True only after the OpenRouter triage build is live and
           Robert's OpenRouter dashboard settings are done (Holly ruling 2026-11-17, checklist steps 1-9). Do not write
           "never stored" or claim training status of the host: CSAM/safety screening retention exception exists. */}
       <p className={P}>
         We do <strong>not</strong> sell your information and do not use it for marketing. We do not use automated
         decision-making that has legal effects on you. Enhancement requests are analysed by an automated AI service
-        (provided through OpenRouter and a United States hosting provider) to produce development reports, and may be
-        compared with other members&apos; requests during that analysis (see &ldquo;Who else handles your
+        (provided through OpenRouter and the AI model hosting companies it chooses from an approved list) to produce
+        development reports, and may be compared with other members&apos; requests during that analysis (see &ldquo;Who else handles your
         information&rdquo;).
       </p>
 
@@ -206,8 +218,6 @@ export default function PrivacyPage() {
         Most act on our instructions. Google (Gmail, and your phone&apos;s Google services) and GitHub (when it records
         visits to public files) decide for themselves how they handle what they see.
       </p>
-      {/* ROBERT-CONFIRM (Brevo): the Brevo region and transfer mechanism are unverified (Holly 2026-11-17); the row
-          names no region until Robert reads the Brevo DPA and tells Holly. Do not write "EU" before then. */}
       {/* VERIFY (Supabase): the London claim rests on the project region setting; Robert or Kate confirm eu-west-2 in
           the Supabase dashboard. */}
       {/* OPENROUTER-GOLIVE-GATE (processors row below): true only after the OpenRouter triage build is live and
@@ -236,8 +246,8 @@ export default function PrivacyPage() {
           [
             <strong key="b">Brevo</strong>,
             "Sends our emails (verification, password reset, account warnings, invites, notify list) and relays our replies from hello@",
-            "Your email address and the message",
-            "Brevo is headquartered in France; we are confirming where it stores data",
+            "Your email address, and the message, subject and send details",
+            "European Union (France and Belgium). Brevo's group and sub-processors may also handle data in the United States and India under Brevo's data processing agreement",
           ],
           [
             <strong key="s">Supabase</strong>,
@@ -249,9 +259,9 @@ export default function PrivacyPage() {
             <>
               <strong>OpenRouter</strong> (AI routing service), the AI model host it uses, and <strong>GitHub</strong>
             </>,
-            "Request text you submit is passed, with identifying details removed where we can, through OpenRouter to an AI model run by a hosting company in the United States, triggered from GitHub Actions on our private repository. We require zero data retention, so the text is not kept by OpenRouter or the host after the answer is produced. It may be compared with other members' requests",
+            "The text of a request you submit is passed, with email addresses and phone numbers removed first, through OpenRouter (an AI routing service) to an AI model run by a hosting company from an approved list, triggered from GitHub Actions on our private repository. We require OpenRouter to use only hosts with a zero-data-retention policy that do not collect data, so the text is not kept after the answer is produced, except that OpenRouter or the host may keep content for limited abuse and safety screening. The text may be compared with other members' requests",
             "The text of your request (email addresses and phone numbers are removed first)",
-            "Outside the UK (United States)",
+            "Outside the UK: the United States, and possibly other countries depending on the host used",
           ],
           [
             <>
@@ -263,15 +273,17 @@ export default function PrivacyPage() {
           ],
         ]}
       />
-      {/* OPENROUTER-GOLIVE-GATE / ROBERT-CONFIRM: "OpenRouter's data processing agreement" needs the DPA accepted and
+      {/* OPENROUTER-GOLIVE-GATE: "OpenRouter's data processing agreement" needs the DPA accepted and
           saved (Holly checklist step 8); the last sentence of the paragraph stays until the model host's own transfer
           mechanism is confirmed (step 9). If the DPA cannot be accepted, escalate to Holly: blocks go-live. */}
       <p className={P}>
         Some of these providers are outside the UK, mainly in the United States. Where your information goes outside the
         UK, the provider relies on a UK-approved safeguard: the UK Data Bridge (the UK extension to the Data Privacy
         Framework) where the provider is certified, or the International Data Transfer Addendum to the EU standard
-        contractual clauses (Cloudflare, Supabase, GitHub, and OpenRouter&apos;s data processing agreement). Our AI model
-        host relies on its own safeguards; we have restricted routing to providers in the United States. Google (Gmail)
+        contractual clauses (Cloudflare, Supabase, GitHub, Brevo&apos;s data processing agreement and OpenRouter&apos;s data processing
+        agreement). Our AI model hosts are chosen from an approved list and may be in the United States or other
+        countries outside the UK; OpenRouter&apos;s data processing agreement covers the transfer to OpenRouter, and
+        each host relies on its own safeguards. Google (Gmail)
         uses its own safeguards under its terms. Videos are explained in the &ldquo;Videos&rdquo; section below.
       </p>
 
@@ -282,7 +294,7 @@ export default function PrivacyPage() {
       <ul className={UL}>
         <li>
           <strong>Account and Learn Lines data:</strong> until you delete your account (Profile page, which deletes your
-          account details, scripts and votes; see the next line for requests and comments) or the account is inactive
+          account details, scripts and votes, except the free-trial record described below; see the next line for requests and comments) or the account is inactive
           for 6 months. We email a warning after about 5 months and a final reminder about 2 weeks later. Anonymous
           usage data is not linked to your account, so deleting your account does not remove it; it is deleted after 12
           months (see below).
@@ -317,7 +329,13 @@ export default function PrivacyPage() {
           email until we have told you, or for 12 months, whichever is first.
         </li>
         <li>
-          <strong>Email logs at Brevo:</strong> per Brevo&apos;s own policy.
+          <strong>Email logs at Brevo:</strong> Brevo keeps delivery records (recipient, subject, send time) for us as
+          our processor. We do not control a fixed period beyond our account settings; ask us to delete yours.
+        </li>
+        {/* TRIAL-USED-GOLIVE-GATE: true once migration 0028 is applied. */}
+        <li>
+          <strong>Free-trial record:</strong> a coded version of your email address and the trial start date, kept for
+          24 months from the trial start, even if you delete your account; then deleted.
         </li>
       </ul>
 

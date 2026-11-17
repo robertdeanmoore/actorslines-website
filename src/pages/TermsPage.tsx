@@ -6,7 +6,7 @@ import { isNightTheme } from "../lib/theme";
 const NIGHT_ARTICLE = "al-container al-container--prose al-doc al-legal";
 
 // Text: pre-payment Terms of Use v2 (Clarity 2026-11-14), Holly check 2026-11-14. No price, trial, licence,
-// refund or payment wording until payments launch. "ROBERT-CONFIRM" marks sentences that need his confirmation.
+// refund or payment wording until payments launch. Robert confirmed the facts (no charge, invitation-only, 3-working-day reply) 2026-11-17.
 
 const P = "text-sm text-gray-700 mt-2";
 const UL = "text-sm text-gray-700 mt-2 list-disc pl-6";
@@ -35,7 +35,6 @@ export default function TermsPage() {
         Actors Lines is an Android app for learning lines, with a companion website (a knowledge base, a Learn Lines page
         and an enhancement board). At the moment:
       </p>
-      {/* ROBERT-CONFIRM: no charge today; accounts by invitation with sign-up closed; he issues invitations on request. */}
       <ul className={UL}>
         <li>
           Accounts are <strong>by invitation</strong>. Sign-up is closed.
@@ -68,7 +67,6 @@ export default function TermsPage() {
       </ul>
 
       <h2 className="mt-6 font-semibold">4. If something is wrong, and support</h2>
-      {/* ROBERT-CONFIRM: the 3-working-day reply aim is a commitment he must keep. */}
       <p className={P}>
         Email <a href="mailto:hello@actorslines.app">hello@actorslines.app</a>. We aim to reply within 3 working days, and
         will try to put a fault right. Support covers the website, your account and the Android app. We do not promise
