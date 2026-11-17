@@ -157,6 +157,7 @@ export default function AdminRequestPage() {
             <Button onClick={() => runTriage()} busy={busy}>
               {busy ? "Running..." : report ? "Re-run AI report" : "Run AI report"}
             </Button>
+            <Button variant="secondary" onClick={() => setStatus("ready_for_dev")}>Ready for development</Button>
             <Button variant="secondary" onClick={() => setStatus("closed")}>Close</Button>
             <Button variant="destructive" onClick={() => setStatus("rejected")}>Reject</Button>
             <Button variant="secondary" onClick={() => setStatus("implemented")}>Mark implemented</Button>
@@ -276,6 +277,7 @@ export default function AdminRequestPage() {
             className={`${btn} bg-blue-100 text-blue-800 hover:bg-blue-200 disabled:opacity-50 disabled:cursor-not-allowed`}>
             {busy ? "Running..." : report ? "Re-run AI report" : "Run AI report"}
           </button>
+          <button onClick={() => setStatus("ready_for_dev")} className={`${btn} bg-indigo-100 text-indigo-800 hover:bg-indigo-200`}>Ready for development</button>
           <button onClick={() => setStatus("closed")} className={`${btn} bg-gray-200 hover:bg-gray-300`}>Close</button>
           <button onClick={() => setStatus("rejected")} className={`${btn} bg-red-100 text-red-800 hover:bg-red-200`}>Reject</button>
           <button onClick={() => setStatus("implemented")} className={`${btn} bg-emerald-100 text-emerald-800 hover:bg-emerald-200`}>Mark implemented</button>
