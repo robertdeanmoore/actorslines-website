@@ -11,6 +11,7 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { deleteInactiveUser } from "./delete_user.ts";
 import { runUsagePurge } from "./purge.ts";
+import { runTrialMaintenance } from "./trial_maintenance.ts";
 
 const MONTH_MS = 30 * 24 * 60 * 60 * 1000;
 const FORTNIGHT_MS = 14 * 24 * 60 * 60 * 1000;
@@ -57,6 +58,7 @@ Deno.serve(async (req) => {
     compExtended: 0, compErrors: 0,
     licence1moWarned: 0, licence1wkWarned: 0, licenceWarnErrors: 0,
     notifyPurged: 0, notifyPurgeErrors: 0,
+    trialMaintenance: null as unknown,
     usagePurged: { telemetry_events: 0, recognition_reports: 0, request_messages: 0, trusted_devices: 0, invites: 0 }, usagePurgeErrors: 0,
   };
 
@@ -202,6 +204,22 @@ Deno.serve(async (req) => {
     console.error(`[lifecycle] usage purge failed code=${usage.errorCode}`);
     summary.usagePurgeErrors++;
   }
+
+  // Trial-check upkeep (WIP #262, DEF555): retry fail-closed trial checks, count-only alert to the
+  // existing notify address, 90-day purge of trial_check_failed, 24-month purge of trial_used.
+  summary.trialMaintenance = await runTrialMaintenance({
+    rpc: (name, args) => admin.rpc(name, args),
+    countUnresolved: () => admin.from("trial_check_failed").select("user_id", { count: "exact", head: true }),
+    sendAlert: async (subject, body) => {
+      const notify = Deno.env.get("REQUEST_NOTIFY_EMAIL");
+      if (!notify) {
+        console.error("[lifecycle] REQUEST_NOTIFY_EMAIL not configured; trial-check alert not sent");
+        return false;
+      }
+      return await sendEmail(notify, subject, body).catch(() => false);
+    },
+    now: () => new Date(),
+  });
 
   console.log("[lifecycle] run complete", summary);
   return new Response(JSON.stringify(summary), {
