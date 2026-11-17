@@ -39,6 +39,10 @@
 
 /* Tables on the legal pages (WIP #257 legal v2), night only. */
 [data-theme="night"] .al-legal-table-wrap { margin-top: 0.75rem; overflow-x: auto; }
+[data-theme="night"] .al-legal-table-wrap:focus-visible {
+  outline: var(--ring-width) solid var(--ring);
+  outline-offset: var(--ring-offset);
+}
 [data-theme="night"] .al-legal-table {
   width: 100%;
   border-collapse: collapse;

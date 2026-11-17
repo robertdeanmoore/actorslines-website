@@ -1,5 +1,5 @@
 import LegalTable from "../components/LegalTable";
-import { LAST_UPDATED, MAILBOX_PROVIDER } from "../lib/legalMeta";
+import { LAST_UPDATED } from "../lib/legalMeta";
 import { isNightTheme } from "../lib/theme";
 
 // Night look: the al-legal rules in legal.css (unlayered, so they beat the legacy Tailwind colour
@@ -118,7 +118,9 @@ export default function PrivacyPage() {
           [
             <>
               <strong>Emails you send us</strong> to hello@actorslines.app, including asking for an invitation, asking
-              to be told when the Android app is on Google Play, or asking us to change the iPhone notify list
+              to be told when the Android app is on Google Play, or asking us to change the iPhone notify list. They
+              pass through Cloudflare (which forwards them) and arrive in a Gmail mailbox run by Google; we reply using
+              Brevo
             </>,
             "To reply, keep a record and, if you asked, tell you once when the Android app is on Google Play",
             "Legitimate interests",
@@ -144,8 +146,11 @@ export default function PrivacyPage() {
         You need to give us an email address and password to have an account. Without them we cannot provide it.
         Everything else is optional unless the table says it is needed to give you a feature you ask for.
       </p>
-      {/* ROBERT-CONFIRM (Anthropic): this paragraph and the Anthropic rows assert automated AI processing through
-          Robert's own Anthropic account (training setting and account terms unconfirmed). It must not say "not used to train". */}
+      {/* ANTHROPIC-GOLIVE-GATE: this paragraph and the Anthropic rows describe request analysis through an Anthropic
+          API key (Commercial Terms). That is true only after ActorsVoice PR 72 is merged and the GitHub Actions
+          secrets are switched to the API key. Until then the consumer-subscription route breaches Anthropic's terms
+          (Holly 2026-11-17): do not go live before it. Must not say "not used to train" (API-key training default
+          unverified). */}
       <p className={P}>
         We do <strong>not</strong> sell your information and do not use it for marketing. We do not use automated
         decision-making that has legal effects on you. Enhancement requests are analysed by automated AI tooling
@@ -174,8 +179,8 @@ export default function PrivacyPage() {
           it;
         </li>
         <li>
-          check for app updates (through Google Play, once the app is listed there) and a small public status file
-          (your phone&apos;s IP address is visible to whichever server hosts it; no account details are sent);
+          check for app updates and a small public status file, currently hosted on GitHub (we send no account or
+          personal data, but GitHub, like any web host, sees your phone&apos;s IP address and request details);
         </li>
         <li>
           send anonymous usage data, <strong>only if you turn it on</strong> (off by default). It contains which
@@ -197,42 +202,51 @@ export default function PrivacyPage() {
       </p>
 
       <h2 className="mt-6 font-semibold">Who else handles your information (processors)</h2>
-      <p className={P}>They act on our instructions, except where noted.</p>
-      {/* ROBERT-CONFIRM (regions and mailbox provider): the "Where" column for Supabase, Brevo and Anthropic/GitHub is
-          unverified (Holly B1); the hello@ mailbox provider is not yet named by Robert. */}
+      <p className={P}>
+        Most act on our instructions. Google (Gmail, and your phone&apos;s Google services) and GitHub (when it records
+        visits to public files) decide for themselves how they handle what they see.
+      </p>
+      {/* ROBERT-CONFIRM (Brevo): the Brevo region and transfer mechanism are unverified (Holly 2026-11-17); the row
+          names no region until Robert reads the Brevo DPA and tells Holly. Do not write "EU" before then. */}
+      {/* VERIFY (Supabase): the London claim rests on the project region setting; Robert or Kate confirm eu-west-2 in
+          the Supabase dashboard. */}
+      {/* ANTHROPIC-GOLIVE-GATE (processors row below): true only after ActorsVoice PR 72 is merged and the secrets are
+          switched to an Anthropic API key. */}
       <LegalTable
         caption="Who else handles your information"
         head={["Who", "What they do", "Data", "Where"]}
         rows={[
           [
-            <strong key="s">Supabase</strong>,
-            "Database, sign-in, file and functions hosting",
-            "All account, access, script, request and notify data above",
-            "London, United Kingdom (AWS eu-west-2)",
-          ],
-          [
-            <strong key="m">Our email provider for hello@actorslines.app</strong>,
-            "Holds emails you send us",
-            "Sender address, content, headers",
-            MAILBOX_PROVIDER,
-          ],
-          [
             <strong key="c">Cloudflare</strong>,
-            "Website hosting and delivery; Turnstile bot check on sign-in, registration and request forms",
-            "Visitor IP and browser data; Turnstile signals",
-            "Global network",
+            "Website hosting and delivery; Turnstile bot check on sign-in, registration and request forms; receives emails sent to hello@actorslines.app and forwards them to our mailbox",
+            "Visitor IP and browser data; Turnstile signals; the sender address, content and headers of emails to hello@",
+            "Global network, including the United States",
+          ],
+          [
+            <>
+              <strong>Google</strong> (Gmail)
+            </>,
+            "Receives the emails Cloudflare forwards from hello@actorslines.app, and holds our replies, in a personal Google account used by the site's owner. Google decides how it handles that account under its own terms; it is not acting on our instructions",
+            "Sender address, content, headers, our replies",
+            "Google's servers worldwide, including the United States",
           ],
           [
             <strong key="b">Brevo</strong>,
-            "Sends our emails (verification, password reset, account warnings, invites, notify list)",
+            "Sends our emails (verification, password reset, account warnings, invites, notify list) and relays our replies from hello@",
             "Your email address and the message",
-            "EU",
+            "Brevo is headquartered in France; we are confirming where it stores data",
+          ],
+          [
+            <strong key="s">Supabase</strong>,
+            "Database, sign-in, file and functions hosting",
+            "All account, access, script, request and notify data above",
+            "London, United Kingdom, with some support or sub-processor access possible from elsewhere",
           ],
           [
             <>
               <strong>Anthropic</strong> (AI service) and <strong>GitHub</strong>
             </>,
-            "Request text you submit is passed to automated AI analysis run through GitHub Actions on our private repository, using our own Anthropic account. It may be compared with other members' requests",
+            "Request text you submit is passed to automated AI analysis run through GitHub Actions on our private repository, using an Anthropic API account. It may be compared with other members' requests",
             "The text of your request",
             "Outside the UK (United States)",
           ],
@@ -246,10 +260,14 @@ export default function PrivacyPage() {
           ],
         ]}
       />
+      {/* ANTHROPIC-GOLIVE-GATE / ROBERT-CONFIRM: "Anthropic's Commercial Terms" in the next paragraph is marked VERIFY
+          by Holly (Commercial Terms and DPA not fetched). Cut that name from the list if it cannot be confirmed. */}
       <p className={P}>
-        Some of these providers are outside the UK. Where so, we rely on the safeguards the law allows, such as a UK
-        adequacy decision or standard contractual terms with the UK addendum. Videos are explained in the &ldquo;Videos&rdquo;
-        section below.
+        Some of these providers are outside the UK, mainly in the United States. Where your information goes outside the
+        UK, the provider relies on a UK-approved safeguard: the UK Data Bridge (the UK extension to the Data Privacy
+        Framework) where the provider is certified, or the International Data Transfer Addendum to the EU standard
+        contractual clauses (Cloudflare, Supabase, GitHub, and Anthropic&apos;s Commercial Terms). Google (Gmail) uses
+        its own safeguards under its terms. Videos are explained in the &ldquo;Videos&rdquo; section below.
       </p>
 
       <h2 className="mt-6 font-semibold">How long we keep it</h2>

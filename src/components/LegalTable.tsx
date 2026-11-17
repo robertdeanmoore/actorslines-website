@@ -11,7 +11,17 @@ type Props = {
 export default function LegalTable({ caption, head, rows }: Props) {
   const night = isNightTheme();
   return (
-    <div className={night ? "al-legal-table-wrap" : "mt-2 overflow-x-auto"}>
+    // A scrollable region must be reachable by keyboard (WCAG 2.1.1): focusable, named, with a visible focus ring.
+    <div
+      tabIndex={0}
+      role="region"
+      aria-label={caption}
+      className={
+        night
+          ? "al-legal-table-wrap"
+          : "mt-2 overflow-x-auto focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
+      }
+    >
       <table className={night ? "al-legal-table" : "w-full text-left text-sm text-gray-700 border-collapse"}>
         <caption className="sr-only">{caption}</caption>
         <thead>

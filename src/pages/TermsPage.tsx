@@ -76,8 +76,8 @@ export default function TermsPage() {
       </p>
 
       <h2 className="mt-6 font-semibold">5. Using the service</h2>
-      {/* ROBERT-CONFIRM (Anthropic): the Requests and AI bullet asserts AI processing via his Anthropic account;
-          it must not say "not used to train" until he confirms the training setting. */}
+      {/* ANTHROPIC-GOLIVE-GATE: the Requests and AI bullet is true of an Anthropic API-key route only after ActorsVoice
+          PR 72 is merged and the secrets are switched. It must not say "not used to train" (API-key default unverified). */}
       <ul className={UL}>
         <li>
           Learn Lines, the knowledge base, the enhancement board and requests: no abuse, spam, unlawful content,
