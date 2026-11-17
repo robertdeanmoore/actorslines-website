@@ -9,6 +9,7 @@
 //          MAIL_FROM (e.g. "Actors Lines <hello@actorslines.app>")
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { deleteInactiveUser } from "./delete_user.ts";
 import { runUsagePurge } from "./purge.ts";
 
 const MONTH_MS = 30 * 24 * 60 * 60 * 1000;
@@ -34,7 +35,7 @@ async function sendEmail(to: string, subject: string, text: string): Promise<boo
   });
   if (!resp.ok) {
     const detail = await resp.text().catch(() => "");
-    console.error(`[lifecycle] brevo send failed to=${to} subject="${subject}" status=${resp.status} body=${detail.slice(0, 300)}`);
+    console.error(`[lifecycle] brevo send failed subject="${subject}" status=${resp.status} body=${detail.slice(0, 300)}`);
   }
   return resp.ok;
 }
@@ -68,6 +69,7 @@ Deno.serve(async (req) => {
     .select("id")
     .eq("product_code", "comp_rolling")
     .eq("status", "active")
+    .not("user_id", "is", null) // orphaned (account deleted, DEF555): no holder, must lapse, not be extended
     .gt("ends_at", new Date(now).toISOString());
   if (compQueryErr) {
     console.error("[lifecycle] failed to query comp_rolling licences", compQueryErr);
@@ -92,6 +94,7 @@ Deno.serve(async (req) => {
     .from("licences")
     .select("id, user_id, starts_at, ends_at, warned_1mo_at, warned_1wk_at, product_code")
     .eq("status", "active")
+    .not("user_id", "is", null) // orphaned licences (account deleted, DEF555) have nobody to warn
     .lt("ends_at", new Date(now + 31 * DAY_MS).toISOString())
     .gt("ends_at", new Date(now).toISOString());
   if (expiringQueryErr) {
@@ -167,12 +170,14 @@ Deno.serve(async (req) => {
         } else summary.errors++;
       } else if (p.inactivity_warned_2_at &&
                  now - Date.parse(p.inactivity_warned_2_at) > FORTNIGHT_MS) {
-        await admin.auth.admin.deleteUser(p.id); // cascades to profile + content FKs
-        console.log(`[lifecycle] deleted inactive account id=${p.id}`);
-        summary.deleted++;
+        // cascades to profile + content FKs; only a real deletion is counted (DEF555)
+        if (await deleteInactiveUser(admin.auth.admin, p.id)) {
+          console.log(`[lifecycle] deleted inactive account id=${p.id}`);
+          summary.deleted++;
+        } else summary.errors++;
       }
     } catch (e) {
-      console.error(`[lifecycle] failed processing profile id=${p.id} email=${email}`, e);
+      console.error(`[lifecycle] failed processing profile id=${p.id}`, e);
       summary.errors++;
     }
   }
