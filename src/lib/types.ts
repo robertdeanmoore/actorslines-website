@@ -1,5 +1,5 @@
 export type RequestStatus =
-  | "submitted" | "reported" | "published" | "planned"
+  | "submitted" | "reported" | "published" | "planned" | "ready_for_dev"
   | "implemented" | "closed" | "rejected" | "abandoned";
 
 export interface Profile {
@@ -21,6 +21,8 @@ export interface EnhancementRequest {
   usage_frequency: string;
   extra_notes: string;
   created_at: string;
+  ready_at?: string | null;
+  inlet_acked_at?: string | null;
 }
 
 export interface RequestMessage {
@@ -172,6 +174,7 @@ export const STATUS_LABELS: Record<RequestStatus, string> = {
   reported: "AI report ready",
   published: "On the board",
   planned: "Plan ready",
+  ready_for_dev: "Ready for development",
   implemented: "Implemented",
   closed: "Closed",
   rejected: "Rejected",

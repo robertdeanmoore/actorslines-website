@@ -130,15 +130,14 @@ export default function FaqPage() {
           </AccordionItem>
           <AccordionItem summary="What happens to my suggestions?">
             <p>
-              Suggestions are processed by an AI service (Anthropic) to help me analyse them, and
+              Suggestions are processed by an AI service (provided through OpenRouter) to help us analyse them, and
               may be compared with other members&apos; suggestions. They do not oblige us to build
               anything. See the <Link to="/privacy">privacy policy</Link>.
             </p>
           </AccordionItem>
           <AccordionItem summary="Can I delete my account?">
             <p>
-              Yes. Use Delete account on your Profile page. It deletes your account and its data.
-              Accounts unused for 6 months are deleted too, after we email you a warning.
+              Yes. Use Delete account on your Profile page. It removes your details, scripts, votes and requests, including any request on the public board. Comments you wrote on other people&apos;s requests stay without your name. To stop the free trial being repeated, we keep a coded version of your email address (not the address itself) and your trial start date for 24 months, then delete them. Accounts unused for 6 months are deleted the same way, after we email you a warning.
             </p>
           </AccordionItem>
           <AccordionItem summary="Is it for children?">

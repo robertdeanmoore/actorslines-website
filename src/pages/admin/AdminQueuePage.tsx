@@ -13,7 +13,7 @@ import { StatusBadge as UiStatusBadge } from "../../components/ui/Badge";
 import { LoadingState, EmptyState } from "../../components/ui/States";
 
 const FILTERS: (RequestStatus | "all")[] = [
-  "all", "submitted", "reported", "published", "planned", "implemented",
+  "all", "submitted", "reported", "published", "ready_for_dev", "planned", "implemented",
   "closed", "rejected",
 ];
 

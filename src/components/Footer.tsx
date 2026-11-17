@@ -19,8 +19,23 @@ export default function Footer() {
             </p>
             <ul className="al-footer__list" aria-labelledby="footer-help-heading">
               <li>
+                <Link className="al-footer__link" to="/features">
+                  Features
+                </Link>
+              </li>
+              <li>
+                <Link className="al-footer__link" to="/faq">
+                  FAQ
+                </Link>
+              </li>
+              <li>
                 <Link className="al-footer__link" to="/kb">
                   Knowledge base
+                </Link>
+              </li>
+              <li>
+                <Link className="al-footer__link" to="/support">
+                  Support
                 </Link>
               </li>
               <li>
@@ -50,7 +65,11 @@ export default function Footer() {
           </div>
         </div>
 
-        <p className="al-footer__legal">© {new Date().getFullYear()} Actors Lines</p>
+        <p className="al-footer__legal">
+          © {new Date().getFullYear()} Actors Lines. Robert Dean Moore, trading as You Never Know Productions, 12
+          Conifers, Hadleigh, Benfleet, Essex SS7 2JR. <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>. ICO
+          registration ZA464293.
+        </p>
       </div>
     </footer>
   );

@@ -26,11 +26,11 @@ const STATIC_META: Record<string, Partial<RouteMeta>> = {
   },
   "/privacy": {
     title: `Privacy Policy${SUFFIX}`,
-    description: "What information Actors Lines collects, how it is used, and the choices you have.",
+    description: "What information Actors Lines collects, who handles it, how long we keep it, and your rights.",
   },
   "/terms": {
     title: `Terms of Use${SUFFIX}`,
-    description: "The terms for using the Actors Lines app and website.",
+    description: "The terms for using the Actors Lines app and website: access, your account, acceptable use and our responsibilities.",
   },
   "/login": {
     title: `Sign in${SUFFIX}`,
