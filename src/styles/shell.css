@@ -263,9 +263,9 @@
 
 /* Night header (WIP 257): a signed-in admin has five nav items plus name and Sign out, which does not
    fit the bar below ~1100px (brand overlap at 1024, sideways scroll at 768). So night keeps the
-   Menu button up to 68.75rem and shows the inline nav only from there. Standard look: untouched
+   Menu button up to 1100px and shows the inline nav only from there. Standard look: untouched
    (its breakpoint stays 48rem, set by the md: utilities and MobileMenu's query). */
-@media (min-width: 48rem) and (max-width: 68.7499rem) {
+@media (min-width: 48rem) and (max-width: 1099.98px) {
   [data-theme="night"] .al-header__bar .al-nav,
   [data-theme="night"] .al-header__bar .al-actions__desk {
     display: none;
@@ -277,7 +277,7 @@
     display: block;
   }
 }
-@media (min-width: 68.75rem) {
+@media (min-width: 1100px) {
   [data-theme="night"] .al-header__bar :is(.al-brand span, .al-nav-link, .al-btn) {
     white-space: nowrap;
   }

@@ -3,8 +3,8 @@ import { useLocation } from "react-router-dom";
 import { isNightTheme } from "../../lib/theme";
 
 const DESKTOP_QUERY = "(min-width: 48rem)";
-// The night look keeps the Menu button until 68.75rem (shell.css, night header block).
-const NIGHT_DESKTOP_QUERY = "(min-width: 68.75rem)";
+// The night look keeps the Menu button until 1100px (shell.css, night header block).
+const NIGHT_DESKTOP_QUERY = "(min-width: 1100px)";
 
 /**
  * Below 768px: a labelled "Menu" button and a full-width panel under the header (not off-canvas).
