@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import { isNightTheme } from "../../lib/theme";
@@ -7,12 +7,31 @@ import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import Callout from "../../components/ui/Callout";
 import { Field, Input } from "../../components/ui/Field";
+import MfaStepUp from "../../components/MfaStepUp";
 
 export default function UpdatePasswordPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const navigate = useNavigate();
+  // DEF94: a member with a verified authenticator must reach AAL2 before the new-password form. The recovery
+  // link only gives an AAL1 session; Supabase refuses the password change from it ("AAL2 session is required")
+  // and, before this step, the page showed that raw error. No session (direct visit) or no MFA: unchanged.
+  const [stage, setStage] = useState<"checking" | "mfa" | "password">("checking");
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      let needsMfa = false;
+      if (session) {
+        const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+        needsMfa = aal?.nextLevel === "aal2" && aal.currentLevel !== "aal2";
+      }
+      if (!cancelled) setStage(needsMfa ? "mfa" : "password");
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -20,6 +39,32 @@ export default function UpdatePasswordPage() {
     const { error } = await supabase.auth.updateUser({ password });
     if (error) { setError(error.message); setBusy(false); return; }
     navigate("/kb", { replace: true });
+  }
+
+  const stepUpIntro = "To reset your password, enter the 6-digit code from your authenticator app.";
+
+  if (stage === "checking") {
+    return isNightTheme()
+      ? <div className="al-auth"><Container size="form"><Card as="div" tone="dense"><p className="al-auth__text">Checking your link…</p></Card></Container></div>
+      : <div className="max-w-sm mx-auto bg-white rounded-xl shadow-sm p-8"><p className="text-sm text-gray-600">Checking your link…</p></div>;
+  }
+
+  if (stage === "mfa") {
+    return isNightTheme() ? (
+      <div className="al-auth">
+        <Container size="form">
+          <Card as="div" tone="dense">
+            <h1 className="al-auth__title">Confirm it's you</h1>
+            <MfaStepUp intro={stepUpIntro} onDone={() => setStage("password")} />
+          </Card>
+        </Container>
+      </div>
+    ) : (
+      <div className="max-w-sm mx-auto bg-white rounded-xl shadow-sm p-8">
+        <h1 className="text-xl font-bold text-brand">Confirm it's you</h1>
+        <MfaStepUp intro={stepUpIntro} onDone={() => setStage("password")} />
+      </div>
+    );
   }
 
   if (isNightTheme()) {

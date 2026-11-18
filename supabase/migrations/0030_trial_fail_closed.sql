@@ -1,6 +1,6 @@
 -- WIP #257 DEF555 hardening (Robert 2026-11-17: "no trial" when the trial key cannot be read).
--- NOT YET APPLIED. Gated step: Holly review + Robert data-risk sign-off, then
--- Scripts/supabase_migrate.sh --gate WIP#257 (Skills/applying-supabase-migration).
+-- APPLIED to the live project (verified read-only 2026-11-18: migration history lists 0030 trial_fail_closed).
+-- (Gated route used: Scripts/supabase_migrate.sh --gate WIP#257 (Skills/applying-supabase-migration).)
 --
 -- 0028 works (RobLife Deliverables "Actors Lines - Trial Record Counts Result 2026-11-17"). This
 -- only closes the one silent path left in grant_trial_on_confirm(): a null hash (key unreadable)
