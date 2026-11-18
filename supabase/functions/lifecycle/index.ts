@@ -2,7 +2,7 @@
 // Action (which doubles as the Supabase free-tier keep-alive ping).
 //
 // Policy (stated in the privacy policy): accounts inactive for 6 months are
-// deleted. Warning email at 5 months, second warning 2 weeks later, deletion
+// deleted, unless they hold an active non-trial licence (DEF190 b; inactivity.ts). Warning email at 5 months, second warning 2 weeks later, deletion
 // 2 weeks after that. Any sign-in resets the clock (touch_last_seen()).
 //
 // Secrets: LIFECYCLE_SECRET (shared with the workflow), BREVO_API_KEY,
@@ -12,9 +12,10 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 import { deleteInactiveUser } from "./delete_user.ts";
 import { runUsagePurge } from "./purge.ts";
 import { runTrialMaintenance } from "./trial_maintenance.ts";
+import { runInactivity } from "./inactivity.ts";
+import { secretMatches } from "./secret_compare.ts";
+import { licenceDisplayName } from "./licence_text.ts";
 
-const MONTH_MS = 30 * 24 * 60 * 60 * 1000;
-const FORTNIGHT_MS = 14 * 24 * 60 * 60 * 1000;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 async function sendEmail(to: string, subject: string, text: string): Promise<boolean> {
@@ -43,7 +44,7 @@ async function sendEmail(to: string, subject: string, text: string): Promise<boo
 
 Deno.serve(async (req) => {
   const auth = req.headers.get("x-lifecycle-secret");
-  if (!auth || auth !== Deno.env.get("LIFECYCLE_SECRET")) {
+  if (!(await secretMatches(auth, Deno.env.get("LIFECYCLE_SECRET")))) {
     console.error("[lifecycle] forbidden: missing or invalid x-lifecycle-secret header");
     return new Response("forbidden", { status: 403 });
   }
@@ -54,7 +55,7 @@ Deno.serve(async (req) => {
   );
   const now = Date.now();
   const summary = {
-    warned1: 0, warned2: 0, deleted: 0, errors: 0,
+    warned1: 0, warned2: 0, deleted: 0, errors: 0, inactivityExempt: 0,
     compExtended: 0, compErrors: 0,
     licence1moWarned: 0, licence1wkWarned: 0, licenceWarnErrors: 0,
     notifyPurged: 0, notifyPurgeErrors: 0,
@@ -114,7 +115,7 @@ Deno.serve(async (req) => {
       // makes no sense when the whole term barely exceeds a month.
       if (!l.warned_1mo_at && termMs > 31 * DAY_MS && endsAt - now <= 31 * DAY_MS) {
         const ok = await sendEmail(email, "Your Actors Lines licence renews in about a month",
-          `Hello,\n\nYour ${l.product_code} licence is due to expire in about a month, on ` +
+          `Hello,\n\nYour ${licenceDisplayName(l.product_code)} is due to expire in about a month, on ` +
           `${new Date(l.ends_at).toDateString()}.\n\nSee your account page for details: ${accountLink}\n\n` +
           `Nothing is auto-billed -- if you'd like to continue, visit actorslines.app to renew.\n\n— Actors Lines`);
         if (ok) {
@@ -123,7 +124,7 @@ Deno.serve(async (req) => {
         } else summary.licenceWarnErrors++;
       } else if (!l.warned_1wk_at && endsAt - now <= 7 * DAY_MS) {
         const ok = await sendEmail(email, "Your Actors Lines licence expires in about a week",
-          `Hello,\n\nYour ${l.product_code} licence expires in about a week, on ` +
+          `Hello,\n\nYour ${licenceDisplayName(l.product_code)} expires in about a week, on ` +
           `${new Date(l.ends_at).toDateString()}. After that you'll drop to the Free tier -- your ` +
           `plays and data stay exactly where they are, you just lose import/scan, audio-driven ` +
           `runs, and Selftape until you renew.\n\nSee your account page: ${accountLink}\n\n— Actors Lines`);
@@ -138,51 +139,18 @@ Deno.serve(async (req) => {
     }
   }
 
-  const { data: profiles, error: queryErr } = await admin
-    .from("profiles")
-    .select("id, last_seen_at, inactivity_warned_1_at, inactivity_warned_2_at")
-    .lt("last_seen_at", new Date(now - 5 * MONTH_MS).toISOString());
-  if (queryErr) {
-    console.error("[lifecycle] failed to query inactive profiles", queryErr);
-  }
-
-  for (const p of profiles ?? []) {
-    const { data: { user } } = await admin.auth.admin.getUserById(p.id);
-    const email = user?.email;
-    if (!email) continue;
-    const keepLink = "https://actorslines.app/login";
-    try {
-      if (!p.inactivity_warned_1_at) {
-        const ok = await sendEmail(email, "Your Actors Lines account — are you still with us?",
-          `Hello,\n\nYour actorslines.app account hasn't been used for about 5 months. ` +
-          `Inactive accounts are removed after 6 months.\n\nTo keep your account, simply sign in: ${keepLink}\n\n` +
-          `If you do nothing, we'll send one more reminder before your account and its data are deleted.\n\n— Actors Lines`);
-        if (ok) {
-          await admin.from("profiles").update({ inactivity_warned_1_at: new Date().toISOString() }).eq("id", p.id);
-          summary.warned1++;
-        } else summary.errors++;
-      } else if (!p.inactivity_warned_2_at &&
-                 now - Date.parse(p.inactivity_warned_1_at) > FORTNIGHT_MS) {
-        const ok = await sendEmail(email, "Final reminder — your Actors Lines account will be deleted",
-          `Hello,\n\nThis is the final reminder: your actorslines.app account will be permanently deleted ` +
-          `in 2 weeks due to inactivity.\n\nTo keep it, just sign in: ${keepLink}\n\n— Actors Lines`);
-        if (ok) {
-          await admin.from("profiles").update({ inactivity_warned_2_at: new Date().toISOString() }).eq("id", p.id);
-          summary.warned2++;
-        } else summary.errors++;
-      } else if (p.inactivity_warned_2_at &&
-                 now - Date.parse(p.inactivity_warned_2_at) > FORTNIGHT_MS) {
-        // cascades to profile + content FKs; only a real deletion is counted (DEF555)
-        if (await deleteInactiveUser(admin.auth.admin, p.id)) {
-          console.log(`[lifecycle] deleted inactive account id=${p.id}`);
-          summary.deleted++;
-        } else summary.errors++;
-      }
-    } catch (e) {
-      console.error(`[lifecycle] failed processing profile id=${p.id}`, e);
-      summary.errors++;
-    }
-  }
+  // Inactivity warnings and deletion (DEF190 option b): accounts with an active, non-trial licence
+  // are exempt; see inactivity.ts and migration 0032.
+  await runInactivity({
+    now,
+    listInactive: (cutoffIso, from, to) =>
+      admin.rpc("lifecycle_inactive_profiles", { p_cutoff: cutoffIso }).range(from, to),
+    hasActiveLicence: (id) => admin.rpc("lifecycle_has_active_licence", { p_user: id }),
+    getEmail: async (id) => (await admin.auth.admin.getUserById(id)).data?.user?.email,
+    sendEmail,
+    updateProfile: async (id, patch) => !(await admin.from("profiles").update(patch).eq("id", id)).error,
+    deleteUser: (id) => deleteInactiveUser(admin.auth.admin, id),
+  }, summary);
 
   // iPhone notify list (WIP #257): delete signups past their retention window
   // (12 months, or 30 days if never confirmed). public.purge_notify_signups() is service_role only.

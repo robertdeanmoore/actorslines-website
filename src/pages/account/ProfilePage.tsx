@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../auth/AuthContext";
 import { verifyMfaCode, mfaRetryMessage } from "../../auth/mfaVerify";
+import MfaStepUp from "../../components/MfaStepUp";
 import LicencePanel from "./LicencePanel";
 import { isNightTheme } from "../../lib/theme";
 import { Container } from "../../components/ui/Layout";
@@ -21,6 +22,7 @@ export default function ProfilePage() {
   const [enrolCode, setEnrolCode] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleteError, setDeleteError] = useState("");
+  const [deleteStepUp, setDeleteStepUp] = useState(false);
   const deleting = useRef(false);
 
   useEffect(() => {
@@ -76,10 +78,24 @@ export default function ProfilePage() {
     if (deleting.current) return;
     deleting.current = true;
     setDeleteError("");
+    // DEF149: with 2FA on, deletion needs a real code (AAL2) even on a trusted device; the database
+    // enforces it too (delete_own_account raises mfa_required), this just asks first.
+    if (factorId) {
+      const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      if (aal?.currentLevel !== "aal2") {
+        setDeleteStepUp(true);
+        deleting.current = false;
+        return;
+      }
+    }
     const { error } = await supabase.rpc("delete_own_account");
     if (error) {
-      setMessage(error.message);
-      setDeleteError(error.message);
+      if (error.message.includes("mfa_required")) {
+        setDeleteStepUp(true);
+      } else {
+        setMessage(error.message);
+        setDeleteError(error.message);
+      }
       deleting.current = false;
       return;
     }
@@ -144,6 +160,12 @@ export default function ProfilePage() {
               Deleting your account removes your details, scripts, votes and requests, including any request on the public board and its message threads. Comments you wrote on other people&apos;s requests stay on the board without your name. To stop the free trial being repeated, we keep a coded version of your email address (not the address itself) and your trial start date for 24 months, then delete them.
             </p>
             {deleteError && <Callout tone="error" className="mt-4">{deleteError}</Callout>}
+            {deleteStepUp && (
+              <div className="mt-4">
+                <MfaStepUp intro="Deleting your account cannot be undone. Enter the 6-digit code from your authenticator app to continue."
+                  onDone={() => { setDeleteStepUp(false); void deleteAccount(); }} />
+              </div>
+            )}
             <Button variant="secondary" onClick={() => setConfirmDelete(true)} className="mt-4">
               Delete my account…
             </Button>
@@ -223,6 +245,11 @@ export default function ProfilePage() {
         <p className="mt-2 text-sm text-gray-600">
           Deleting your account removes your details, scripts, votes and requests, including any request on the public board and its message threads. Comments you wrote on other people&apos;s requests stay on the board without your name. To stop the free trial being repeated, we keep a coded version of your email address (not the address itself) and your trial start date for 24 months, then delete them. This cannot be undone.
         </p>
+        {deleteError && <p className="mt-2 text-sm text-red-600">{deleteError}</p>}
+        {deleteStepUp && (
+          <MfaStepUp intro="Deleting your account cannot be undone. Enter the 6-digit code from your authenticator app to continue."
+            onDone={() => { setDeleteStepUp(false); void deleteAccount(); }} />
+        )}
         {confirmDelete ? (
           <div className="mt-3 flex gap-3">
             <button onClick={deleteAccount}

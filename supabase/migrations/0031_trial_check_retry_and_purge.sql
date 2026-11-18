@@ -1,6 +1,6 @@
 -- WIP #262 (follow-up of #257 DEF555, Robert 2026-11-17: "go with your recommendations").
--- NOT YET APPLIED. Gated step: Holly review + Robert data-risk sign-off, then
--- Scripts/supabase_migrate.sh --gate (Skills/applying-supabase-migration). Requires 0028 and 0030.
+-- APPLIED to the live project (verified read-only 2026-11-18: migration history lists 0031 trial_check_retry_and_purge).
+-- (Gated route used: Scripts/supabase_migrate.sh --gate (Skills/applying-supabase-migration). Requires 0028 and 0030.)
 --
 -- Two service_role-only functions, called once per daily lifecycle run (supabase/functions/lifecycle):
 --   * retry_trial_check_failed(p_batch)  -- retries unresolved trial_check_failed rows (0030).
