@@ -295,10 +295,13 @@ export default function PrivacyPage() {
           migration 0027 is applied, the lifecycle function is redeployed and one purge run has succeeded. */}
       {/* PR60-FOLLOW-UP: the "removed within 90 days" lines (trusted devices, invitations) need Holly's follow-up purge migration. */}
       <ul className={UL}>
+        {/* INACTIVITY-LICENCE-EXEMPT-GOLIVE-GATE: this sentence is true only once the DEF190(b) exemption (index.ts, active non-trial licence, stamps cleared, clock from licence end) is deployed and Slog has checked it. Until then the previous wording stays. */}
         <li>
           <strong>Account and Learn Lines data:</strong> until you delete your account (Profile page, which deletes your
-          account details, scripts and votes, except the free-trial record described below; see the next line for requests and comments) or the account is inactive
-          for 6 months. We email a warning after about 5 months and a final reminder about 2 weeks later. Anonymous
+          account details, scripts and votes, except the free-trial record described below; see the next line for requests and comments) or the account has had no sign-in on the Actors Lines website for 6
+          months and has no current licence. An account with a current licence (not a free trial) is not deleted for
+          inactivity while the licence lasts; if the licence ends, the 6 months are counted from the day it ended or your
+          last sign-in, whichever is later. We email a warning after about 5 months and a final reminder about 2 weeks later. Anonymous
           usage data is not linked to your account, so deleting your account does not remove it; it is deleted after 12
           months (see below).
         </li>
