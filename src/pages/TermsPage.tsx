@@ -101,9 +101,11 @@ export default function TermsPage() {
           <strong>Suggestions are not commitments.</strong> Votes and requests inform our roadmap; they do not oblige us
           to build anything by any date.
         </li>
+        {/* INACTIVITY-LICENCE-EXEMPT-GOLIVE-GATE: this sentence is true only once the DEF190(b) exemption (index.ts, active non-trial licence, stamps cleared, clock from licence end) is deployed and Slog has checked it. Until then the previous wording stays. */}
         <li>
-          <strong>Inactive accounts.</strong> Accounts unused for 6 months are deleted with their data; we email warnings
-          first (see the <Link to="/privacy">Privacy Policy</Link>).
+          <strong>Inactive accounts.</strong> Accounts with no sign-in on the Actors Lines website for 6 months, and no
+          current licence, are deleted with their data; we email warnings first (see the <Link to="/privacy">Privacy
+          Policy</Link>). An account with a current licence is not deleted for inactivity while the licence lasts.
         </li>
       </ul>
 
