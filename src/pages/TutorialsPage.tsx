@@ -76,7 +76,7 @@ export default function TutorialsPage() {
                   <ul className="al-tut-grid" role="list">
                     {group.videos.map((t) => (
                       <li key={t.id} className="al-tut-item">
-                        <LiteYouTube videoId={t.videoId} title={t.title} poster={t.poster} />
+                        <LiteYouTube videoId={t.videoId} title={t.title} poster={t.poster} vertical={t.vertical} />
                         <h3 className="al-tut-title">{t.title}</h3>
                         <p className="al-tut-duration">{t.duration}</p>
                         <p className="al-tut-desc">{t.description}</p>
@@ -90,7 +90,7 @@ export default function TutorialsPage() {
             <ul className="al-tut-grid" role="list">
               {videos.map((t) => (
                 <li key={t.id} className="al-tut-item">
-                  <LiteYouTube videoId={t.videoId} title={t.title} poster={t.poster} />
+                  <LiteYouTube videoId={t.videoId} title={t.title} poster={t.poster} vertical={t.vertical} />
                   <h2 className="al-tut-title">{t.title}</h2>
                   <p className="al-tut-duration">{t.duration}</p>
                   <p className="al-tut-desc">{t.description}</p>

@@ -12,6 +12,8 @@ export type Tutorial = {
   description: string;
   /** Optional heading to group under, e.g. "Getting started". */
   category?: string;
+  /** True for a vertical (YouTube Shorts) video: the card is portrait instead of 16:9. */
+  vertical?: boolean;
   /** Self-hosted poster in public/video-posters/ (1280x720 webp). */
   poster?: VideoPoster;
 };
@@ -27,4 +29,13 @@ export type Tutorial = {
  * The optional `poster` is a self-hosted image kept at `/video-posters/<videoId>.webp`,
  * 1280x720 webp, passed as `{ src, width: 1280, height: 720 }` (add `srcSet` for a 2x file).
  */
-export const TUTORIALS: readonly Tutorial[] = [];
+export const TUTORIALS: readonly Tutorial[] = [
+  {
+    id: "introduction-to-the-scene-list",
+    videoId: "PE52nhpydiI",
+    title: "Introduction to the scene list",
+    duration: "2:45",
+    description: "An introduction to the scene list.",
+    vertical: true,
+  },
+];
