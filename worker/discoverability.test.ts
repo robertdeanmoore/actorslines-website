@@ -16,7 +16,7 @@ const kbSlugs = readdirSync(new URL("../src/content/kb/", import.meta.url))
   .map((f) => f.replace(/\.md$/, ""))
   .sort();
 
-const PUBLIC_PAGES = ["/", "/features", "/faq", "/support", "/kb", "/privacy", "/terms"];
+const PUBLIC_PAGES = ["/", "/features", "/faq", "/support", "/tutorials", "/kb", "/privacy", "/terms"];
 const FILES = { "/robots.txt": "text/plain", "/sitemap.xml": "application/xml", "/llms.txt": "text/plain" } as const;
 
 function env(files: Record<string, string>) {
@@ -67,7 +67,7 @@ test("sitemap.xml lists exactly the public pages and every KB article, canonical
   assert.deepEqual([...locs].sort(), [...expected].sort());
   assert.equal(new Set(locs).size, locs.length, "no duplicates");
   for (const loc of locs) assert.ok(loc === "https://actorslines.app/" || !loc.endsWith("/"), loc);
-  for (const hidden of ["/tutorials", "/_ui-gallery", "/admin", "/login", "/register", "/profile", "/learn-lines", "/board", "/requests"]) {
+  for (const hidden of ["/_ui-gallery", "/admin", "/login", "/register", "/profile", "/learn-lines", "/board", "/requests"]) {
     assert.ok(!locs.some((l) => l.includes(hidden)), `${hidden} must not be listed`);
   }
 });

@@ -34,6 +34,11 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link className="al-footer__link" to="/tutorials">
+                  Videos
+                </Link>
+              </li>
+              <li>
                 <Link className="al-footer__link" to="/support">
                   Support
                 </Link>

@@ -14,6 +14,7 @@ const PUBLIC_LINKS: NavItem[] = [
   { to: "/features", label: "Features" },
   { to: "/faq", label: "FAQ" },
   { to: "/kb", label: "Help" },
+  { to: "/tutorials", label: "Videos" },
   { to: "/support", label: "Support" },
 ];
 
@@ -27,9 +28,10 @@ const MEMBER_LINKS: NavItem[] = [
 // Support joins the signed-in header in the night look only: with it the standard look's header
 // wraps to two lines at 1080-1280, where main stays on one (WIP 257 D8). /support stays reachable by URL;
 // the standard look is a rollback/preview look only.
-const NIGHT_MEMBER_LINKS: NavItem[] = [{ to: "/support", label: "Support" }];
-
-// /tutorials has no nav link: the page is an empty state until Robert supplies the first video (WIP 257).
+const NIGHT_MEMBER_LINKS: NavItem[] = [
+  { to: "/tutorials", label: "Videos" },
+  { to: "/support", label: "Support" },
+];
 
 const ADMIN_LINKS: NavItem[] = [
   { to: "/admin", label: "Admin" },

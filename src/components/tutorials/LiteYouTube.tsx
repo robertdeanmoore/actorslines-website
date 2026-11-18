@@ -35,11 +35,14 @@ export default function LiteYouTube({
   videoId,
   title,
   poster,
+  vertical = false,
 }: {
   videoId: string;
   title: string;
   /** Self-hosted poster under public/video-posters/. Without it a labelled placeholder box is shown. */
   poster?: VideoPoster;
+  /** Portrait (9:16) frame for a YouTube Short. */
+  vertical?: boolean;
 }) {
   const [phase, setPhase] = useState<Phase>("poster");
   const frameRef = useRef<HTMLIFrameElement>(null);
@@ -62,7 +65,7 @@ export default function LiteYouTube({
   if (!isValidVideoId(videoId)) return null;
 
   return (
-    <div className="al-lite">
+    <div className={vertical ? "al-lite al-lite--vertical" : "al-lite"}>
       <div className="al-lite__frame">
         {phase === "playing" ? (
           <iframe

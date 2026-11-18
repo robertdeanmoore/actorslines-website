@@ -10,6 +10,13 @@
     background: var(--surface-raised);
     box-shadow: inset 0 0 0 1px var(--line);
   }
+  :where(.al-lite--vertical) {
+    max-width: 20rem;
+    margin-inline: auto;
+  }
+  :where(.al-lite--vertical .al-lite__frame) {
+    aspect-ratio: 9 / 16;
+  }
   :where(.al-lite__poster) {
     display: block;
     width: 100%;
