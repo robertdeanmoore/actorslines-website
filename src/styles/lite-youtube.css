@@ -24,12 +24,7 @@
     object-fit: cover;
   }
   :where(.al-lite__poster--placeholder) {
-    display: grid;
-    /* Label sits at the bottom so it never runs under the centred play button. */
-    place-content: end center;
-    padding-bottom: 0.75rem;
-    color: var(--fg-muted);
-    font-size: var(--text-small);
+    /* Empty on purpose: no label while no poster exists; a supplied poster replaces this block. */
   }
   :where(.al-lite__iframe) {
     position: absolute;

@@ -97,9 +97,7 @@ export default function LiteYouTube({
                 decoding="async"
               />
             ) : (
-              <div className="al-lite__poster al-lite__poster--placeholder">
-                <span>Poster image to come</span>
-              </div>
+              <div className="al-lite__poster al-lite__poster--placeholder" aria-hidden="true" />
             )}
             <button
               ref={buttonRef}
