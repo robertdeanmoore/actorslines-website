@@ -231,3 +231,64 @@ test("go-live: non-canonical hosts keep noindex, nofollow", async () => {
     assert.equal(r.headers.get("x-robots-tag"), "noindex, nofollow", p);
   }
 });
+
+// WIP 263 DEF544/DEF552: unknown page paths return 404 with the SPA shell; known routes 200.
+import { readFileSync } from "node:fs";
+import { KNOWN_ROUTES, isKnownRoute, matchRoute } from "./routing.ts";
+
+test("unknown page route returns 404 with the shell body", async () => {
+  for (const method of ["GET", "HEAD"]) {
+    const r = await handle(new Request("https://actorslines.app/nonsense", { method }), env({ "/": "shell" }));
+    assert.equal(r.status, 404, method);
+    if (method === "GET") assert.equal(await r.text(), "shell");
+  }
+  const deep = await handle(new Request("https://actorslines.app/kb/a/b"), env({ "/": "shell" }));
+  assert.equal(deep.status, 404);
+});
+
+test("known routes (static, dynamic, case and trailing slash variants) return 200", async () => {
+  for (const p of ["/", "/features", "/Features", "/FAQ/", "/kb", "/kb/some-slug", "/invite/x", "/notify/a/b", "/requests/new", "/admin/licences/u1", "/_ui-gallery", "/mobile-captcha"]) {
+    const r = await handle(new Request("https://actorslines.app" + p), env({ "/": "shell" }));
+    assert.equal(r.status, 200, p);
+  }
+});
+
+test("well-known and extension paths stay 404 (unchanged)", async () => {
+  for (const p of ["/.well-known/x", "/a/b.png"]) {
+    const r = await handle(new Request("https://actorslines.app" + p), env({ "/": "shell" }));
+    assert.equal(r.status, 404, p);
+    assert.notEqual(await r.text(), "shell", p);
+  }
+});
+
+test("404 shell keeps preview noindex and no canonical on 404", async () => {
+  const r = await handle(new Request("https://abc-actorslines-website.robertdeanmoore.workers.dev/nonsense"), env({ "/": "shell" }));
+  assert.equal(r.status, 404);
+  assert.equal(r.headers.get("x-robots-tag"), "noindex, nofollow");
+});
+
+test("canonicalUrl lowercases static segments, keeps parameter case", () => {
+  assert.equal(canonicalUrl("/Features"), "https://actorslines.app/features");
+  assert.equal(canonicalUrl("/FAQ/"), "https://actorslines.app/faq");
+  assert.equal(canonicalUrl("/Support"), "https://actorslines.app/support");
+  assert.equal(canonicalUrl("/features"), "https://actorslines.app/features");
+  assert.equal(canonicalUrl("/Invite/AbC"), "https://actorslines.app/invite/AbC");
+  assert.equal(canonicalUrl("/Nonsense"), "https://actorslines.app/Nonsense");
+});
+
+test("matchRoute rejects extra or missing segments", () => {
+  assert.equal(matchRoute("/requests/new/x"), null);
+  assert.equal(matchRoute("/notify/a"), null);
+  assert.equal(matchRoute("/features"), "/features");
+});
+
+test("every <Route path> in src/App.tsx is in KNOWN_ROUTES, and no stale entries", () => {
+  const src = readFileSync(new URL("../src/App.tsx", import.meta.url), "utf8");
+  const paths = [...src.matchAll(/<Route\s+path="([^"]+)"/g)].map((m) => m[1]).filter((p) => p !== "*");
+  assert.ok(paths.length >= 25, "route parse looks broken");
+  for (const p of paths) {
+    assert.ok(KNOWN_ROUTES.includes(p), `App.tsx route ${p} missing from worker KNOWN_ROUTES (it would 404)`);
+    assert.ok(isKnownRoute(p.replace(/:[^/]+/g, "x")), p);
+  }
+  for (const r of KNOWN_ROUTES) assert.ok(paths.includes(r), `KNOWN_ROUTES entry ${r} not in App.tsx`);
+});
