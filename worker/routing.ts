@@ -3,7 +3,8 @@
 //   1. force https and one canonical host (301),
 //   2. return a real 404 for missing files instead of the SPA shell,
 //   3. inject a per-path <link rel="canonical"> into HTML responses.
-// Page routes (no file extension, not under /.well-known/) keep the SPA fallback.
+// Page routes (no file extension, not under /.well-known/) keep the SPA fallback: known routes
+// get the shell with 200, unknown ones the same shell with 404 so the React NotFound view renders.
 
 export const CANONICAL_HOST = "actorslines.app";
 
@@ -36,8 +37,75 @@ export function isPageRoute(pathname: string): boolean {
   return !last.includes(".");
 }
 
+/**
+ * Every path pattern the SPA renders (mirror of the <Route path> values in src/App.tsx, minus the
+ * "*" catch-all). ":x" matches exactly one non-empty segment. worker/routing.test.ts fails when
+ * App.tsx gains a route that is missing here, so a new page cannot silently 404.
+ */
+export const KNOWN_ROUTES: readonly string[] = [
+  "/",
+  "/mobile-captcha",
+  "/privacy",
+  "/terms",
+  "/_ui-gallery",
+  "/tutorials",
+  "/features",
+  "/faq",
+  "/support",
+  "/login",
+  "/register",
+  "/notify/:action/:token",
+  "/invite/:token",
+  "/reset-password",
+  "/update-password",
+  "/kb",
+  "/kb/:slug",
+  "/profile",
+  "/requests",
+  "/requests/new",
+  "/requests/:id",
+  "/board",
+  "/board/:id",
+  "/learn-lines",
+  "/learn-lines/:scriptId",
+  "/admin",
+  "/admin/requests/:id",
+  "/admin/invites",
+  "/admin/licences",
+  "/admin/licences/:userId",
+  "/admin/telemetry",
+];
+
+const splitPath = (p: string) => p.split("/").filter((s) => s !== "");
+
+/**
+ * The known route that serves this path, or null. Case-insensitive on static segments and
+ * trailing-slash tolerant, like react-router's default matching.
+ */
+export function matchRoute(pathname: string): string | null {
+  const parts = splitPath(pathname);
+  for (const route of KNOWN_ROUTES) {
+    const pattern = splitPath(route);
+    if (pattern.length !== parts.length) continue;
+    if (pattern.every((seg, i) => seg.startsWith(":") || seg === parts[i].toLowerCase())) return route;
+  }
+  return null;
+}
+
+export function isKnownRoute(pathname: string): boolean {
+  return matchRoute(pathname) !== null;
+}
+
 export function canonicalUrl(pathname: string): string {
-  const path = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
+  let path = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
+  const route = matchRoute(pathname);
+  if (route) {
+    // Static segments use the route's own (lowercase) spelling so /Features is not a duplicate of
+    // /features; parameter segments (tokens, ids) keep the caller's case.
+    const parts = splitPath(pathname);
+    const lowered = splitPath(route).map((seg, i) => (seg.startsWith(":") ? parts[i] : seg));
+    path = "/" + lowered.join("/");
+  }
   return `https://${CANONICAL_HOST}${path || "/"}`.replace(/&/g, "&amp;");
 }
 
@@ -45,10 +113,12 @@ function withCanonicalLink(res: Response, pathname: string): Response {
   const type = res.headers.get("content-type") ?? "";
   if (!type.includes("text/html")) return res;
   const href = canonicalUrl(pathname);
-  return new HTMLRewriter()
-    .on('link[rel="canonical"]', { element: (el: { remove(): void }) => el.remove() })
-    .on("head", { element: (el: { append(c: string, o: { html: boolean }): void }) => el.append(`<link rel="canonical" href="${href}">`, { html: true }) })
-    .transform(res);
+  // An unknown page (404) is not a canonical page: strip the shell's link and add none.
+  const rewriter = new HTMLRewriter().on('link[rel="canonical"]', { element: (el: { remove(): void }) => el.remove() });
+  if (res.status !== 404) {
+    rewriter.on("head", { element: (el: { append(c: string, o: { html: boolean }): void }) => el.append(`<link rel="canonical" href="${href}">`, { html: true }) });
+  }
+  return rewriter.transform(res);
 }
 
 // Decap CMS needs a looser script/connect policy than the public site. Browsers enforce every
@@ -86,7 +156,8 @@ async function route(request: Request, env: Env): Promise<Response> {
     const shell = await env.ASSETS.fetch(new Request(new URL("/", url), request));
     // Conditional request answered 304 (no body): pass it through, never rebuild it as a 200.
     if (shell.status !== 200) return shell;
-    return withCanonicalLink(new Response(shell.body, { status: 200, headers: shell.headers }), url.pathname);
+    const status = isKnownRoute(url.pathname) ? 200 : 404;
+    return withCanonicalLink(new Response(shell.body, { status, headers: shell.headers }), url.pathname);
   }
   return res;
 }

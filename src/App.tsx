@@ -78,7 +78,7 @@ export default function App() {
             <Route path="/admin/telemetry" element={<TelemetryPage />} />
           </Route>
         </Route>
-        {/* Catch-all. HTTP status stays 200 (SPA shell) until the worker has a route list. */}
+        {/* Catch-all. Worker answers unknown paths with HTTP 404 + this shell; keep worker KNOWN_ROUTES in step with the routes above. */}
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

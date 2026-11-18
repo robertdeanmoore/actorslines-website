@@ -4,8 +4,8 @@ import { NOT_FOUND_MARKER, NOT_FOUND_TITLE } from "../../lib/routeMeta";
 
 /**
  * Neutral 404 view for unknown routes (design spec 03 section 18), routed as the catch-all `*` in
- * App.tsx. Wording ruled by Clarity (PR68 review). The HTTP status stays 200 (SPA shell) until
- * worker/routing.ts gets a route list (open item for Holly); the page is noindex meanwhile.
+ * App.tsx. Wording ruled by Clarity (PR68 review). The Worker (worker/routing.ts KNOWN_ROUTES)
+ * answers unknown page paths with HTTP 404 and this same shell; the page is also noindex.
  */
 export default function NotFound() {
   useEffect(() => {

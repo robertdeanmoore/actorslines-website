@@ -1,4 +1,4 @@
-import { forwardRef, useState } from "react";
+import { forwardRef, useEffect, useRef, useState } from "react";
 import { Turnstile, type TurnstileInstance, type WidgetSize } from "@marsidev/react-turnstile";
 
 const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined;
@@ -6,14 +6,24 @@ const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined;
 /** True once VITE_TURNSTILE_SITE_KEY is set (see .env.example). */
 export const turnstileConfigured = Boolean(siteKey);
 
+const COMPACT_QUERY = "(max-width: 30rem)";
+
 /**
  * Night forms: the normal widget is 300px wide and clips in a 390px phone card; compact (150px) fits.
- * Read once at mount because Turnstile cannot change size after it renders.
+ * Follows the viewport (rotation, resize) through the media-query change event; TurnstileWidget
+ * remounts when the value flips because Turnstile cannot change size after it renders.
  */
 export function useNightWidgetSize(): WidgetSize {
-  const [size] = useState<WidgetSize>(() =>
-    typeof window !== "undefined" && window.matchMedia("(max-width: 30rem)").matches ? "compact" : "normal",
+  const [size, setSize] = useState<WidgetSize>(() =>
+    typeof window !== "undefined" && window.matchMedia(COMPACT_QUERY).matches ? "compact" : "normal",
   );
+  useEffect(() => {
+    const mq = window.matchMedia(COMPACT_QUERY);
+    const onChange = () => setSize(mq.matches ? "compact" : "normal");
+    onChange();
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
   return size;
 }
 
@@ -36,13 +46,24 @@ const TurnstileWidget = forwardRef<TurnstileInstance, Props>(function TurnstileW
   { onToken, size, theme, className },
   ref,
 ) {
+  const renderedSize = size ?? "normal";
+  const firstSize = useRef(renderedSize);
+  // A size change remounts the widget (key below), which discards any token already issued:
+  // tell the form so submit stays disabled until the new challenge passes.
+  useEffect(() => {
+    if (firstSize.current !== renderedSize) {
+      firstSize.current = renderedSize;
+      onToken(null);
+    }
+  }, [renderedSize, onToken]);
   if (!siteKey) return null;
   return (
     <div className={className ?? "mt-4 min-h-[65px]"}>
       <Turnstile
+        key={renderedSize}
         ref={ref}
         siteKey={siteKey}
-        options={{ size: size ?? "normal", ...(theme ? { theme } : {}) }}
+        options={{ size: renderedSize, ...(theme ? { theme } : {}) }}
         onSuccess={onToken}
         onExpire={() => onToken(null)}
         onError={() => onToken(null)}
