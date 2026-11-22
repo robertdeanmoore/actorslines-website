@@ -173,9 +173,11 @@ export default function PrivacyPage() {
       <h2 className="mt-6 font-semibold">What the Actors Lines app sends</h2>
       <p className={P}>
         Your scripts are stored on your phone, not uploaded to us. The same goes for your recordings and notes. The
-        only script text that ever leaves the app is a recognition report you choose to send (see the table above). (The
-        separate Learn Lines page on the website is different: scripts you upload there are stored on our server, as the
-        table above says.) The app connects to the internet to:
+        only script text that ever leaves the app to us is a recognition report you choose to send (see the table
+        above); if you optionally connect your own OpenRouter account for Script Analysis, only the selected script
+        context is sent directly from your phone to OpenRouter (never to us). (The separate Learn Lines page on the
+        website is different: scripts you upload there are stored on our server, as the table above says.) The app
+        connects to the internet to:
       </p>
       <ul className={UL}>
         <li>
@@ -189,6 +191,20 @@ export default function PrivacyPage() {
           this. Depending on your phone, your speech may be
           processed by the recogniser&apos;s provider (for example Google) rather than on the phone. We do not receive
           it;
+        </li>
+        <li>
+          <strong>Script Analysis (optional, Bring Your Own Key via OpenRouter):</strong> if you choose to connect
+          your own OpenRouter account and run a Script Analysis query, only the selected script context and your prompt
+          are sent directly from your device to OpenRouter (never to Actors Lines servers). Every request enforces
+          Zero Data Retention (<code>zdr: true</code>, <code>data_collection: &quot;deny&quot;</code>, with
+          ZDR-verified failover only) so ZDR endpoints do not train on or retain prompts under the request policy,
+          subject to your OpenRouter account privacy settings (at{" "}
+          <a href="https://openrouter.ai/settings/privacy" target="_blank" rel="noopener noreferrer">
+            openrouter.ai/settings/privacy
+          </a>
+          , selecting <strong>ZDR only</strong> avoids OpenRouter&apos;s default <em>Allow Safety Retention</em> up
+          to 90 days for flagged prompts, and client flags cannot override user-enabled account prompt logging).
+          Optional web research for historical or dramatic context is off by default.
         </li>
         <li>
           check for app updates and a small public status file, currently hosted on GitHub (we send no account or
@@ -208,9 +224,11 @@ export default function PrivacyPage() {
       <p className={P}>
         <strong>Android backup.</strong> If Android&apos;s backup is on, Android copies the app&apos;s data (your plays,
         scripts and notes) to your own Google account. We cannot see it. Your sign-in details and access record, your
-        anonymous usage ID, and your voice recordings are left out of Google backup, so after a restore you sign in
-        again and your recordings are not restored. If you move to a new phone using Android&apos;s phone-to-phone
-        transfer, recordings may be copied across.
+        anonymous usage ID, your OpenRouter API key (<code>openrouter.preferences_pb</code>, stored encrypted on your
+        device), and your voice recordings are left out of Google cloud backup and device-to-device transfer, so after
+        a restore or transfer you sign in and reconnect OpenRouter again, and your recordings are not restored from
+        Google backup. If you move to a new phone using Android&apos;s phone-to-phone transfer, recordings may be
+        copied across.
       </p>
 
       <h2 className="mt-6 font-semibold">Who else handles your information (processors)</h2>
