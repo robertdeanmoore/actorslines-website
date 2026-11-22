@@ -196,9 +196,15 @@ export default function PrivacyPage() {
           <strong>Script Analysis (optional, Bring Your Own Key via OpenRouter):</strong> if you choose to connect
           your own OpenRouter account and run a Script Analysis query, only the selected script context and your prompt
           are sent directly from your device to OpenRouter (never to Actors Lines servers). Every request enforces
-          strict Zero Data Retention (<code>zdr: true</code>, <code>data_collection: &quot;deny&quot;</code>,{" "}
-          <code>allow_fallbacks: false</code>) so providers neither store nor train on your script. Optional web
-          research for historical or dramatic context is off by default.
+          Zero Data Retention (<code>zdr: true</code>, <code>data_collection: &quot;deny&quot;</code>, with
+          ZDR-verified failover only) so ZDR endpoints do not train on or retain prompts under the request policy,
+          subject to your OpenRouter account privacy settings (at{" "}
+          <a href="https://openrouter.ai/settings/privacy" target="_blank" rel="noopener noreferrer">
+            openrouter.ai/settings/privacy
+          </a>
+          , selecting <strong>ZDR only</strong> avoids OpenRouter&apos;s default <em>Allow Safety Retention</em> up
+          to 90 days for flagged prompts, and client flags cannot override user-enabled account prompt logging).
+          Optional web research for historical or dramatic context is off by default.
         </li>
         <li>
           check for app updates and a small public status file, currently hosted on GitHub (we send no account or

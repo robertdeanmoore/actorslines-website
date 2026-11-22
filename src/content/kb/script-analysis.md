@@ -38,9 +38,13 @@ Analysis only ever reaches a provider that meets a strict privacy bar.
 - Every request enforces **Zero Data Retention** (`zdr: true`, `data_collection: "deny"`) and asks
   for high-integrity quantisation (`fp8`, `fp16`, `bf16`), with OpenRouter's live latency and
   throughput telemetry choosing between qualifying endpoints.
-- Your scripts and prompts are **never logged and never used to train AI models**.
+- Under the request policy, ZDR endpoints do not train on or retain your scripts and prompts,
+  subject to your OpenRouter account privacy settings (`https://openrouter.ai/settings/privacy`):
+  selecting **ZDR only** avoids OpenRouter's default *Allow Safety Retention* (up to 90 days for
+  flagged prompts), and client flags cannot override user-enabled account prompt logging.
 - If no healthy ZDR endpoint is available, Actors Lines refuses to quietly fall back to a
-  non-private provider. It stops rather than send your script somewhere it can't make that promise.
+  non-private provider (any failover stays strictly within ZDR-verified endpoints). It stops rather
+  than send your script somewhere without ZDR.
 
 ## Choosing a model
 
