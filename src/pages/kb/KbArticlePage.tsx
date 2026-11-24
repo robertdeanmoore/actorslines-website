@@ -2,7 +2,7 @@ import { Children, cloneElement, isValidElement, type ReactElement, type ReactNo
 import { Link, useParams } from "react-router-dom";
 import Markdown from "react-markdown";
 import { kbArticle } from "../../lib/kb";
-import YouTubeEmbed, { youTubeId } from "../../components/YouTubeEmbed";
+import { youTubeId } from "../../components/YouTubeEmbed";
 import { isNightTheme } from "../../lib/theme";
 import { Container } from "../../components/ui/Layout";
 import Callout from "../../components/ui/Callout";
@@ -113,7 +113,7 @@ export default function KbArticlePage() {
               const id = href ? youTubeId(href) : null;
               const isBare =
                 Array.isArray(children) ? children.join("") === href : children === href;
-              if (id && isBare) return <YouTubeEmbed id={id} title={article.title} />;
+              if (id && isBare) return <VideoCard videoId={id} title={article.title} headingLevel={2} />;
 
               // A relative "<slug>.md" link (how one KB article refers to another in its own
               // "Related" section) resolves against the browser's current URL, not the kb

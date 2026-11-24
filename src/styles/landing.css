@@ -22,6 +22,7 @@
     color: var(--fg-muted);
     font-size: 0.9375rem;
     line-height: 1.5;
+    text-wrap: pretty;
   }
   :where(.al-cta-band) {
     text-align: center;
@@ -49,6 +50,7 @@
     max-width: 60ch;
     color: var(--fg-muted);
     line-height: 1.6;
+    text-wrap: pretty;
   }
   /* ---- Notify card (night look only) ---- */
   :where(.al-notify__lead) {
