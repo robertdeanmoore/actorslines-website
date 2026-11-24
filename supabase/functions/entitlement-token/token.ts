@@ -5,6 +5,7 @@ import { SignJWT, importPKCS8 } from "npm:jose@5";
 
 export const TOKEN_TTL_SECONDS = 7 * 24 * 60 * 60; // 7 days -- docs/monetization/rules.md constants registry
 export const CLAIM_VERSION = 1;
+const TOUCH_LAST_SEEN_TIMEOUT_MS = 2000;
 
 export interface EntitlementsRow {
   ent: Record<string, unknown>;
@@ -96,13 +97,25 @@ export async function touchLastSeenBestEffort(
   updater: LastSeenUpdater,
   userId: string,
   nowIso: string = new Date().toISOString(),
+  timeoutMs: number = TOUCH_LAST_SEEN_TIMEOUT_MS,
 ): Promise<boolean> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
   try {
-    const { error } = await updater.updateLastSeen(userId, {
+    const updatePromise = updater.updateLastSeen(userId, {
       last_seen_at: nowIso,
       inactivity_warned_1_at: null,
       inactivity_warned_2_at: null,
     });
+    void updatePromise.catch(() => {});
+    const timeoutPromise = new Promise<"timeout">((resolve) => {
+      timer = setTimeout(() => resolve("timeout"), timeoutMs);
+    });
+    const result = await Promise.race([updatePromise, timeoutPromise]);
+    if (result === "timeout") {
+      console.warn(`[entitlement-token] last_seen_at update timed out for user=${userId}`);
+      return false;
+    }
+    const { error } = result;
     if (error) {
       console.warn(`[entitlement-token] last_seen_at update failed for user=${userId}: ${error.message}`);
       return false;
@@ -113,5 +126,7 @@ export async function touchLastSeenBestEffort(
       `[entitlement-token] last_seen_at update threw for user=${userId}: ${e instanceof Error ? e.message : String(e)}`,
     );
     return false;
+  } finally {
+    if (timer !== undefined) clearTimeout(timer);
   }
 }

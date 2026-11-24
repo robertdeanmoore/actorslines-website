@@ -99,6 +99,18 @@ Deno.test("touchLastSeenBestEffort returns false and does not throw when updater
   assertEquals(result, false);
 });
 
+Deno.test("touchLastSeenBestEffort times out cleanly when updater never resolves", async () => {
+  const updater: LastSeenUpdater = {
+    updateLastSeen() {
+      return new Promise(() => {});
+    },
+  };
+
+  const result = await touchLastSeenBestEffort(updater, "user-7", "2026-11-23T10:00:00.000Z", 20);
+
+  assertEquals(result, false);
+});
+
 // jose's generateKeyPair doesn't directly expose a PKCS8 exporter in one step for CryptoKey ->
 // PEM; this small helper round-trips through jose's own exportPKCS8 (which returns the PEM
 // string directly), matching what getPrivateKey() in token.ts expects to unwrap via atob().

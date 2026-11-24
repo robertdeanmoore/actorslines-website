@@ -41,7 +41,7 @@ export default function DeleteAccountPage() {
         <h2 id="al-delete-removed">What is deleted immediately</h2>
         <ul className="al-mkt-list">
           <li>
-            <strong>Account and sign-in details:</strong> your sign-in record (<code>auth.users</code>), profile
+            <strong>Account and sign-in details:</strong> your sign-in record, profile
             (email address and display name), two-factor authentication setup, and trusted-device tokens.
           </li>
           <li>
@@ -71,7 +71,7 @@ export default function DeleteAccountPage() {
           <li>
             <strong>Free-trial abuse-prevention record (24 months):</strong> when a free trial starts we store a
             one-way coded version of your email address (a keyed HMAC hash, not the email address itself) and the trial
-            start date in <code>trial_used</code>. If you delete your account we keep only that coded hash and trial
+            start date. If you delete your account we keep only that coded hash and trial
             start date for up to <strong>24 months</strong> from the trial start to prevent repeated free trials by
             deleting and re-creating an account, after which it is automatically deleted.
           </li>

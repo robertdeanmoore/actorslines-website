@@ -97,9 +97,9 @@ test("llms.txt: no claims the website contradicts (scripts on device only, on-de
   assert.match(txt, /computer-generated voices/);
 });
 
-test("routeMeta: /privacy, /terms, /login, /register have their own description", () => {
+test("routeMeta: /privacy, /delete-account, /terms, /login, /register have their own description", () => {
   const kb = () => undefined;
-  for (const p of ["/privacy", "/terms", "/login", "/register"]) {
+  for (const p of ["/privacy", "/delete-account", "/terms", "/login", "/register"]) {
     const m = routeMeta(p, kb);
     assert.notEqual(m.description, DEFAULT_DESCRIPTION, p);
     assert.ok(m.description.length > 10, p);
@@ -122,6 +122,7 @@ test("routeMeta: site defaults, static routes, KB articles", () => {
   const kb = (slug: string) => (slug === "demo" ? { title: "Demo article", summary: "A summary." } : undefined);
   assert.deepEqual(routeMeta("/", kb), { title: DEFAULT_TITLE, description: DEFAULT_DESCRIPTION });
   assert.equal(routeMeta("/privacy", kb).title, "Privacy Policy | Actors Lines");
+  assert.equal(routeMeta("/delete-account", kb).title, "Delete your account | Actors Lines");
   assert.equal(routeMeta("/kb/", kb).title, "Knowledge base | Actors Lines");
   assert.deepEqual(routeMeta("/kb/demo", kb), { title: "Demo article | Actors Lines", description: "A summary." });
   assert.deepEqual(routeMeta("/kb/missing", kb), { title: DEFAULT_TITLE, description: DEFAULT_DESCRIPTION });

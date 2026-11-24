@@ -1,4 +1,4 @@
-import LiteYouTube, { VIDEO_PRIVACY_NOTE, type VideoPoster } from "../tutorials/LiteYouTube";
+import LiteYouTube, { isValidVideoId, VIDEO_PRIVACY_NOTE, type VideoPoster } from "../tutorials/LiteYouTube";
 
 export { VIDEO_PRIVACY_NOTE };
 
@@ -26,7 +26,7 @@ export default function VideoCard({
   vertical?: boolean;
   headingLevel?: 2 | 3 | 4;
 }) {
-  if (!videoId || !/^[A-Za-z0-9_-]{11}$/.test(videoId)) return null;
+  if (!isValidVideoId(videoId)) return null;
 
   const Heading = `h${headingLevel}` as "h2" | "h3" | "h4";
   return (
