@@ -3,7 +3,15 @@
 
 import { assertEquals, assertExists } from "jsr:@std/assert@1";
 import { exportPKCS8, generateKeyPair, importPKCS8, jwtVerify } from "npm:jose@5";
-import { buildClaims, CLAIM_VERSION, signEntitlementToken, signSunsetDeclaration, TOKEN_TTL_SECONDS } from "./token.ts";
+import {
+  buildClaims,
+  CLAIM_VERSION,
+  signEntitlementToken,
+  signSunsetDeclaration,
+  TOKEN_TTL_SECONDS,
+  touchLastSeenBestEffort,
+  type LastSeenUpdater,
+} from "./token.ts";
 
 const NOW = 1_800_000_000;
 
@@ -45,6 +53,50 @@ Deno.test("sunset declaration: no exp claim by design", async () => {
   const { payload } = await jwtVerify(token, publicKey, { requiredClaims: ["sunset"] });
   assertEquals(payload.sunset, true);
   assertEquals("exp" in payload, false);
+});
+
+Deno.test("touchLastSeenBestEffort updates last_seen_at and clears warning stamps", async () => {
+  const calls: Array<{ userId: string; patch: { last_seen_at: string; inactivity_warned_1_at: null; inactivity_warned_2_at: null } }> = [];
+  const updater: LastSeenUpdater = {
+    updateLastSeen(userId, patch) {
+      calls.push({ userId, patch });
+      return Promise.resolve({ error: null });
+    },
+  };
+
+  const result = await touchLastSeenBestEffort(updater, "user-4", "2026-11-23T10:00:00.000Z");
+
+  assertEquals(result, true);
+  assertEquals(calls, [
+    {
+      userId: "user-4",
+      patch: { last_seen_at: "2026-11-23T10:00:00.000Z", inactivity_warned_1_at: null, inactivity_warned_2_at: null },
+    },
+  ]);
+});
+
+Deno.test("touchLastSeenBestEffort returns false and does not throw when Supabase returns an error", async () => {
+  const updater: LastSeenUpdater = {
+    updateLastSeen() {
+      return Promise.resolve({ error: { message: "db read-only" } });
+    },
+  };
+
+  const result = await touchLastSeenBestEffort(updater, "user-5", "2026-11-23T10:00:00.000Z");
+
+  assertEquals(result, false);
+});
+
+Deno.test("touchLastSeenBestEffort returns false and does not throw when updater rejects", async () => {
+  const updater: LastSeenUpdater = {
+    updateLastSeen() {
+      return Promise.reject(new Error("network reset"));
+    },
+  };
+
+  const result = await touchLastSeenBestEffort(updater, "user-6", "2026-11-23T10:00:00.000Z");
+
+  assertEquals(result, false);
 });
 
 // jose's generateKeyPair doesn't directly expose a PKCS8 exporter in one step for CryptoKey ->

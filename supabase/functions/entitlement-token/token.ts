@@ -74,3 +74,44 @@ export async function signSunsetDeclaration(kid: string, pkcs8Base64: string, no
     .setProtectedHeader({ alg: "ES256", kid })
     .sign(privateKey);
 }
+
+export interface LastSeenUpdater {
+  updateLastSeen(
+    userId: string,
+    patch: {
+      last_seen_at: string;
+      inactivity_warned_1_at: null;
+      inactivity_warned_2_at: null;
+    },
+  ): Promise<{ error: { message: string } | null }>;
+}
+
+/**
+ * DEF190(a): App-only users refresh their entitlement token via this edge function without visiting
+ * the website. Updating last_seen_at (and clearing any pending inactivity warning timestamps,
+ * matching public.touch_last_seen()) keeps active app users from being purged at 6 months.
+ * Fail-safe: logs and swallows any update error so token issuance is never blocked.
+ */
+export async function touchLastSeenBestEffort(
+  updater: LastSeenUpdater,
+  userId: string,
+  nowIso: string = new Date().toISOString(),
+): Promise<boolean> {
+  try {
+    const { error } = await updater.updateLastSeen(userId, {
+      last_seen_at: nowIso,
+      inactivity_warned_1_at: null,
+      inactivity_warned_2_at: null,
+    });
+    if (error) {
+      console.warn(`[entitlement-token] last_seen_at update failed for user=${userId}: ${error.message}`);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.warn(
+      `[entitlement-token] last_seen_at update threw for user=${userId}: ${e instanceof Error ? e.message : String(e)}`,
+    );
+    return false;
+  }
+}
