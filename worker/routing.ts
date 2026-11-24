@@ -46,6 +46,7 @@ export const KNOWN_ROUTES: readonly string[] = [
   "/",
   "/mobile-captcha",
   "/privacy",
+  "/delete-account",
   "/terms",
   "/_ui-gallery",
   "/tutorials",

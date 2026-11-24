@@ -68,7 +68,7 @@ export default function SupportPage() {
         <ul className="al-mkt-list">
           <li>Reset password: sign-in page, &quot;Forgot password&quot;.</li>
           <li>
-            Delete your account: Profile page. It removes your details, scripts, votes and requests; comments you wrote on other people&apos;s requests stay without your name; a coded version of your email address (not the address itself) and your trial start date are kept for 24 months to stop the free trial being repeated. See the <Link to="/privacy">privacy policy</Link>.
+            <Link to="/delete-account">Delete your account</Link>: Profile page. It removes your details, scripts, votes and requests; comments you wrote on other people&apos;s requests stay without your name; a coded version of your email address (not the address itself) and your trial start date are kept for 24 months to stop the free trial being repeated. See the <Link to="/privacy">privacy policy</Link>.
           </li>
           <li>
             Questions about privacy:{" "}

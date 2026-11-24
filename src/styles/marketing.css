@@ -35,13 +35,16 @@
     color: var(--fg);
     max-width: var(--measure-card);
   }
-  :where(.al-mkt p + p, .al-mkt p + ul, .al-mkt ul + p) {
+  :where(.al-mkt p + p, .al-mkt p + ul, .al-mkt ul + p, .al-mkt p + ol, .al-mkt ol + p) {
     margin-top: 0.75rem;
   }
   :where(.al-mkt-list) {
     margin-top: 0.75rem;
     padding-left: 1.25rem;
     list-style: disc;
+  }
+  :where(ol.al-mkt-list) {
+    list-style: decimal;
   }
   :where(.al-mkt-list li + li) {
     margin-top: 0.5rem;

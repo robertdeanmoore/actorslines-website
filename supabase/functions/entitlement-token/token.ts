@@ -5,6 +5,7 @@ import { SignJWT, importPKCS8 } from "npm:jose@5";
 
 export const TOKEN_TTL_SECONDS = 7 * 24 * 60 * 60; // 7 days -- docs/monetization/rules.md constants registry
 export const CLAIM_VERSION = 1;
+const TOUCH_LAST_SEEN_TIMEOUT_MS = 2000;
 
 export interface EntitlementsRow {
   ent: Record<string, unknown>;
@@ -73,4 +74,59 @@ export async function signSunsetDeclaration(kid: string, pkcs8Base64: string, no
   return await new SignJWT({ sunset: true, iat: nowEpochSeconds })
     .setProtectedHeader({ alg: "ES256", kid })
     .sign(privateKey);
+}
+
+export interface LastSeenUpdater {
+  updateLastSeen(
+    userId: string,
+    patch: {
+      last_seen_at: string;
+      inactivity_warned_1_at: null;
+      inactivity_warned_2_at: null;
+    },
+  ): Promise<{ error: { message: string } | null }>;
+}
+
+/**
+ * DEF190(a): App-only users refresh their entitlement token via this edge function without visiting
+ * the website. Updating last_seen_at (and clearing any pending inactivity warning timestamps,
+ * matching public.touch_last_seen()) keeps active app users from being purged at 6 months.
+ * Fail-safe: logs and swallows any update error so token issuance is never blocked.
+ */
+export async function touchLastSeenBestEffort(
+  updater: LastSeenUpdater,
+  userId: string,
+  nowIso: string = new Date().toISOString(),
+  timeoutMs: number = TOUCH_LAST_SEEN_TIMEOUT_MS,
+): Promise<boolean> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    const updatePromise = updater.updateLastSeen(userId, {
+      last_seen_at: nowIso,
+      inactivity_warned_1_at: null,
+      inactivity_warned_2_at: null,
+    });
+    void updatePromise.catch(() => {});
+    const timeoutPromise = new Promise<"timeout">((resolve) => {
+      timer = setTimeout(() => resolve("timeout"), timeoutMs);
+    });
+    const result = await Promise.race([updatePromise, timeoutPromise]);
+    if (result === "timeout") {
+      console.warn(`[entitlement-token] last_seen_at update timed out for user=${userId}`);
+      return false;
+    }
+    const { error } = result;
+    if (error) {
+      console.warn(`[entitlement-token] last_seen_at update failed for user=${userId}: ${error.message}`);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.warn(
+      `[entitlement-token] last_seen_at update threw for user=${userId}: ${e instanceof Error ? e.message : String(e)}`,
+    );
+    return false;
+  } finally {
+    if (timer !== undefined) clearTimeout(timer);
+  }
 }

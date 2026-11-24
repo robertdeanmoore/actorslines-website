@@ -32,6 +32,7 @@ import TutorialsPage from "./pages/TutorialsPage";
 import FeaturesPage from "./pages/FeaturesPage";
 import FaqPage from "./pages/FaqPage";
 import SupportPage from "./pages/SupportPage";
+import DeleteAccountPage from "./pages/DeleteAccountPage";
 import NotFound from "./components/ui/NotFound";
 
 export default function App() {
@@ -41,6 +42,7 @@ export default function App() {
       <Route element={<Layout />}>
         <Route path="/" element={<LandingPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/delete-account" element={<DeleteAccountPage />} />
         <Route path="/terms" element={<TermsPage />} />
         {/* Preview/dev only: component gallery for WIP 257 slice 2. Redirects home on production hosts. */}
         <Route path="/_ui-gallery" element={<UiGalleryRoute />} />

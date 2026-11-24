@@ -11,7 +11,12 @@
 //          ENTITLEMENT_KEY_ID (e.g. "al-2026-1")
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
-import { buildClaims, signEntitlementToken, type EntitlementsRow } from "./token.ts";
+import {
+  buildClaims,
+  signEntitlementToken,
+  touchLastSeenBestEffort,
+  type EntitlementsRow,
+} from "./token.ts";
 
 // The live site is reachable at both the bare and www domains (neither redirects to the
 // other), so CORS must allow whichever one the request actually came from.
@@ -62,6 +67,15 @@ Deno.serve(async (req) => {
     if (!kid || !signingKeyB64) {
       return fail(500, "signing_error", "Signing key not configured (see SETUP.md S11)");
     }
+
+    // DEF190(a): record app activity on profiles.last_seen_at (fail-safe; never blocks token issue).
+    await touchLastSeenBestEffort(
+      {
+        updateLastSeen: async (uid, patch) =>
+          await admin.from("profiles").update(patch).eq("id", uid),
+      },
+      user.id,
+    );
 
     const nowEpochSeconds = Math.floor(Date.now() / 1000);
     const claims = buildClaims(user.id, row, nowEpochSeconds);
