@@ -13,7 +13,7 @@
   :where(.al-prose > * + *) {
     margin-top: 1rem;
   }
-  :where(.al-prose h2) {
+  :where(.al-prose h2:not(.al-video__title)) {
     margin-top: 2rem;
     font-family: var(--al-font-display);
     font-weight: 600;
@@ -29,7 +29,7 @@
     line-height: 1.35;
     color: var(--fg);
   }
-  :where(.al-prose p, .al-prose li) {
+  :where(.al-prose p:not(.al-video__duration):not(.al-video__desc):not(.al-lite__fallback), .al-prose li) {
     color: var(--fg);
   }
   :where(.al-prose__meta) {

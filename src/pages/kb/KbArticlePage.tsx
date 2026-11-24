@@ -1,6 +1,6 @@
 import { Children, cloneElement, isValidElement, type ReactElement, type ReactNode } from "react";
 import { Link, useParams } from "react-router-dom";
-import Markdown from "react-markdown";
+import Markdown, { type ExtraProps } from "react-markdown";
 import { kbArticle } from "../../lib/kb";
 import { youTubeId } from "../../components/YouTubeEmbed";
 import { isNightTheme } from "../../lib/theme";
@@ -9,6 +9,22 @@ import Callout from "../../components/ui/Callout";
 import VideoCard, { VIDEO_PRIVACY_NOTE } from "../../components/ui/VideoCard";
 
 const CALLOUT_LEAD = /^(Tip|Note):$/;
+
+/**
+ * If the paragraph is a bare YouTube link (react-markdown renders it as <p><a href=…>same text</a></p>),
+ * return the video id, else null.
+ */
+function bareYouTubeIdFromParagraph(node: ExtraProps["node"]): string | null {
+  const children = node?.children;
+  if (!children || children.length !== 1) return null;
+  const child = children[0];
+  if (child.type !== "element" || child.tagName !== "a") return null;
+  const href = child.properties?.href;
+  if (typeof href !== "string") return null;
+  if (child.children.length !== 1 || child.children[0].type !== "text") return null;
+  if (child.children[0].value !== href) return null;
+  return youTubeId(href) || null;
+}
 
 /**
  * A blockquote that opens with a bold "Tip:" or "Note:" (how the KB articles mark asides) becomes a
@@ -66,14 +82,14 @@ export default function KbArticlePage() {
         <div className="al-prose mt-6">
           <Markdown
             components={{
-              // A bare YouTube link on its own line becomes a click-to-load card (nothing is
+              // A bare YouTube link on its own line becomes a click-to-play video card (nothing is
               // requested from YouTube until the viewer presses play).
+              p: ({ node, children }) => {
+                const id = bareYouTubeIdFromParagraph(node);
+                if (id) return <VideoCard videoId={id} title={article.title} headingLevel={2} />;
+                return <p>{children}</p>;
+              },
               a: ({ href, children }) => {
-                const id = href ? youTubeId(href) : null;
-                const isBare =
-                  Array.isArray(children) ? children.join("") === href : children === href;
-                if (id && isBare) return <VideoCard videoId={id} title={article.title} headingLevel={2} />;
-
                 const kbSlug = href ? /^\.?\/?([\w-]+)\.md$/.exec(href)?.[1] : null;
                 if (kbSlug) return <Link to={`/kb/${kbSlug}`}>{children}</Link>;
 
@@ -101,20 +117,21 @@ export default function KbArticlePage() {
       <h1 className="mt-2 text-2xl font-bold text-brand">{article.title}</h1>
       {article.date && <p className="mt-1 text-xs text-gray-400">{article.date}</p>}
       <div className="mt-6 space-y-4 text-[15px] leading-relaxed text-gray-800
-        [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-brand [&_h2]:mt-6
+        [&_h2:not(.al-video__title)]:text-lg [&_h2:not(.al-video__title)]:font-semibold [&_h2:not(.al-video__title)]:text-brand [&_h2:not(.al-video__title)]:mt-6
         [&_h3]:font-semibold [&_h3]:mt-4
         [&_ul]:list-disc [&_ul]:ml-5 [&_ol]:list-decimal [&_ol]:ml-5
         [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:italic
         [&_img]:max-w-full [&_img]:rounded-lg">
         <Markdown
           components={{
-            // A bare YouTube link on its own line becomes an embedded player.
+            // A bare YouTube link on its own line becomes a click-to-play video card (nothing is
+            // requested from YouTube until the viewer presses play).
+            p: ({ node, children }) => {
+              const id = bareYouTubeIdFromParagraph(node);
+              if (id) return <VideoCard videoId={id} title={article.title} headingLevel={2} />;
+              return <p>{children}</p>;
+            },
             a: ({ href, children }) => {
-              const id = href ? youTubeId(href) : null;
-              const isBare =
-                Array.isArray(children) ? children.join("") === href : children === href;
-              if (id && isBare) return <VideoCard videoId={id} title={article.title} headingLevel={2} />;
-
               // A relative "<slug>.md" link (how one KB article refers to another in its own
               // "Related" section) resolves against the browser's current URL, not the kb
               // route table — always 404s. Route it through /kb/<slug> instead.
