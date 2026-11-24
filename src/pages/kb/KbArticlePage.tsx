@@ -117,7 +117,7 @@ export default function KbArticlePage() {
       <h1 className="mt-2 text-2xl font-bold text-brand">{article.title}</h1>
       {article.date && <p className="mt-1 text-xs text-gray-400">{article.date}</p>}
       <div className="mt-6 space-y-4 text-[15px] leading-relaxed text-gray-800
-        [&_h2:not(.al-video__title)]:text-lg [&_h2:not(.al-video__title)]:font-semibold [&_h2:not(.al-video__title)]:text-brand [&_h2:not(.al-video__title)]:mt-6
+        [&_h2:not([class*='al-video'])]:text-lg [&_h2:not([class*='al-video'])]:font-semibold [&_h2:not([class*='al-video'])]:text-brand [&_h2:not([class*='al-video'])]:mt-6
         [&_h3]:font-semibold [&_h3]:mt-4
         [&_ul]:list-disc [&_ul]:ml-5 [&_ol]:list-decimal [&_ol]:ml-5
         [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:italic
