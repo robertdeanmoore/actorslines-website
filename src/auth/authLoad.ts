@@ -75,6 +75,21 @@ export function requireAal(res: AalResponse): NonNullable<AalResponse["data"]> {
   return res.data;
 }
 
+/**
+ * Reads the live session from the auth client (bounded) and hands THAT to `load`. Callers
+ * must never pass a session captured by a React render closure: right after a sign-in the
+ * closure still holds the pre-login value, and a forced load with it would sign the UI out.
+ * A failed or timed-out read rejects without calling `load` (fail closed).
+ */
+export async function loadWithLiveSession<S>(
+  getSession: () => PromiseLike<{ data: { session: S | null } }>,
+  load: (session: S | null) => Promise<void>,
+  timeoutMs: number = AUTH_LOAD_TIMEOUT_MS,
+): Promise<void> {
+  const { data } = await withTimeout(getSession(), timeoutMs, "Reading session");
+  await load(data.session);
+}
+
 export interface LoadCoordinator {
   /**
    * Runs `work` for `key`. A call with the same key as a load still in flight shares that

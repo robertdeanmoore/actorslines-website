@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { AUTH_LOAD_ERROR, createLoadCoordinator, loadAuthState, requireAal, withTimeout } from "./authLoad.ts";
+import { AUTH_LOAD_ERROR, createLoadCoordinator, loadAuthState, loadWithLiveSession, requireAal, withTimeout } from "./authLoad.ts";
 import type { AuthLoadDeps } from "./authLoad.ts";
 
 const profileRow = { id: "u1", role: "member" };
@@ -122,4 +122,27 @@ test("coordinator generation moves only when a new load starts", async () => {
   const q = c.run("k", async () => {});
   await Promise.all([p, q]);
   assert.equal(c.generation(), g0 + 1);
+});
+
+test("loadWithLiveSession hands the live session to load, never a stale one", async () => {
+  const stale = { id: "stale-null-or-aal1" };
+  const live = { id: "live-after-login" };
+  const seen: unknown[] = [];
+  await loadWithLiveSession(async () => ({ data: { session: live } }), async (s) => { seen.push(s); });
+  assert.deepEqual(seen, [live]);
+  assert.notEqual(seen[0], stale);
+});
+
+test("loadWithLiveSession passes a signed-out null through", async () => {
+  const seen: unknown[] = [];
+  await loadWithLiveSession(async () => ({ data: { session: null } }), async (s) => { seen.push(s); });
+  assert.deepEqual(seen, [null]);
+});
+
+test("loadWithLiveSession fails closed on a rejected or hung read, load never runs", async () => {
+  let ran = false;
+  const load = async () => { ran = true; };
+  await assert.rejects(loadWithLiveSession(() => Promise.reject(new Error("net")), load));
+  await assert.rejects(loadWithLiveSession(never, load, 30), /timed out/);
+  assert.equal(ran, false);
 });

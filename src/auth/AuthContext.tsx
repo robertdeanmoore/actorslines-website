@@ -5,7 +5,7 @@ import { supabase, supabaseConfigured } from "../lib/supabase";
 import type { Profile } from "../lib/types";
 import { checkTrusted, clearToken } from "./trustedDevice";
 import {
-  AUTH_LOAD_ERROR, AUTH_LOAD_TIMEOUT_MS, createLoadCoordinator, loadAuthState, requireAal, withTimeout,
+  AUTH_LOAD_ERROR, createLoadCoordinator, loadAuthState, loadWithLiveSession, requireAal,
 } from "./authLoad";
 
 interface AuthState {
@@ -64,8 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function bootstrap(force = false) {
     const startGen = loads.generation();
     try {
-      const { data } = await withTimeout(supabase.auth.getSession(), AUTH_LOAD_TIMEOUT_MS, "Reading session");
-      await loadProfile(data.session, force);
+      await loadWithLiveSession(() => supabase.auth.getSession(), (live) => loadProfile(live, force));
     } catch {
       if (loads.generation() === startGen) { // no newer load has taken over
         setError(AUTH_LOAD_ERROR);
@@ -91,7 +90,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         session, profile, loading, needsMfa, error,
         retry: async () => { setError(null); setLoading(true); await bootstrap(true); },
-        refreshProfile: () => loadProfile(session, true),
+        // Reads the live session, not this render's `session`, which is stale right after sign-in.
+        refreshProfile: () => bootstrap(true),
         signOut: async () => { clearToken(); await supabase.auth.signOut(); },
       }}
     >
