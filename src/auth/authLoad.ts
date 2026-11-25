@@ -63,3 +63,42 @@ export async function loadAuthState(
     return { status: "error", message: AUTH_LOAD_ERROR };
   }
 }
+
+export interface AalResponse {
+  data: { currentLevel?: string | null; nextLevel?: string | null } | null;
+  error: unknown;
+}
+
+/** Fail closed: an errored or empty AAL answer must never read as "no 2FA needed". */
+export function requireAal(res: AalResponse): NonNullable<AalResponse["data"]> {
+  if (res.error || !res.data) throw new Error("Could not read the authentication level");
+  return res.data;
+}
+
+export interface LoadCoordinator {
+  /**
+   * Runs `work` for `key`. A call with the same key as a load still in flight shares that
+   * load (one network round of requests) unless `force`. `work` receives `isCurrent`, which
+   * turns false once a newer load has started, so a stale load can skip its state writes.
+   */
+  run<T>(key: string, work: (isCurrent: () => boolean) => Promise<T>, force?: boolean): Promise<T>;
+  /** Number of loads started so far; changes whenever a newer load starts. */
+  generation(): number;
+}
+
+export function createLoadCoordinator(): LoadCoordinator {
+  let gen = 0;
+  let inflight: { key: string; promise: Promise<unknown> } | null = null;
+  return {
+    run<T>(key: string, work: (isCurrent: () => boolean) => Promise<T>, force = false): Promise<T> {
+      if (!force && inflight && inflight.key === key) return inflight.promise as Promise<T>;
+      const mine = ++gen;
+      const promise: Promise<T> = work(() => gen === mine).finally(() => {
+        if (inflight && inflight.promise === promise) inflight = null;
+      });
+      inflight = { key, promise };
+      return promise;
+    },
+    generation: () => gen,
+  };
+}

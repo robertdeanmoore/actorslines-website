@@ -1,10 +1,12 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase, supabaseConfigured } from "../lib/supabase";
 import type { Profile } from "../lib/types";
 import { checkTrusted, clearToken } from "./trustedDevice";
-import { AUTH_LOAD_ERROR, AUTH_LOAD_TIMEOUT_MS, loadAuthState, withTimeout } from "./authLoad";
+import {
+  AUTH_LOAD_ERROR, AUTH_LOAD_TIMEOUT_MS, createLoadCoordinator, loadAuthState, requireAal, withTimeout,
+} from "./authLoad";
 
 interface AuthState {
   session: Session | null;
@@ -33,39 +35,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(supabaseConfigured);
   const [error, setError] = useState<string | null>(null);
 
-  async function loadProfile(s: Session | null) {
-    const result = await loadAuthState(s?.user.id ?? null, {
-      getAal: async () => (await supabase.auth.mfa.getAuthenticatorAssuranceLevel()).data,
-      checkTrusted,
-      fetchProfile: (id) => supabase.from("profiles").select("*").eq("id", id).single(),
-    });
-    setNeedsMfa(result.status === "mfa");
-    setProfile(result.status === "ok" ? result.profile : null);
-    setError(result.status === "error" ? result.message : null);
-    if (result.status === "ok") {
-      // Best effort and off the critical path: a slow heartbeat must not hold the page.
-      void Promise.resolve(supabase.rpc("touch_last_seen")).catch(() => {});
-    }
+  // One coordinator for the provider's life: dedupes same-session loads and orders writes.
+  const loads = useRef(createLoadCoordinator()).current;
+
+  // The first load for a session key is shared by the bootstrap and INITIAL_SESSION paths
+  // (one profiles select, one touch_last_seen). `force` always starts a fresh load.
+  function loadProfile(s: Session | null, force = false): Promise<void> {
+    const key = s ? `${s.user.id}:${s.access_token}` : "signed-out";
+    return loads.run(key, async (isCurrent) => {
+      if (isCurrent()) setSession(s);
+      const result = await loadAuthState(s?.user.id ?? null, {
+        getAal: async () => requireAal(await supabase.auth.mfa.getAuthenticatorAssuranceLevel()),
+        checkTrusted,
+        fetchProfile: (id) => supabase.from("profiles").select("*").eq("id", id).single(),
+      });
+      if (!isCurrent()) return; // a newer load owns the state now
+      setNeedsMfa(result.status === "mfa");
+      setProfile(result.status === "ok" ? result.profile : null);
+      setError(result.status === "error" ? result.message : null);
+      setLoading(false);
+      if (result.status === "ok") {
+        // Best effort and off the critical path: a slow heartbeat must not hold the page.
+        void Promise.resolve(supabase.rpc("touch_last_seen")).catch(() => {});
+      }
+    }, force);
   }
 
-  async function bootstrap() {
+  async function bootstrap(force = false) {
+    const startGen = loads.generation();
     try {
       const { data } = await withTimeout(supabase.auth.getSession(), AUTH_LOAD_TIMEOUT_MS, "Reading session");
-      setSession(data.session);
-      await loadProfile(data.session);
+      await loadProfile(data.session, force);
     } catch {
-      setError(AUTH_LOAD_ERROR);
-    } finally {
-      setLoading(false);
+      if (loads.generation() === startGen) { // no newer load has taken over
+        setError(AUTH_LOAD_ERROR);
+        setLoading(false);
+      }
     }
   }
 
   useEffect(() => {
     if (!supabaseConfigured) return;
     void bootstrap();
-    const { data: sub } = supabase.auth.onAuthStateChange(async (_event, s) => {
-      setSession(s);
-      await loadProfile(s);
+    // Do not call supabase.auth.* inside this callback: supabase-js holds an internal lock
+    // while it runs, so awaiting another auth call here can deadlock. Defer to a new task.
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
+      setTimeout(() => { void loadProfile(s); }, 0);
     });
     return () => sub.subscription.unsubscribe();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -75,8 +90,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider
       value={{
         session, profile, loading, needsMfa, error,
-        retry: async () => { setError(null); setLoading(true); await bootstrap(); },
-        refreshProfile: () => loadProfile(session),
+        retry: async () => { setError(null); setLoading(true); await bootstrap(true); },
+        refreshProfile: () => loadProfile(session, true),
         signOut: async () => { clearToken(); await supabase.auth.signOut(); },
       }}
     >
