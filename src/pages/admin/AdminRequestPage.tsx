@@ -5,13 +5,14 @@ import { supabase } from "../../lib/supabase";
 import type {
   AiReport, BoardPost, DevNote, EnhancementRequest, RequestMessage, RequestStatus,
 } from "../../lib/types";
+import { KIND_LABELS } from "../../lib/types";
 import StatusBadge from "../../components/StatusBadge";
 import { isNightTheme } from "../../lib/theme";
 import { Container } from "../../components/ui/Layout";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import LinkButton from "../../components/ui/LinkButton";
-import { StatusBadge as UiStatusBadge } from "../../components/ui/Badge";
+import { Badge, StatusBadge as UiStatusBadge } from "../../components/ui/Badge";
 import Callout from "../../components/ui/Callout";
 import { Field, Input, Textarea } from "../../components/ui/Field";
 import { LoadingState } from "../../components/ui/States";
@@ -136,6 +137,7 @@ export default function AdminRequestPage() {
           <div className="al-title-row">
             <h1 className="al-page-title">#{request.id} {request.title}</h1>
             <UiStatusBadge status={request.status} />
+            <Badge tone={request.kind === "support" ? "warn" : "info"}>{KIND_LABELS[request.kind ?? "enhancement"]}</Badge>
           </div>
           <LinkButton to="/admin" variant="ghost" className="al-back">← Queue</LinkButton>
         </div>

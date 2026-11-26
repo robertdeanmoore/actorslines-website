@@ -73,7 +73,8 @@ test("request body: workhorse routing as is, privacy flags, no identity, redacti
   assert.ok(!user.includes("7700"));
   assert.ok(!/author|user_id|email"/.test(user.replace("[email removed]", "")));
   const parsed = JSON.parse(user);
-  assert.deepEqual(Object.keys(parsed.request).sort(), ["goal", "how", "notes", "title", "usage", "where"]);
+  assert.deepEqual(Object.keys(parsed.request).sort(), ["goal", "how", "kind", "notes", "title", "usage", "where"]);
+  assert.equal(parsed.request.kind, "enhancement");  // REQ has no kind: older rows read as enhancement
   assert.equal(parsed.other_requests[1].goal.length, 300);
   assert.deepEqual(Object.keys(parsed.other_requests[0]).sort(), ["goal", "id", "title"]);
   assert.equal(state.sentHeaders[0].Authorization, "Bearer test-key-not-real");
