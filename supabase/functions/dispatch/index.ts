@@ -4,7 +4,8 @@
 // Callers (all must be signed in):
 //   { "action": "submit-request",      "turnstileToken": "...", "title": "...", "goal": "...",
 //                                       "where_in_app": "...", "how_it_works": "...",
-//                                       "usage_frequency": "...", "extra_notes": "..." }
+//                                       "usage_frequency": "...", "extra_notes": "...",
+//                                       "kind": "enhancement" | "support" (optional, default enhancement) }
 //        Saves the request (service role; clients cannot insert directly since migration 0024),
 //        emails Robert, and starts triage in the background. One Turnstile token covers all of it.
 //   { "action": "triage-report",       "request_id": 123, "turnstileToken": "..." }
@@ -20,7 +21,7 @@
 //                          the email is skipped with a log line; the request still saves.
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
-import { captchaRequired, TRIAGE_REQUEST_WINDOW, triageRequestBucket } from "./policy.ts";
+import { captchaRequired, kindLabel, parseKind, TRIAGE_REQUEST_WINDOW, triageRequestBucket } from "./policy.ts";
 import { FAILURE_PREFIX, runTriage, type TriageDeps } from "./triage.ts";
 
 const ALLOWED_ACTIONS = ["submit-request", "triage-report"];
@@ -78,7 +79,7 @@ function triageDeps(admin: ReturnType<typeof createClient>): TriageDeps {
     fetch,
     apiKey: Deno.env.get("OPENROUTER_API_KEY_TRIAGE") ?? "",
     loadRequest: async (id) => must(await admin.from("enhancement_requests")
-      .select("id, title, goal, where_in_app, how_it_works, usage_frequency, extra_notes")
+      .select("id, kind, title, goal, where_in_app, how_it_works, usage_frequency, extra_notes")
       .eq("id", id).maybeSingle()) as never,
     loadOthers: async (id) => {
       const { data, error } = await admin.from("enhancement_requests").select("id, title, goal")
@@ -195,6 +196,8 @@ Deno.serve(async (req) => {
     const isAdmin = profile?.role === "admin";
 
     if (action === "submit-request") {
+      const kind = parseKind(body.kind);
+      if (!kind) return fail(400, 'Field "kind" must be "enhancement" or "support"');
       const clean: Record<string, string> = {};
       for (const [key, [min, max]] of Object.entries(LIMITS)) {
         const v = typeof body[key] === "string" ? body[key].trim() : "";
@@ -213,7 +216,7 @@ Deno.serve(async (req) => {
       }
 
       const { data: created, error: insErr } = await admin
-        .from("enhancement_requests").insert({ author_id: user.id, ...clean }).select("id").single();
+        .from("enhancement_requests").insert({ author_id: user.id, kind, ...clean }).select("id").single();
       if (insErr || !created) {
         console.error(`[dispatch] request insert failed code=${insErr?.code ?? "unknown"}`);
         return fail(500, "Could not save your suggestion");
@@ -225,8 +228,8 @@ Deno.serve(async (req) => {
         const subjectTitle = clean.title.replace(/[\r\n]+/g, " ").slice(0, 80);
         await sendEmail(
           notify,
-          `New enhancement request #${created.id}: ${subjectTitle}`,
-          `A member submitted a new enhancement request.\n\nTitle: ${clean.title}\n\n` +
+          `New ${kindLabel(kind).toLowerCase()} request #${created.id} [${kindLabel(kind)}]: ${subjectTitle}`,
+          `A member submitted a new ${kindLabel(kind).toLowerCase()} request.\n\nType: ${kindLabel(kind)}\nTitle: ${clean.title}\n\n` +
           `Goal: ${clean.goal.slice(0, 600)}\n\nReview it: ${SITE_URL}/admin/requests/${created.id}\n`,
         ).catch((e) => console.error("[dispatch] notify email threw", e));
       } else {

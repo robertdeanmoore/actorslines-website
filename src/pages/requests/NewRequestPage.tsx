@@ -9,6 +9,7 @@ import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import Callout from "../../components/ui/Callout";
 import { Field, Input, Select, Textarea } from "../../components/ui/Field";
+import type { RequestKind } from "../../lib/types";
 
 const FREQUENCIES = [
   "Every session", "Most sessions", "Occasionally", "Rarely, but it matters when I need it",
@@ -16,6 +17,7 @@ const FREQUENCIES = [
 
 export default function NewRequestPage() {
   const navigate = useNavigate();
+  const [kind, setKind] = useState<RequestKind>("enhancement");
   const [title, setTitle] = useState("");
   const [goal, setGoal] = useState("");
   const [whereInApp, setWhereInApp] = useState("");
@@ -27,6 +29,7 @@ export default function NewRequestPage() {
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const turnstileRef = useRef<TurnstileInstance>(null);
   const widgetSize = useNightWidgetSize();
+  const support = kind === "support";
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -41,6 +44,7 @@ export default function NewRequestPage() {
     const { data, error: fnErr } = await supabase.functions.invoke("dispatch", {
       body: {
         action: "submit-request",
+        kind,
         turnstileToken: captchaToken,
         title: title.trim(),
         goal: goal.trim(),
@@ -73,17 +77,27 @@ export default function NewRequestPage() {
     return (
       <Container size="formWide" className="al-members">
         <Card as="div" tone="dense">
-          <h1 className="al-page-title">Suggest an enhancement</h1>
+          <h1 className="al-page-title">{support ? "Report a problem" : "Suggest an enhancement"}</h1>
           <p className="al-page-intro">
-            Tell us what would make Actors Lines better for you. No technical knowledge
-            needed — describe it the way you'd describe it to another actor. Our system
-            reviews every suggestion and the strongest go to a community vote.{" "}
+            {support
+              ? "Tell us what went wrong, in your own words, and what you were doing just before it happened. Our system reads every report first, then it comes to us. "
+              : "Tell us what would make Actors Lines better for you. No technical knowledge needed — describe it the way you'd describe it to another actor. Our system reviews every suggestion and the strongest go to a community vote. "}
             <Link to="/requests" className="al-back-link">See your previous requests</Link>.
           </p>
           {error && <Callout tone="error" className="mt-4">{error}</Callout>}
 
           <form onSubmit={submit} className="mt-6">
-            <Field label="A short title for your idea *">
+            <Field label="What kind of request is this?"
+              help="Support: something is wrong. Enhancement: something to improve.">
+              {(control) => (
+                <Select {...control} value={kind} onChange={(e) => setKind(e.target.value as RequestKind)}>
+                  <option value="enhancement">Enhancement: something to improve</option>
+                  <option value="support">Support: something is wrong</option>
+                </Select>
+              )}
+            </Field>
+
+            <Field label={support ? "A short title for the problem *" : "A short title for your idea *"}>
               {(control) => (
                 <Input {...control} required minLength={5} maxLength={80} value={title}
                   onChange={(e) => setTitle(e.target.value)}
@@ -91,8 +105,10 @@ export default function NewRequestPage() {
               )}
             </Field>
 
-            <Field label="What are you trying to achieve? *"
-              help="The problem or wish — not the solution. What's getting in your way today?">
+            <Field label={support ? "What went wrong? *" : "What are you trying to achieve? *"}
+              help={support
+                ? "What happened, and what did you expect to happen instead?"
+                : "The problem or wish — not the solution. What's getting in your way today?"}>
               {(control) => (
                 <Textarea {...control} required rows={3} maxLength={2000} value={goal}
                   onChange={(e) => setGoal(e.target.value)}
@@ -100,7 +116,7 @@ export default function NewRequestPage() {
               )}
             </Field>
 
-            <Field label="Where in the app would this fit? *"
+            <Field label={support ? "Where in the app did it happen? *" : "Where in the app would this fit? *"}
               help="Name the screen or moment — Practice, the scene list, importing…">
               {(control) => (
                 <Input {...control} required minLength={10} maxLength={300} value={whereInApp}
@@ -109,8 +125,10 @@ export default function NewRequestPage() {
               )}
             </Field>
 
-            <Field label="How might it work? *"
-              help="Your best guess is fine — a slider? a button? something automatic?">
+            <Field label={support ? "What were you doing when it happened? *" : "How might it work? *"}
+              help={support
+                ? "The steps you took, as best you remember them."
+                : "Your best guess is fine — a slider? a button? something automatic?"}>
               {(control) => (
                 <Textarea {...control} required rows={3} maxLength={2000} value={howItWorks}
                   onChange={(e) => setHowItWorks(e.target.value)}
@@ -118,7 +136,7 @@ export default function NewRequestPage() {
               )}
             </Field>
 
-            <Field label="How often would you use it?">
+            <Field label={support ? "How often does it happen? (optional)" : "How often would you use it?"}>
               {(control) => (
                 <Select {...control} value={frequency} onChange={(e) => setFrequency(e.target.value)}>
                   <option value="">Choose…</option>
