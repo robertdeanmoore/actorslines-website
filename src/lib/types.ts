@@ -2,6 +2,13 @@ export type RequestStatus =
   | "submitted" | "reported" | "published" | "planned" | "ready_for_dev"
   | "implemented" | "closed" | "rejected" | "abandoned";
 
+export type RequestKind = "enhancement" | "support";
+
+export const KIND_LABELS: Record<RequestKind, string> = {
+  enhancement: "Enhancement",
+  support: "Support",
+};
+
 export interface Profile {
   id: string;
   display_name: string;
@@ -14,6 +21,7 @@ export interface EnhancementRequest {
   id: number;
   author_id: string;
   status: RequestStatus;
+  kind: RequestKind;
   title: string;
   goal: string;
   where_in_app: string;

@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
-import type { EnhancementRequest, RequestStatus } from "../../lib/types";
-import { STATUS_LABELS } from "../../lib/types";
+import type { EnhancementRequest, RequestKind, RequestStatus } from "../../lib/types";
+import { KIND_LABELS, STATUS_LABELS } from "../../lib/types";
 import StatusBadge from "../../components/StatusBadge";
 import { isNightTheme } from "../../lib/theme";
 import { Container } from "../../components/ui/Layout";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import LinkButton from "../../components/ui/LinkButton";
-import { StatusBadge as UiStatusBadge } from "../../components/ui/Badge";
+import { Badge, StatusBadge as UiStatusBadge } from "../../components/ui/Badge";
 import { LoadingState, EmptyState } from "../../components/ui/States";
 
 const FILTERS: (RequestStatus | "all")[] = [
@@ -17,20 +17,24 @@ const FILTERS: (RequestStatus | "all")[] = [
   "closed", "rejected",
 ];
 
+const KIND_FILTERS: (RequestKind | "all")[] = ["all", "support", "enhancement"];
+
 export default function AdminQueuePage() {
   const [requests, setRequests] = useState<EnhancementRequest[]>([]);
   const [filter, setFilter] = useState<RequestStatus | "all">("all");
+  const [kindFilter, setKindFilter] = useState<RequestKind | "all">("all");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let q = supabase.from("enhancement_requests").select("*")
       .order("created_at", { ascending: false });
     if (filter !== "all") q = q.eq("status", filter);
+    if (kindFilter !== "all") q = q.eq("kind", kindFilter);
     q.then(({ data }) => {
       setRequests((data as EnhancementRequest[]) ?? []);
       setLoading(false);
     });
-  }, [filter]);
+  }, [filter, kindFilter]);
 
   if (isNightTheme()) {
     // Night look: same filter state, query effect, handlers and link targets as the legacy block below.
@@ -46,6 +50,14 @@ export default function AdminQueuePage() {
               </Button>
             ))}
           </div>
+          <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label="Filter by type">
+            {KIND_FILTERS.map((k) => (
+              <Button key={k} variant={kindFilter === k ? "primary" : "secondary"}
+                aria-pressed={kindFilter === k} onClick={() => setKindFilter(k)}>
+                {k === "all" ? "All types" : KIND_LABELS[k]}
+              </Button>
+            ))}
+          </div>
           <div className="mt-6">
             {loading && <LoadingState label="Loading…" />}
             {!loading && requests.length === 0 && (
@@ -57,6 +69,7 @@ export default function AdminQueuePage() {
                   <Card key={r.id} as="li" to={`/admin/requests/${r.id}`} title={r.title}>
                     <div className="mt-2 flex items-center gap-3">
                       <UiStatusBadge status={r.status} />
+                      <Badge tone={r.kind === "support" ? "warn" : "info"}>{KIND_LABELS[r.kind ?? "enhancement"]}</Badge>
                       <span className="text-sm">
                         {new Date(r.created_at).toLocaleDateString()}
                       </span>

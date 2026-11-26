@@ -12,3 +12,17 @@ export function triageRequestBucket(requestId: number): string {
 export function captchaRequired(action: string, isAdmin: boolean): boolean {
   return !(action === "triage-report" && isAdmin);
 }
+
+/** The two request types (migration 0037). Support = something is wrong; Enhancement = something to improve. */
+export const REQUEST_KINDS = ["enhancement", "support"] as const;
+export type RequestKind = (typeof REQUEST_KINDS)[number];
+
+/** Absent or null means "enhancement" so an older client keeps working; any other unknown value is refused (null). */
+export function parseKind(v: unknown): RequestKind | null {
+  if (v === undefined || v === null) return "enhancement";
+  return typeof v === "string" && (REQUEST_KINDS as readonly string[]).includes(v) ? (v as RequestKind) : null;
+}
+
+export function kindLabel(kind: RequestKind): string {
+  return kind === "support" ? "Support" : "Enhancement";
+}

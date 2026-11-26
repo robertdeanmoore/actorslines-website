@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { captchaRequired, triageRequestBucket } from "./policy.ts";
+import { captchaRequired, kindLabel, parseKind, triageRequestBucket } from "./policy.ts";
 
 test("captcha skipped only for admin on manual triage", () => {
   assert.equal(captchaRequired("triage-report", true), false);
@@ -13,4 +13,15 @@ test("captcha kept for non-admin triage and for submit, admin or not", () => {
 test("triage bucket is per request", () => {
   assert.equal(triageRequestBucket(3), "triage-req:3");
   assert.notEqual(triageRequestBucket(3), triageRequestBucket(4));
+});
+test("kind defaults to enhancement when absent, accepts the two kinds, refuses anything else", () => {
+  assert.equal(parseKind(undefined), "enhancement");
+  assert.equal(parseKind(null), "enhancement");
+  assert.equal(parseKind("support"), "support");
+  assert.equal(parseKind("enhancement"), "enhancement");
+  for (const bad of ["bogus", "", "Support", 1, true, {}, []]) assert.equal(parseKind(bad), null, String(bad));
+});
+test("kind labels", () => {
+  assert.equal(kindLabel("support"), "Support");
+  assert.equal(kindLabel("enhancement"), "Enhancement");
 });
