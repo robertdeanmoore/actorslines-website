@@ -16,7 +16,7 @@ const kbSlugs = readdirSync(new URL("../src/content/kb/", import.meta.url))
   .map((f) => f.replace(/\.md$/, ""))
   .sort();
 
-const PUBLIC_PAGES = ["/", "/features", "/faq", "/support", "/beta", "/tutorials", "/kb", "/privacy", "/delete-account", "/terms"];
+const PUBLIC_PAGES = ["/", "/features", "/faq", "/support", "/tutorials", "/kb", "/privacy", "/delete-account", "/terms"];
 const FILES = { "/robots.txt": "text/plain", "/sitemap.xml": "application/xml", "/llms.txt": "text/plain" } as const;
 
 function env(files: Record<string, string>) {
