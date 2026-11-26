@@ -29,7 +29,7 @@ export function parseRequest(body: unknown): ParsedRequest {
   return { ok: true, action, id, note };
 }
 
-export type AcceptResult = "approved" | "already" | "cap_full" | "not_pending" | "not_found";
+export type AcceptResult = "approved" | "already" | "cap_full" | "not_pending" | "not_found" | "forbidden";
 
 /** Maps the beta_accept RPC result to an HTTP outcome. `proceed` means: send the decision email. */
 export function acceptOutcome(result: unknown): { status: number; error?: string; proceed: boolean; already?: boolean } {
@@ -39,6 +39,7 @@ export function acceptOutcome(result: unknown): { status: number; error?: string
     case "cap_full": return { status: 409, proceed: false, error: `All ${BETA_CAP} places are taken` };
     case "not_pending": return { status: 409, proceed: false, error: "Only a pending application can be accepted" };
     case "not_found": return { status: 404, proceed: false, error: "Application not found" };
+    case "forbidden": return { status: 403, proceed: false, error: "Admin only" };
     default: return { status: 500, proceed: false, error: "Unexpected result" };
   }
 }
@@ -56,4 +57,37 @@ const MONTHS = [
 export function formatExpiry(iso: string): string {
   const d = new Date(iso);
   return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+}
+
+export const UNCONFIRMED_ACCOUNT_MESSAGE =
+  "An unconfirmed account holds this email. Delete it in Supabase Auth, then replay Accept or Resend invite.";
+
+export type AccountState = "none" | "confirmed" | "unconfirmed";
+
+/**
+ * What the applicant's email maps to. Public signup makes a profiles row even for an unconfirmed
+ * auth.users row, so a profile alone proves nothing about who owns the address.
+ */
+export function classifyAccount(hasProfile: boolean, emailConfirmedAt: string | null | undefined): AccountState {
+  if (!hasProfile) return "none";
+  return emailConfirmedAt ? "confirmed" : "unconfirmed";
+}
+
+export type AcceptStep = "grant" | "invite" | "blocked" | "done";
+
+/**
+ * What accept does next. A fresh approval always provisions. A replay re-provisions only what is
+ * missing: the grant (when not yet applied and the account is confirmed) or the invite (never sent,
+ * no account). Anything else is "done" (nothing changed).
+ */
+export function acceptStep(
+  replay: boolean,
+  state: AccountState,
+  app: { grant_applied_at: string | null; user_id: string | null; invite_sent_at: string | null },
+): AcceptStep {
+  if (replay && (app.grant_applied_at || app.user_id)) return "done";
+  if (state === "unconfirmed") return "blocked";
+  if (state === "confirmed") return "grant";
+  if (replay && app.invite_sent_at) return "done";
+  return "invite";
 }

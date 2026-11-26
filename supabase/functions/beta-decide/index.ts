@@ -21,7 +21,10 @@ import { BETA_CAP, REPLY_TO, SITE_URL } from "../beta-apply/policy.ts";
 import {
   acceptanceEmail, acceptanceExistingAccountEmail, groupAddedEmail, rejectionEmail, type Email,
 } from "./beta_text.ts";
-import { acceptOutcome, formatExpiry, inviteLink, parseRequest } from "./decide_policy.ts";
+import {
+  acceptOutcome, acceptStep, classifyAccount, formatExpiry, inviteLink, parseRequest, UNCONFIRMED_ACCOUNT_MESSAGE,
+  type AccountState,
+} from "./decide_policy.ts";
 
 const ALLOWED_ORIGINS = new Set(["https://actorslines.app", "https://www.actorslines.app"]);
 
@@ -62,7 +65,8 @@ async function sendEmail(to: string, email: Email): Promise<boolean> {
 type App = {
   id: number; name: string; email: string; google_email: string; status: string;
   existing_user: boolean; user_id: string | null; licence_id: number | null;
-  group_email_sent_at: string | null;
+  group_email_sent_at: string | null; grant_applied_at: string | null; invite_sent_at: string | null;
+  decision_email_sent_at: string | null;
 };
 
 Deno.serve(async (req) => {
@@ -95,7 +99,7 @@ Deno.serve(async (req) => {
 
     const { data: found, error: loadErr } = await admin
       .from("beta_applications")
-      .select("id, name, email, google_email, status, existing_user, user_id, licence_id, group_email_sent_at")
+      .select("id, name, email, google_email, status, existing_user, user_id, licence_id, group_email_sent_at, grant_applied_at, invite_sent_at, decision_email_sent_at")
       .eq("id", id).maybeSingle();
     if (loadErr) return fail(500, "Could not load the application");
     if (!found) return fail(404, "Application not found");
@@ -131,6 +135,17 @@ Deno.serve(async (req) => {
       return sent;
     };
 
+    // Looks the applicant's email up. A profiles row is created by public signup even for an
+    // unconfirmed auth.users row, so the account is only "confirmed" once auth says so.
+    const accountFor = async (): Promise<{ state: AccountState; id: string | null } | null> => {
+      const { data: prof, error: pErr } = await admin.from("profiles").select("id").eq("email", app.email).limit(1).maybeSingle();
+      if (pErr) return null;
+      if (!prof) return { state: "none", id: null };
+      const { data: au, error: aErr } = await admin.auth.admin.getUserById(prof.id);
+      if (aErr || !au?.user) return null;
+      return { state: classifyAccount(true, au.user.email_confirmed_at), id: prof.id };
+    };
+
     if (action === "accept") {
       const { data: result, error: rpcErr } = await admin.rpc("beta_accept", {
         p_id: app.id, p_admin: user.id, p_cap: BETA_CAP,
@@ -138,16 +153,31 @@ Deno.serve(async (req) => {
       if (rpcErr) return fail(500, "Could not record the decision");
       const outcome = acceptOutcome(result);
       if (outcome.error) return fail(outcome.status, outcome.error);
-      if (!outcome.proceed) return json(200, { ok: true, status: "approved", already: true });
+      const replay = !outcome.proceed;
 
-      // An applicant who already has an account: no invite, the licence goes straight on (AC2.8).
-      const { data: existing } = await admin.from("profiles").select("id").eq("email", app.email).limit(1).maybeSingle();
-      if (existing) {
-        const { error: grantErr } = await admin.rpc("beta_apply_grant", { p_application_id: app.id, p_user: existing.id });
+      const acct = await accountFor();
+      if (!acct) return fail(500, "Could not check the applicant's account");
+      const step = acceptStep(replay, acct.state, app);
+      if (step === "done") return json(200, { ok: true, status: "approved", already: true });
+
+      // An unconfirmed account holds the applicant's email (signup squatting): no grant, no email.
+      if (step === "blocked") {
+        console.error("[beta-decide] accept blocked: unconfirmed account holds the email");
+        return json(200, {
+          ok: true, status: "approved", email_sent: false, grant_applied: false,
+          blocked: "unconfirmed_account", message: UNCONFIRMED_ACCOUNT_MESSAGE,
+        });
+      }
+
+      // An applicant who already has a confirmed account: no invite, the licence goes straight on (AC2.8).
+      // A replay of Accept retries a grant that failed earlier (grant_applied_at still null).
+      if (step === "grant" && acct.id) {
+        const { error: grantErr } = await admin.rpc("beta_apply_grant", { p_application_id: app.id, p_user: acct.id });
         if (grantErr) {
           console.error("[beta-decide] grant for existing user failed");
           return json(200, { ok: true, status: "approved", email_sent: false, grant_applied: false });
         }
+        if (replay && app.decision_email_sent_at) return json(200, { ok: true, status: "approved", email_sent: true, grant_applied: true });
         const sent = await sendEmail(app.email, acceptanceExistingAccountEmail({
           name: app.name, googleEmail: app.google_email, accountEmail: app.email,
         }));
@@ -184,8 +214,10 @@ Deno.serve(async (req) => {
     if (action === "resend_invite") {
       if (app.status !== "approved") return fail(409, "Only an approved application can be sent an invite");
       if (app.user_id) return fail(409, "This person has already created their account");
-      const { data: existing } = await admin.from("profiles").select("id").eq("email", app.email).limit(1).maybeSingle();
-      if (existing) return fail(409, "This email already has an account; no invite is needed");
+      const acct = await accountFor();
+      if (!acct) return fail(500, "Could not check the applicant's account");
+      if (acct.state === "unconfirmed") return fail(409, UNCONFIRMED_ACCOUNT_MESSAGE);
+      if (acct.state === "confirmed") return fail(409, "This email already has an account; no invite is needed");
       const sent = await sendInvite();
       return json(sent ? 200 : 502, sent ? { ok: true, status: "approved", email_sent: true } : { error: "Could not send the invite email" });
     }
@@ -195,13 +227,19 @@ Deno.serve(async (req) => {
       if (app.group_email_sent_at) return json(200, { ok: true, status: "approved", already: true });
       const optIn = Deno.env.get("BETA_PLAY_OPT_IN_URL");
       if (!optIn) return fail(503, "The Google Play opt-in link is not configured yet");
+      // Claim the send first (conditional on it not having been sent), so two clicks cannot both email.
+      const { data: claimed, error: claimErr } = await admin.from("beta_applications").update({
+        group_added: true, group_email_sent_at: new Date().toISOString(),
+      }).eq("id", app.id).is("group_email_sent_at", null).select("id");
+      if (claimErr) return fail(500, "Could not record the decision");
+      if (!claimed || claimed.length === 0) return json(200, { ok: true, status: "approved", already: true });
       const sent = await sendEmail(app.email, groupAddedEmail({
         name: app.name, googleEmail: app.google_email, optInLink: optIn,
       }));
-      if (!sent) return fail(502, "Could not send the Group email");
-      await admin.from("beta_applications").update({
-        group_added: true, group_email_sent_at: new Date().toISOString(),
-      }).eq("id", app.id);
+      if (!sent) {
+        await admin.from("beta_applications").update({ group_added: false, group_email_sent_at: null }).eq("id", app.id);
+        return fail(502, "Could not send the Group email");
+      }
       return json(200, { ok: true, status: "approved", email_sent: true });
     }
 
@@ -214,16 +252,21 @@ Deno.serve(async (req) => {
       await expireOpenInvites();
       // The place is freed. A granted licence is revoked through the existing admin RPC, run with the
       // admin's own JWT so the audit trail names them. No email is sent (Robert writes personally).
-      if (app.licence_id) {
+      // licence_id is re-read after the status change: an invitee's grant can commit between the load
+      // above and the update, and once the status is withdrawn no further grant can land.
+      const { data: fresh, error: freshErr } = await admin.from("beta_applications").select("licence_id").eq("id", app.id).single();
+      if (freshErr || !fresh) return json(200, { ok: true, status: "withdrawn", licence_revoked: false });
+      const licenceId = fresh.licence_id as number | null;
+      if (licenceId) {
         const { error: revErr } = await caller.rpc("admin_revoke_licence", {
-          p_licence_id: app.licence_id, p_reason: `beta application #${app.id} withdrawn`,
+          p_licence_id: licenceId, p_reason: `beta application #${app.id} withdrawn`,
         });
         if (revErr) {
           console.error("[beta-decide] licence revoke failed");
           return json(200, { ok: true, status: "withdrawn", licence_revoked: false });
         }
       }
-      return json(200, { ok: true, status: "withdrawn", licence_revoked: Boolean(app.licence_id) });
+      return json(200, { ok: true, status: "withdrawn", licence_revoked: Boolean(licenceId) });
     }
 
     // reopen: a rejected application goes back to Pending (EC2.7).

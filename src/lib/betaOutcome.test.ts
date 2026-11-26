@@ -17,6 +17,8 @@ function ok(over: Partial<BetaDecideOk> = {}): BetaDecideOk {
     already: false,
     grantApplied: true,
     licenceRevoked: true,
+    blocked: null,
+    message: null,
     ...over,
   };
 }
@@ -119,4 +121,13 @@ test("reopen moves back to pending", () => {
     tone: "success",
     message: "Moved back to pending.",
   });
+});
+
+test("accept blocked by an unconfirmed account warns with the Supabase Auth instruction", () => {
+  const r = describeOutcome("accept", ok({ emailSent: false, grantApplied: false, blocked: "unconfirmed_account", message: "custom text" }));
+  assert.deepEqual(r, { tone: "warning", message: "custom text" });
+  const fallback = describeOutcome("accept", ok({ emailSent: false, grantApplied: false, blocked: "unconfirmed_account" }));
+  assert.equal(fallback.tone, "warning");
+  assert.match(fallback.message, /unconfirmed account holds this email/);
+  assert.match(fallback.message, /Supabase Auth/);
 });

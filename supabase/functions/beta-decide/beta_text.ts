@@ -48,7 +48,7 @@ export function acceptanceEmail(
     `Use this link to choose a password: ${p.inviteLink}\n` +
     `(If it has expired, reply to this email and I'll send a fresh one.)\n\n` +
     `Step 2: Join the beta on Google Play\n` +
-    `${PLAY_JOIN.replaceAll("{GOOGLE_EMAIL}", p.googleEmail)}\n\n` +
+    `${PLAY_JOIN.replaceAll("{GOOGLE_EMAIL}", () => p.googleEmail)}\n\n` +
     `Step 3: Sign in\n` +
     `Open Actors Lines on your phone and sign in with the email and password from Step 1: ${p.accountEmail}. Your full access appears automatically.\n\n` +
     `${WHAT_I_WANT}\n\n` +
@@ -68,7 +68,7 @@ export function acceptanceExistingAccountEmail(
     `What you get\n` +
     `You already have an Actors Lines account with this email, so there is nothing to create. Full access to every feature, including Cast Export, for six months has been added to it and starts today. Sign in as usual and it will appear: ${p.accountEmail}.\n\n` +
     `Step 1: Join the beta on Google Play\n` +
-    `${PLAY_JOIN.replaceAll("{GOOGLE_EMAIL}", p.googleEmail)}\n\n` +
+    `${PLAY_JOIN.replaceAll("{GOOGLE_EMAIL}", () => p.googleEmail)}\n\n` +
     `${WHAT_I_WANT}\n\n` +
     `${HOW_TO_REPORT}\n\n` +
     `${IF_YOU_NEED}\n\n` +

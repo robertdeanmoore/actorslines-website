@@ -85,3 +85,13 @@ test("no subject contains a newline", () => {
   ];
   for (const s of subjects) assert.ok(!s.includes("\n"));
 });
+test("google email with replacement patterns is inserted literally", () => {
+  const evil = "a$&b$'c$`d$$e@gmail.com";
+  for (const text of [
+    acceptanceEmail({ ...acceptance, googleEmail: evil }).text,
+    acceptanceExistingAccountEmail({ ...existing, googleEmail: evil }).text,
+  ]) {
+    assert.ok(text.includes(evil));
+    assert.ok(!text.includes("{GOOGLE_EMAIL}"));
+  }
+});

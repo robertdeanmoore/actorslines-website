@@ -37,6 +37,8 @@ export async function decideBeta(
         already: d.already === true,
         grantApplied: typeof d.grant_applied === "boolean" ? d.grant_applied : null,
         licenceRevoked: typeof d.licence_revoked === "boolean" ? d.licence_revoked : null,
+        blocked: typeof d.blocked === "string" ? d.blocked : null,
+        message: typeof d.message === "string" ? d.message : null,
       };
     }
     return { ok: false, error: typeof d.error === "string" ? d.error : UNREACHABLE };

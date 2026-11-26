@@ -19,6 +19,10 @@ declare
   v_status text;
   v_used integer;
 begin
+  -- Defence in depth: the edge function already checked, but a bad p_admin must not be recorded as decider.
+  if p_admin is null or not exists (select 1 from public.profiles where id = p_admin and role = 'admin') then
+    return 'forbidden';
+  end if;
   perform pg_advisory_xact_lock(hashtext('beta_applications_cap'));
   select status into v_status from public.beta_applications where id = p_id for update;
   if v_status is null then return 'not_found'; end if;
@@ -46,6 +50,7 @@ returns bigint language plpgsql security definer set search_path = public as $$
 declare
   a public.beta_applications%rowtype;
   v_email text;
+  v_confirmed timestamptz;
   v_id bigint;
 begin
   select * into a from public.beta_applications where id = p_application_id for update;
@@ -54,9 +59,12 @@ begin
   if a.grant_product is null or a.grant_months is null then raise exception 'no grant recorded'; end if;
   if a.grant_applied_at is not null then return a.licence_id; end if;
 
-  -- The grant can only land on the account that owns the applied-with email.
-  select lower(email) into v_email from auth.users where id = p_user;
+  -- The grant can only land on the account that owns the applied-with email. Public signup creates an
+  -- auth.users row (and a profiles row) for an email nobody has proved they own, so a matching address
+  -- is not enough: the address must be confirmed, or a squatter could take the licence.
+  select lower(email), email_confirmed_at into v_email, v_confirmed from auth.users where id = p_user;
   if v_email is null or v_email <> a.email then raise exception 'user does not match application'; end if;
+  if v_confirmed is null then raise exception 'email not confirmed'; end if;
 
   perform set_config('app.audit_actor', coalesce(a.decided_by::text, ''), true);
   perform set_config('app.audit_via', 'beta_grant', true);
@@ -74,3 +82,16 @@ end $$;
 
 revoke execute on function public.beta_apply_grant(bigint, uuid) from public, anon, authenticated;
 grant execute on function public.beta_apply_grant(bigint, uuid) to service_role;
+
+-- Post-condition (as 0034/0035): both functions are service_role only.
+do $$
+begin
+  if has_function_privilege('anon', 'public.beta_accept(bigint, uuid, integer)', 'execute')
+     or has_function_privilege('authenticated', 'public.beta_accept(bigint, uuid, integer)', 'execute')
+     or not has_function_privilege('service_role', 'public.beta_accept(bigint, uuid, integer)', 'execute')
+     or has_function_privilege('anon', 'public.beta_apply_grant(bigint, uuid)', 'execute')
+     or has_function_privilege('authenticated', 'public.beta_apply_grant(bigint, uuid)', 'execute')
+     or not has_function_privilege('service_role', 'public.beta_apply_grant(bigint, uuid)', 'execute') then
+    raise exception '0039 post-condition: beta_accept/beta_apply_grant ACL wrong - aborted';
+  end if;
+end $$;

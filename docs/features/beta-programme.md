@@ -32,6 +32,7 @@
 
 **Rules**
 - BETA-6: Accept stores the grant (`unlimited_6mo`, 6 months); the licence is written when the invitee creates their account, so the six months start then. An applicant who already has an account gets the licence at once and no invite.
+- BETA-6a: a licence only lands on an account whose email is confirmed. If an unconfirmed account (public signup) holds the applicant's email, Accept records the approval but grants nothing and sends nothing; the admin sees a warning, deletes that account in Supabase Auth, then replays Accept or presses Resend invite. A replay of Accept also retries a failed grant.
 - BETA-7: Accept is refused server-side at 50 approved; a second Accept is a no-op (no second invite, no second licence).
 - BETA-8: the rejection email gives no reason; the internal note is admin-only and never emailed.
 - BETA-9: the Google Play opt-in email is sent once, when the admin ticks "Added to the Google Group", using the `BETA_PLAY_OPT_IN_URL` function setting (not a credential). Unset: the tick is refused.

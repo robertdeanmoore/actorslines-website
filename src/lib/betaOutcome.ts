@@ -12,16 +12,24 @@ export type BetaDecideResult =
       already: boolean;
       grantApplied: boolean | null;
       licenceRevoked: boolean | null;
+      blocked: string | null;
+      message: string | null;
     }
   | { ok: false; error: string };
 
 export type BetaDecideOk = Extract<BetaDecideResult, { ok: true }>;
+
+const UNCONFIRMED_FALLBACK =
+  "An unconfirmed account holds this email. Delete it in Supabase Auth, then replay Accept or Resend invite.";
 
 export type OutcomeTone = "success" | "warning";
 
 export function describeOutcome(action: BetaAction, r: BetaDecideOk): { tone: OutcomeTone; message: string } {
   if (r.already) return { tone: "success", message: "Nothing changed: it was already done." };
   if (action === "accept") {
+    if (r.blocked === "unconfirmed_account") {
+      return { tone: "warning", message: r.message ?? UNCONFIRMED_FALLBACK };
+    }
     if (r.grantApplied === false) {
       return {
         tone: "warning",
