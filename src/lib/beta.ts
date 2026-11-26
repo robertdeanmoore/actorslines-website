@@ -40,6 +40,11 @@ export interface BetaApplication {
   consent_at: string;
   consent_version: string;
   notes: string | null;
+  grant_applied_at: string | null;
+  licence_id: number | null;
+  group_email_sent_at: string | null;
+  decision_email_sent_at: string | null;
+  invite_expires_at: string | null;
 }
 
 /** Gmail and Google Workspace are both legitimate Google accounts, so a non-gmail domain only warns. */
