@@ -2,16 +2,21 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import {
+  BETA_CAP,
   BETA_STATUS_LABELS,
   isGmailDomain,
+  placesLeft,
   type BetaApplication,
 } from "../../lib/beta";
+import { decideBeta, describeOutcome, type BetaAction } from "../../lib/betaDecide";
+import { rejectionEmail } from "../../../supabase/functions/beta-decide/beta_text.ts";
 import { Container } from "../../components/ui/Layout";
 import Button from "../../components/ui/Button";
 import LinkButton from "../../components/ui/LinkButton";
 import Badge from "../../components/ui/Badge";
 import Callout from "../../components/ui/Callout";
 import Card from "../../components/ui/Card";
+import Modal from "../../components/ui/Modal";
 import { Checkbox, Field, Textarea } from "../../components/ui/Field";
 import { ErrorState, EmptyState, LoadingState } from "../../components/ui/States";
 
@@ -19,11 +24,20 @@ function when(value: string | null): string {
   return value ? new Date(value).toLocaleString() : "—";
 }
 
+type DecisionModal = "accept" | "reject" | "withdraw" | "group";
+
+type Outcome = { tone: "success" | "warning" | "error"; message: string };
+
 export default function AdminBetaDetailPage() {
   const { id } = useParams();
   const [row, setRow] = useState<BetaApplication | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [approvedCount, setApprovedCount] = useState<number | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [modal, setModal] = useState<DecisionModal | null>(null);
+  const [internalNote, setInternalNote] = useState("");
+  const [outcome, setOutcome] = useState<Outcome | null>(null);
   const [groupAdded, setGroupAdded] = useState(false);
   const [groupError, setGroupError] = useState("");
   const [copied, setCopied] = useState(false);
@@ -52,6 +66,53 @@ export default function AdminBetaDetailPage() {
         setLoading(false);
       });
   }, [numericId]);
+
+  useEffect(() => {
+    const countQuery = supabase
+      .from("beta_applications")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "approved");
+    void countQuery.then(({ count }) => setApprovedCount(count ?? 0));
+  }, []);
+
+  async function reloadRowAndCount() {
+    if (numericId === null) return;
+    const rowQuery = supabase.from("beta_applications").select("*").eq("id", numericId).maybeSingle();
+    const countQuery = supabase
+      .from("beta_applications")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "approved");
+    const [{ data }, { count }] = await Promise.all([rowQuery, countQuery]);
+    if (data) {
+      const app = data as BetaApplication;
+      setRow(app);
+      setGroupAdded(app.group_added);
+    }
+    setApprovedCount(count ?? 0);
+  }
+
+  async function run(action: BetaAction, note?: string) {
+    if (numericId === null || busy) return;
+    setBusy(true);
+    setOutcome(null);
+    const result = await decideBeta(action, numericId, note);
+    if (result.ok) {
+      setOutcome(describeOutcome(action, result));
+    } else {
+      setOutcome({ tone: "error", message: result.error });
+    }
+    setModal(null);
+    setBusy(false);
+    await reloadRowAndCount();
+  }
+
+  function onGroupChange(checked: boolean) {
+    if (checked && row !== null && row.group_email_sent_at === null) {
+      setModal("group");
+      return;
+    }
+    void saveGroupAdded(checked);
+  }
 
   async function saveGroupAdded(checked: boolean) {
     setGroupAdded(checked);
@@ -134,6 +195,8 @@ export default function AdminBetaDetailPage() {
   }
 
   const googleEmailWarning = !isGmailDomain(row.google_email);
+  const placesLeftNow = placesLeft(approvedCount ?? 0);
+  const rejection = rejectionEmail({ name: row.name });
 
   return (
     <Container size="detail" className="al-members">
@@ -147,6 +210,14 @@ export default function AdminBetaDetailPage() {
         <LinkButton href={`mailto:${encodeURIComponent(row.email).replace("%40", "@")}`} variant="secondary">
           Email {row.email}
         </LinkButton>
+      </div>
+
+      <div className="mt-4">
+        <Callout tone="note">
+          {approvedCount === null
+            ? "Counting places…"
+            : `${approvedCount} of ${BETA_CAP} places used, ${placesLeftNow} left`}
+        </Callout>
       </div>
 
       {googleEmailWarning && (
@@ -170,6 +241,12 @@ export default function AdminBetaDetailPage() {
               <Link to={`/admin/beta/${row.prior_application_id}`}>See the earlier application.</Link>
             )}
           </Callout>
+        </div>
+      )}
+
+      {outcome && (
+        <div className="mt-4">
+          <Callout tone={outcome.tone}>{outcome.message}</Callout>
         </div>
       )}
 
@@ -211,6 +288,74 @@ export default function AdminBetaDetailPage() {
         </ul>
       </Card>
 
+      <Card as="section" className="mt-4" title="Decision" headingLevel={2}>
+        {row.status === "pending" && (
+          <div className="flex flex-wrap gap-2">
+            <Button
+              disabled={busy || placesLeftNow === 0}
+              disabledReason={placesLeftNow === 0 ? `All ${BETA_CAP} places are taken.` : undefined}
+              onClick={() => {
+                setInternalNote("");
+                setModal("accept");
+              }}
+            >
+              Accept
+            </Button>
+            <Button variant="destructive" disabled={busy} onClick={() => {
+              setInternalNote("");
+              setModal("reject");
+            }}>
+              Reject
+            </Button>
+          </div>
+        )}
+        {row.status === "approved" && (
+          <>
+            <ul className="al-panel-text">
+              <li>
+                Invitation sent:{" "}
+                {row.invite_sent_at ? new Date(row.invite_sent_at).toLocaleString() : "Not sent"}
+                {!row.user_id && !row.existing_user && (
+                  <>
+                    {" "}
+                    <Button variant="secondary" disabled={busy} onClick={() => void run("resend_invite")}>
+                      Resend invite
+                    </Button>
+                  </>
+                )}
+              </li>
+              <li>Account created: {row.user_id ? "Yes" : "No"}</li>
+              <li>
+                Licence granted:{" "}
+                {row.grant_applied_at ? new Date(row.grant_applied_at).toLocaleString() : "Not yet"}
+              </li>
+              {!row.user_id && (
+                <li>
+                  Invitation link expires: {when(row.invite_expires_at)} (only while the account is not
+                  created)
+                </li>
+              )}
+            </ul>
+            <div className="mt-3">
+              <Button variant="destructive" disabled={busy} onClick={() => setModal("withdraw")}>
+                Withdraw
+              </Button>
+            </div>
+          </>
+        )}
+        {row.status === "rejected" && (
+          <div>
+            <Button variant="secondary" disabled={busy} onClick={() => void run("reopen")}>
+              Reopen
+            </Button>
+            <p className="al-hint">Moves the application back to pending.</p>
+          </div>
+        )}
+        {row.status === "withdrawn" && (
+          <p className="al-panel-text">This application was withdrawn.</p>
+        )}
+      </Card>
+
       <Card as="section" className="mt-4" title="Google Group checklist" headingLevel={2}>
         <p className="al-panel-text">{row.google_email}</p>
         <div className="mt-2">
@@ -221,10 +366,16 @@ export default function AdminBetaDetailPage() {
         <div className="mt-4">
           <Checkbox
             checked={groupAdded}
-            onChange={(e) => void saveGroupAdded(e.target.checked)}
+            disabled={row.status !== "approved"}
+            onChange={(e) => onGroupChange(e.target.checked)}
             label="Added to the Google Group"
           />
         </div>
+        {row.group_email_sent_at && (
+          <p className="al-hint" role="status">
+            Email sent {new Date(row.group_email_sent_at).toLocaleString()}
+          </p>
+        )}
         {groupError && (
           <div className="mt-2">
             <Callout tone="error">{groupError}</Callout>
@@ -250,12 +401,103 @@ export default function AdminBetaDetailPage() {
         )}
       </Card>
 
-      <div className="mt-6">
-        <Callout tone="note">Accept and reject arrive in the next phase.</Callout>
-      </div>
       <div className="mt-4">
         <LinkButton to="/admin/beta" variant="secondary">← Back to beta list</LinkButton>
       </div>
+
+      <Modal
+        open={modal === "accept"}
+        onClose={() => setModal(null)}
+        title={`Accept ${row.name}?`}
+        dismissOnBackdrop={false}
+        footer={
+          <>
+            <Button variant="secondary" disabled={busy} data-autofocus onClick={() => setModal(null)}>
+              Cancel
+            </Button>
+            <Button disabled={busy} onClick={() => void run("accept")}>
+              Accept and send
+            </Button>
+          </>
+        }
+      >
+        <p>
+          {row.existing_user
+            ? "This email already has an Actors Lines account. No invitation is sent: six months of full access is added to it now, and an email tells them."
+            : `This sends an invitation email to ${row.email}. Their six months of full access starts when they create their account.`}
+        </p>
+      </Modal>
+
+      <Modal
+        open={modal === "reject"}
+        onClose={() => setModal(null)}
+        title={`Reject ${row.name}?`}
+        dismissOnBackdrop={false}
+        footer={
+          <>
+            <Button variant="secondary" disabled={busy} data-autofocus onClick={() => setModal(null)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" disabled={busy} onClick={() => {
+              const note = internalNote.trim();
+              void run("reject", note === "" ? undefined : note);
+            }}>
+              Reject and send
+            </Button>
+          </>
+        }
+      >
+        <pre style={{ whiteSpace: "pre-wrap" }}>{`Subject: ${rejection.subject}\n\n${rejection.text}`}</pre>
+        <div className="mt-3">
+          <Field label="Internal note (never emailed)" help={`Maximum 1000 characters (${internalNote.length} used)`}>
+            {(control) => (
+              <Textarea {...control} rows={3} maxLength={1000} value={internalNote}
+                onChange={(e) => setInternalNote(e.target.value)} />
+            )}
+          </Field>
+        </div>
+      </Modal>
+
+      <Modal
+        open={modal === "withdraw"}
+        onClose={() => setModal(null)}
+        title={`Withdraw ${row.name}?`}
+        dismissOnBackdrop={false}
+        footer={
+          <>
+            <Button variant="secondary" disabled={busy} data-autofocus onClick={() => setModal(null)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" disabled={busy} onClick={() => void run("withdraw")}>
+              Withdraw
+            </Button>
+          </>
+        }
+      >
+        <p>This frees their place and revokes their licence if one was granted. No email is sent; write to them yourself.</p>
+      </Modal>
+
+      <Modal
+        open={modal === "group"}
+        onClose={() => setModal(null)}
+        title={`Email ${row.name} the Google Play link?`}
+        dismissOnBackdrop={false}
+        footer={
+          <>
+            <Button variant="secondary" disabled={busy} data-autofocus onClick={() => setModal(null)}>
+              Cancel
+            </Button>
+            <Button disabled={busy} onClick={() => void run("group_added")}>
+              Tick and send
+            </Button>
+          </>
+        }
+      >
+        <p>
+          Ticking this sends them an email with the Google Play opt-in link. Only do it after you
+          have added {row.google_email} to the Google Group.
+        </p>
+      </Modal>
     </Container>
   );
 }

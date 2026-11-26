@@ -177,6 +177,23 @@ Deno.serve(async (req) => {
 
       await admin.from("invites").update({ accepted_user_id: created.user.id }).eq("id", claimed.id);
 
+      // WIP #269 D2: an approved beta applicant's licence starts now, at account creation. The RPC is
+      // service_role only, checks the user's email against the application, and is idempotent. A
+      // failure must never undo the account; the admin then grants by hand on /admin/licences.
+      try {
+        const { data: betaApp } = await admin.from("beta_applications").select("id")
+          .eq("email", claimed.email.trim().toLowerCase()).eq("status", "approved")
+          .is("grant_applied_at", null).not("grant_product", "is", null).limit(1).maybeSingle();
+        if (betaApp) {
+          const { error: grantErr } = await admin.rpc("beta_apply_grant", {
+            p_application_id: betaApp.id, p_user: created.user.id,
+          });
+          if (grantErr) console.error(`[invite] beta grant failed application=${betaApp.id} code=${grantErr.code ?? "unknown"}`);
+        }
+      } catch {
+        console.error("[invite] beta grant lookup threw");
+      }
+
       console.log(`[invite] accepted email=${claimed.email} user=${created.user.id}`);
       return new Response(JSON.stringify({ ok: true, email: claimed.email }), {
         headers: { ...cors, "Content-Type": "application/json" },
