@@ -56,6 +56,10 @@ const STATIC_META: Record<string, Partial<RouteMeta>> = {
     title: `Frequently asked questions${SUFFIX}`,
     description: "Answers to common questions about Actors Lines: getting started, using the app, and your data.",
   },
+  "/beta": {
+    title: `Join the beta programme${SUFFIX}`,
+    description: "Apply to join the Actors Lines beta programme for Android. Places are limited and every application is read.",
+  },
   "/support": {
     title: `Support${SUFFIX}`,
     description: "Get help with Actors Lines: guides, email support and how to suggest a feature.",

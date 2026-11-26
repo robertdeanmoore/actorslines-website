@@ -53,6 +53,7 @@ export const KNOWN_ROUTES: readonly string[] = [
   "/features",
   "/faq",
   "/support",
+  "/beta",
   "/login",
   "/register",
   "/notify/:action/:token",
@@ -75,6 +76,8 @@ export const KNOWN_ROUTES: readonly string[] = [
   "/admin/licences",
   "/admin/licences/:userId",
   "/admin/telemetry",
+  "/admin/beta",
+  "/admin/beta/:id",
 ];
 
 const splitPath = (p: string) => p.split("/").filter((s) => s !== "");

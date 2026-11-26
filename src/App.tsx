@@ -24,6 +24,9 @@ import AdminInvitesPage from "./pages/admin/AdminInvitesPage";
 import AdminLicencesPage from "./pages/admin/AdminLicencesPage";
 import AdminUserLicencesPage from "./pages/admin/AdminUserLicencesPage";
 import TelemetryPage from "./pages/admin/TelemetryPage";
+import AdminBetaListPage from "./pages/admin/AdminBetaListPage";
+import AdminBetaDetailPage from "./pages/admin/AdminBetaDetailPage";
+import BetaPage from "./pages/BetaPage";
 import NotifyLinkPage from "./pages/NotifyLinkPage";
 import LearnScriptsPage from "./pages/learn-lines/LearnScriptsPage";
 import LearnPracticePage from "./pages/learn-lines/LearnPracticePage";
@@ -50,6 +53,7 @@ export default function App() {
         <Route path="/features" element={<FeaturesPage />} />
         <Route path="/faq" element={<FaqPage />} />
         <Route path="/support" element={<SupportPage />} />
+        <Route path="/beta" element={<BetaPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/notify/:action/:token" element={<NotifyLinkPage />} />
@@ -78,6 +82,8 @@ export default function App() {
             <Route path="/admin/licences" element={<AdminLicencesPage />} />
             <Route path="/admin/licences/:userId" element={<AdminUserLicencesPage />} />
             <Route path="/admin/telemetry" element={<TelemetryPage />} />
+            <Route path="/admin/beta" element={<AdminBetaListPage />} />
+            <Route path="/admin/beta/:id" element={<AdminBetaDetailPage />} />
           </Route>
         </Route>
         {/* Catch-all. Worker answers unknown paths with HTTP 404 + this shell; keep worker KNOWN_ROUTES in step with the routes above. */}

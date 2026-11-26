@@ -1,5 +1,7 @@
 User-agent: *
 Allow: /
+# /beta is reachable by direct URL only until go-live (WIP #269 P6); remove this line then.
+Disallow: /beta$
 Disallow: /admin
 Disallow: /profile
 Disallow: /requests
