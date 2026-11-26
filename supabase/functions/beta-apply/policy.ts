@@ -89,8 +89,12 @@ export function withinReapplyWindow(decidedAt: string | null, now: Date = new Da
   return now.getTime() - t < REAPPLY_AFTER_DAYS * 24 * 60 * 60 * 1000;
 }
 
+const FIRST_NAME_RE = /^[\p{L}'’-]{1,40}$/u;
+
+/** Greeting name: the first token only when it looks like a name (letters, apostrophe, hyphen); else "there". */
 export function firstName(name: string): string {
-  return name.trim().split(/\s+/)[0] || "there";
+  const token = name.trim().split(/\s+/)[0] ?? "";
+  return FIRST_NAME_RE.test(token) ? token : "there";
 }
 
 /** Subject lines must be a single line (no header injection) and bounded. */

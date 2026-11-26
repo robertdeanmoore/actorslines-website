@@ -61,6 +61,18 @@ test("subject and first name are single-line", () => {
   assert.equal(firstName("  Ada  Lovelace"), "Ada");
   assert.equal(firstName(""), "there");
 });
+test("firstName greets by name only for name-like tokens", () => {
+  assert.equal(firstName("Ada Lovelace"), "Ada");
+  assert.equal(firstName("Mary-Jane Watson"), "Mary-Jane");
+  assert.equal(firstName("Zoë Ångström"), "Zoë");
+  assert.equal(firstName("O'Brien Smith"), "O'Brien");
+  assert.equal(firstName("O’Neil"), "O’Neil");
+  assert.equal(firstName("http://spam.example/win Ada"), "there");
+  assert.equal(firstName("www.spam.example"), "there");
+  assert.equal(firstName("Ada123"), "there");
+  assert.equal(firstName("A".repeat(41)), "there");
+  assert.equal(firstName("   "), "there");
+});
 test("notify email shows places used and the admin link", () => {
   const v = validateApplication(good);
   assert.ok(v.ok);

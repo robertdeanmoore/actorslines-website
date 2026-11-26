@@ -9,7 +9,7 @@
 -- decision; approved rows kept until account deletion or 12 months after the beta ends. The
 -- purge step ships with P5 (lifecycle fn), not here.
 
-create table public.beta_applications (
+create table if not exists public.beta_applications (
   id bigint generated always as identity primary key,
   created_at timestamptz not null default now(),
   name text not null check (char_length(name) between 1 and 120),
@@ -38,16 +38,18 @@ create table public.beta_applications (
 
 -- One live (pending or approved) application per address. Backs the duplicate rule and closes the
 -- race between two simultaneous submits. A rejected or withdrawn row does not block re-applying.
-create unique index beta_applications_live_email_idx
+create unique index if not exists beta_applications_live_email_idx
   on public.beta_applications (email) where status in ('pending', 'approved');
-create index beta_applications_status_created_idx on public.beta_applications (status, created_at desc);
-create index beta_applications_email_idx on public.beta_applications (email);
+create index if not exists beta_applications_status_created_idx on public.beta_applications (status, created_at desc);
+create index if not exists beta_applications_email_idx on public.beta_applications (email);
 
 alter table public.beta_applications enable row level security;
 revoke all on public.beta_applications from public, anon, authenticated;
 -- No anon or authenticated insert: public submission is only via the edge function (service role).
+drop policy if exists beta_applications_admin_read on public.beta_applications;
 create policy beta_applications_admin_read on public.beta_applications
   for select to authenticated using (public.is_admin());
+drop policy if exists beta_applications_admin_update on public.beta_applications;
 create policy beta_applications_admin_update on public.beta_applications
   for update to authenticated using (public.is_admin()) with check (public.is_admin());
 grant select on public.beta_applications to authenticated;     -- policy above limits it to admins
