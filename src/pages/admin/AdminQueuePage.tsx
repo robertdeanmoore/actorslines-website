@@ -83,6 +83,9 @@ export default function AdminQueuePage() {
             <LinkButton to="/admin/licences" variant="secondary">
               Box office →
             </LinkButton>
+            <LinkButton to="/admin/beta" variant="secondary">
+              Beta applications →
+            </LinkButton>
             <LinkButton to="/admin/telemetry" variant="secondary">
               Usage telemetry →
             </LinkButton>

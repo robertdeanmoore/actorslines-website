@@ -118,11 +118,9 @@ export default function FeaturesPage() {
 
         <Card as="section" tone="marketing" headingLevel={2} title="Want to try it?">
           <p>
-            Actors Lines is not on Google Play yet. Email us and ask to be told when it is ready.
+            Actors Lines is not on Google Play yet. Apply to join the beta programme and we will be in touch when places open.
           </p>
-          <LinkButton href="mailto:hello@actorslines.app?subject=Actors%20Lines%20-%20tell%20me%20when%20it%27s%20ready">
-            Tell me when it&apos;s ready
-          </LinkButton>
+          <LinkButton to="/beta">Apply to join the beta programme</LinkButton>
         </Card>
       </div>
     </div>
