@@ -11,7 +11,9 @@
 //        fail, and marks the request complete when every declared file arrived and passed.
 //   { "action": "upload-urls", "request_id": 123 }
 //        New signed upload URLs for the files not yet confirmed (a retry reuses the same request id).
+//        Only this retry may overwrite an existing object; the first issue never can.
 //
+// After the insert, `submit` asks dispatch to triage the report (`triage-app`, service-role key, id only).
 // Nothing from an attachment is sent to AI triage (decision D8). An expired or withdrawn licence does
 // not stop a report (decision D3): only a signed-in, existing account is required.
 // Secrets: BREVO_API_KEY, MAIL_FROM, REQUEST_NOTIFY_EMAIL (as in dispatch). Self-contained: imports
@@ -21,7 +23,7 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
   CONFIRM_PER_HOUR, UPLOAD_URLS_PER_HOUR, SUBMIT_PER_DAY, SUBMIT_PER_HOUR,
   checkUploadedFile, confirmBucket, duplicateSinceIso, isDuplicateWithin, kindLabel, mayReport,
-  storagePathFor, submitBuckets, toRequestRow, uploadUrlsBucket, validateSubmit,
+  storagePathFor, submitBuckets, toRequestRow, uploadUrlsBucket, upsertForAction, validateSubmit,
   type AttachmentKind, type RequestKind,
 } from "./policy.ts";
 
@@ -57,14 +59,14 @@ async function sendEmail(to: string, subject: string, text: string): Promise<boo
 type AttachmentRow = { id: number; kind: AttachmentKind; declared_mime: string; declared_size: number; storage_path: string };
 
 /** Fresh signed upload URLs for the not-yet-confirmed files of a request. Never throws. */
-async function uploadsFor(admin: Admin, requestId: number): Promise<{ uploads: unknown[]; failed: number }> {
+async function uploadsFor(admin: Admin, requestId: number, upsert: boolean): Promise<{ uploads: unknown[]; failed: number }> {
   const { data } = await admin.from("request_attachments")
     .select("id, kind, declared_mime, declared_size, storage_path")
     .eq("request_id", requestId).eq("status", "pending").order("id");
   const uploads: unknown[] = [];
   let failed = 0;
   for (const a of (data ?? []) as AttachmentRow[]) {
-    const { data: signed, error } = await admin.storage.from(BUCKET).createSignedUploadUrl(a.storage_path, { upsert: true });
+    const { data: signed, error } = await admin.storage.from(BUCKET).createSignedUploadUrl(a.storage_path, { upsert });
     if (error || !signed) {
       console.error(`[submit-request-app] signed upload url failed attachment=${a.id}`);
       failed++;
@@ -117,7 +119,7 @@ Deno.serve(async (req) => {
         .eq("author_id", userId).eq("source", "app").eq("title", report.subject).eq("goal", report.description)
         .gte("created_at", duplicateSinceIso(Date.now())).order("created_at", { ascending: false }).limit(1).maybeSingle();
       if (dupe && isDuplicateWithin(dupe.created_at, Date.now())) {
-        const again = await uploadsFor(admin, dupe.id);
+        const again = await uploadsFor(admin, dupe.id, upsertForAction("submit"));
         return json(200, { ok: true, request_id: dupe.id, duplicate: true, uploads: again.uploads });
       }
 
@@ -146,7 +148,21 @@ Deno.serve(async (req) => {
           attachmentRowsFailed++;
         }
       }
-      const { uploads, failed } = await uploadsFor(admin, created.id);
+      const { uploads, failed } = await uploadsFor(admin, created.id, upsertForAction("submit"));
+
+      // AC4.8: start AI triage for this report. Server-to-server call to dispatch `triage-app`, proven by
+      // the service-role key. Only the request id is sent: nothing from an attachment reaches triage (D8).
+      // Fire and forget: a triage failure is logged by code only and never loses the report.
+      const triageJob = fetch(`${Deno.env.get("SUPABASE_URL")!}/functions/v1/dispatch`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "triage-app", request_id: created.id }),
+      }).then((r) => {
+        if (!r.ok) console.error(`[submit-request-app] triage start failed status=${r.status}`);
+        return r.body?.cancel();
+      }).catch(() => console.error("[submit-request-app] triage start threw"));
+      const edge = (globalThis as { EdgeRuntime?: { waitUntil(p: Promise<unknown>): void } }).EdgeRuntime;
+      if (edge) edge.waitUntil(triageJob); else await triageJob;
 
       // Tell Robert. A mail failure must never lose the report.
       const notify = Deno.env.get("REQUEST_NOTIFY_EMAIL");
@@ -182,7 +198,7 @@ Deno.serve(async (req) => {
       if (!(await rateLimitOk(admin, uploadUrlsBucket(userId), UPLOAD_URLS_PER_HOUR, "1 hour"))) {
         return fail(429, "Too many attempts. Please try again later.");
       }
-      const { uploads, failed } = await uploadsFor(admin, requestId);
+      const { uploads, failed } = await uploadsFor(admin, requestId, upsertForAction("upload-urls"));
       return json(200, { ok: true, request_id: requestId, uploads, upload_problems: failed });
     }
 

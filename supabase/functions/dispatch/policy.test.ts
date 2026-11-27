@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { captchaRequired, kindLabel, parseKind, triageRequestBucket } from "./policy.ts";
+import { captchaRequired, isServerCall, kindLabel, parseKind, triageRequestBucket } from "./policy.ts";
 
 test("captcha skipped only for admin on manual triage", () => {
   assert.equal(captchaRequired("triage-report", true), false);
@@ -24,4 +24,29 @@ test("kind defaults to enhancement when absent, accepts the two kinds, refuses a
 test("kind labels", () => {
   assert.equal(kindLabel("support"), "Support");
   assert.equal(kindLabel("enhancement"), "Enhancement");
+});
+
+test("isServerCall: exact service key accepted", () => {
+  assert.equal(isServerCall("Bearer sk-live-abc123", "sk-live-abc123"), true);
+});
+test("isServerCall: wrong key, same or different length, refused", () => {
+  assert.equal(isServerCall("Bearer sk-live-abc124", "sk-live-abc123"), false);
+  assert.equal(isServerCall("Bearer sk-live-abc12", "sk-live-abc123"), false);
+  assert.equal(isServerCall("Bearer sk-live-abc1234", "sk-live-abc123"), false);
+  assert.equal(isServerCall("Bearer sk-live-abc123sk-live-abc123", "sk-live-abc123"), false);
+});
+test("isServerCall: missing or empty header or key refused (fails closed)", () => {
+  assert.equal(isServerCall(null, "k"), false);
+  assert.equal(isServerCall(undefined, "k"), false);
+  assert.equal(isServerCall("", "k"), false);
+  assert.equal(isServerCall("Bearer ", "k"), false);
+  assert.equal(isServerCall("Bearer ", ""), false);
+  assert.equal(isServerCall("Bearer k", ""), false);
+  assert.equal(isServerCall("Bearer k", undefined), false);
+});
+test("isServerCall: non-bearer schemes refused", () => {
+  assert.equal(isServerCall("k", "k"), false);
+  assert.equal(isServerCall("Basic k", "k"), false);
+  assert.equal(isServerCall("bearer k", "k"), false);
+  assert.equal(isServerCall("Token Bearer k", "k"), false);
 });

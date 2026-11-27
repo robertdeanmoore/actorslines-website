@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   AUDIO_MAX_BYTES, IMAGE_MAX_BYTES, checkUploadedFile, duplicateSinceIso, extensionFor, isDuplicateWithin,
-  kindLabel, mayReport, parseKind, sniffMime, storagePathFor, submitBuckets, toRequestRow, validateSubmit,
+  kindLabel, mayReport, parseKind, sniffMime, storagePathFor, submitBuckets, toRequestRow, upsertForAction, validateSubmit,
 } from "./policy.ts";
 
 const UUID = "123e4567-e89b-42d3-a456-426614174000";
@@ -169,4 +169,11 @@ test("an uploaded file is judged by its real size, not the declared one", () => 
 test("labels", () => {
   assert.equal(kindLabel("support"), "Support");
   assert.equal(kindLabel("enhancement"), "Enhancement");
+});
+
+test("upload overwrite is allowed only on the upload-urls retry, never on first issue or confirm", () => {
+  assert.equal(upsertForAction("upload-urls"), true);
+  assert.equal(upsertForAction("submit"), false);
+  assert.equal(upsertForAction("confirm"), false);
+  assert.equal(upsertForAction(""), false);
 });

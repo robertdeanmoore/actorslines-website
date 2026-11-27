@@ -26,3 +26,18 @@ export function parseKind(v: unknown): RequestKind | null {
 export function kindLabel(kind: RequestKind): string {
   return kind === "support" ? "Support" : "Enhancement";
 }
+
+/** Server-to-server proof for the `triage-app` action: the bearer token must equal the project's
+ *  service-role key. Compared without early exit so timing does not reveal how much matched.
+ *  A missing or empty key never matches (fails closed); the key is never logged by callers. */
+export function isServerCall(authHeader: string | null | undefined, serviceKey: string | null | undefined): boolean {
+  if (typeof authHeader !== "string" || typeof serviceKey !== "string" || serviceKey.length === 0) return false;
+  const m = /^Bearer (.+)$/.exec(authHeader);
+  if (!m) return false;
+  const token = m[1];
+  let diff = token.length ^ serviceKey.length;
+  for (let i = 0; i < serviceKey.length; i++) {
+    diff |= (token.charCodeAt(i % token.length) ?? 0) ^ serviceKey.charCodeAt(i);
+  }
+  return diff === 0;
+}

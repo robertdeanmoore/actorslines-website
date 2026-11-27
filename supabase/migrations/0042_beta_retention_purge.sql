@@ -38,6 +38,7 @@ begin
   return old;
 end;
 $$;
+revoke execute on function public.queue_attachment_deletion() from public, anon, authenticated;
 
 drop trigger if exists request_attachments_queue_deletion on public.request_attachments;
 create trigger request_attachments_queue_deletion

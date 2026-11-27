@@ -208,3 +208,10 @@ export function checkUploadedFile(declared: { kind: AttachmentKind; mime: string
   if (actualSize > maxBytesFor(declared.kind)) return { ok: false, reason: "too_large" };
   return sniffMime(bytes).includes(declared.mime) ? { ok: true } : { ok: false, reason: "type_mismatch" };
 }
+
+/** Signed upload URLs overwrite an existing object only on the explicit `upload-urls` retry (pending
+ *  rows only). The first issue never allows overwrite, so a token cannot replace a file after `confirm`
+ *  has checked it (Holly review, A08). */
+export function upsertForAction(action: string): boolean {
+  return action === "upload-urls";
+}
