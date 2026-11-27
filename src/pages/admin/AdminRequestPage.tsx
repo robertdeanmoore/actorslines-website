@@ -184,7 +184,7 @@ export default function AdminRequestPage() {
         <Card as="article">
           <h2 className="al-card__title">AI developer report</h2>
           {report ? (
-            <div className="mt-3 text-sm [&_h1]:font-bold [&_h2]:font-semibold [&_h2]:mt-4 [&_ul]:list-disc [&_ul]:ml-5 [&_ol]:list-decimal [&_ol]:ml-5">
+            <div className="mt-3 text-sm [&_h1]:font-bold [&_h2]:font-semibold [&_h2]:mt-4 [&_ul]:list-disc [&_ul]:ml-5 [&_ol]:list-decimal [&_ol]:ml-5 [&_p]:whitespace-pre-line">
               <p className="text-sm text-fg-muted">Generated {new Date(report.created_at).toLocaleString()}</p>
               <Markdown>{report.report_md}</Markdown>
             </div>
@@ -314,7 +314,7 @@ export default function AdminRequestPage() {
       <div className={card}>
         <h2 className="font-semibold text-brand">AI developer report</h2>
         {report ? (
-          <div className="mt-3 text-sm [&_h1]:font-bold [&_h2]:font-semibold [&_h2]:mt-4 [&_ul]:list-disc [&_ul]:ml-5 [&_ol]:list-decimal [&_ol]:ml-5">
+          <div className="mt-3 text-sm [&_h1]:font-bold [&_h2]:font-semibold [&_h2]:mt-4 [&_ul]:list-disc [&_ul]:ml-5 [&_ol]:list-decimal [&_ol]:ml-5 [&_p]:whitespace-pre-line">
             <p className="text-xs text-gray-400">Generated {new Date(report.created_at).toLocaleString()}</p>
             <Markdown>{report.report_md}</Markdown>
           </div>
