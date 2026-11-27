@@ -1,7 +1,21 @@
 // Pure email strings for the beta-decide function (no Deno APIs, so node --test can import them).
 // Wording: WIP #269 plan section 4 (approved by Robert, D9); in-app report form timing: D7.
 
-import { firstName, oneLine, REPLY_TO } from "../beta-apply/policy.ts";
+import { REPLY_TO } from "./constants.ts";
+
+// Local copies of the beta-apply helpers (same behaviour; see constants.ts for why).
+const FIRST_NAME_RE = /^[\p{L}'’-]{1,40}$/u;
+
+/** Greeting name: the first token only when it looks like a name (letters, apostrophe, hyphen); else "there". */
+function firstName(name: string): string {
+  const token = name.trim().split(/\s+/)[0] ?? "";
+  return FIRST_NAME_RE.test(token) ? token : "there";
+}
+
+/** Subject lines must be a single line (no header injection) and bounded. */
+function oneLine(s: string, max = 100): string {
+  return s.replace(/[\r\n\u2028\u2029]+/g, " ").slice(0, max);
+}
 
 export const SIGN_OFF = "Rob Moore, You Never Know Productions";
 export const IN_APP_REPORT_FORM_AVAILABLE = false; // WIP #269 D7: in-app form ships in the first app update

@@ -17,7 +17,7 @@
 // No real sends happen until the function is deployed and an admin presses a button.
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
-import { BETA_CAP, REPLY_TO, SITE_URL } from "../beta-apply/policy.ts";
+import { BETA_CAP, REPLY_TO, SITE_URL } from "./constants.ts";
 import {
   acceptanceEmail, acceptanceExistingAccountEmail, groupAddedEmail, rejectionEmail, type Email,
 } from "./beta_text.ts";
