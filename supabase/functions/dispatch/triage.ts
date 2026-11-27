@@ -122,7 +122,7 @@ export function buildBody(req: TriageRequest, others: OtherRequest[] | null) {
       { role: "user", content: JSON.stringify(user) },
     ],
     temperature: 0.2,
-    max_tokens: 1200,
+    max_tokens: 2500,
     usage: { include: true },
   };
 }
@@ -140,36 +140,57 @@ const oneLine = (s: string) => s.replace(/\s+/g, " ").trim();
 const isText = (v: unknown, max: number): v is string =>
   typeof v === "string" && oneLine(v).length > 0 && v.length <= max;
 
-/** Parses and validates the model's reply; throws TriageError("malformed_output") otherwise. */
+/** Fixed stage words appended to `malformed_output` so the stored failure row shows which check
+ *  fired. A closed list: never model text, never member text (privacy contract above). */
+export const MALFORMED_STAGES = ["content_type", "json_parse", "enum", "length", "response_json"] as const;
+type MalformedStage = (typeof MALFORMED_STAGES)[number];
+const malformed = (stage: MalformedStage) => new TriageError(`malformed_output:${stage}`);
+
+/** A model-supplied match id: a JSON integer, or a string like "7" or "#7". Anything else is unusable. */
+function matchId(v: unknown): number | null {
+  if (typeof v === "number") return Number.isInteger(v) ? v : null;
+  if (typeof v !== "string") return null;
+  const m = /^#?(\d{1,9})$/.exec(v.trim());
+  return m ? Number(m[1]) : null;
+}
+
+/** Parses and validates the model's reply; throws TriageError("malformed_output:<stage>") otherwise.
+ *  The three verdict literals stay strict. Unusable duplicate matches degrade to NO MATCH, and an
+ *  unknown difficulty falls back to "medium"; neither lets model text reach the stored report. */
 export function parseOutput(content: unknown, validIds: Set<number>): ModelOutput {
-  if (typeof content !== "string") throw new TriageError("malformed_output");
-  const trimmed = content.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
+  if (typeof content !== "string") throw malformed("content_type");
+  let text = content.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
+  const start = text.indexOf("{");
+  const end = text.lastIndexOf("}");
+  if (start >= 0 && end > start) text = text.slice(start, end + 1);
   let j: Record<string, unknown>;
   try {
-    const parsed = JSON.parse(trimmed);
+    const parsed = JSON.parse(text);
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("shape");
     j = parsed as Record<string, unknown>;
   } catch {
-    throw new TriageError("malformed_output");
+    throw malformed("json_parse");
   }
   // With nothing to compare against, the duplicate verdict is set by code, not by the model.
   const verdict = VERDICTS.find((v) => v === j.verdict) ?? (validIds.size === 0 ? "NO MATCH" : undefined);
-  const difficulty = DIFFICULTIES.find((d) => d === j.difficulty);
-  if (!verdict || !difficulty) throw new TriageError("malformed_output");
+  if (!verdict) throw malformed("enum");
+  const diffKey = typeof j.difficulty === "string" ? j.difficulty.trim().toLowerCase() : "";
+  const difficulty = DIFFICULTIES.find((d) => d === diffKey) ?? "medium";
   if (!isText(j.feasibility, 600) || !isText(j.recommendation, 600) || !isText(j.summary, 400)) {
-    throw new TriageError("malformed_output");
+    throw malformed("length");
   }
   const rawMatches = Array.isArray(j.matches) ? j.matches : [];
   const matches: { id: number; reason: string }[] = [];
   for (const m of rawMatches as Record<string, unknown>[]) {
-    if (m && Number.isInteger(m.id) && validIds.has(m.id as number) && isText(m.reason, 300)
-        && matches.length < 3 && !matches.some((x) => x.id === m.id)) {
-      matches.push({ id: m.id as number, reason: oneLine(m.reason as string) });
+    const id = m ? matchId(m.id) : null;
+    if (id !== null && validIds.has(id) && isText(m.reason, 300)
+        && matches.length < 3 && !matches.some((x) => x.id === id)) {
+      matches.push({ id, reason: oneLine(m.reason as string) });
     }
   }
-  if (validIds.size > 0 && verdict !== "NO MATCH" && matches.length === 0) throw new TriageError("malformed_output");
+  const finalVerdict = validIds.size > 0 && verdict !== "NO MATCH" && matches.length === 0 ? "NO MATCH" : verdict;
   return {
-    verdict, matches, difficulty,
+    verdict: finalVerdict, matches, difficulty,
     feasibility: oneLine(j.feasibility), recommendation: oneLine(j.recommendation), summary: oneLine(j.summary),
   };
 }
@@ -224,7 +245,7 @@ export async function callOpenRouter(
   }
   if (!resp.ok) throw new TriageError(`openrouter_http_${resp.status}`);
   let j: Record<string, unknown>;
-  try { j = await resp.json(); } catch { throw new TriageError("malformed_output"); }
+  try { j = await resp.json(); } catch { throw malformed("response_json"); }
   if (j.error) throw new TriageError("openrouter_error");
   const choice = (Array.isArray(j.choices) ? j.choices[0] : null) as { message?: { content?: unknown } } | null;
   const usage = j.usage as { cost?: unknown } | undefined;

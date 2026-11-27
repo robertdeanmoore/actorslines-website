@@ -108,19 +108,119 @@ test("network error and 200-with-error-body both fail visibly", async () => {
   assert.equal(err.saved.length, 1);
 });
 
-test("malformed output: not JSON, wrong enum, missing field, duplicate verdict with no valid id", async () => {
-  const bad = [
-    "I cannot do that", "{}", JSON.stringify({ ...GOOD, verdict: "MAYBE" }),
-    JSON.stringify({ ...GOOD, difficulty: "huge" }), JSON.stringify({ ...GOOD, summary: "" }),
-    JSON.stringify({ ...GOOD, matches: [{ id: 99, reason: "x" }] }), JSON.stringify([1, 2]),
+const reply = (content: unknown) => async () =>
+  new Response(JSON.stringify({ choices: [{ message: { content } }] }));
+const run = async (content: unknown, others: OtherRequest[] = OTHERS) => {
+  const m = mkDeps({ reply: reply(content), loadOthers: async () => others });
+  return { ...m, r: await runTriage(m.deps, 7, { isAdmin: false }) };
+};
+
+test("malformed output: each failure names its fixed stage code", async () => {
+  const cases: [string, string][] = [
+    ["I cannot do that", "json_parse"], ["{}", "enum"], ["", "json_parse"], ["{not json}", "json_parse"],
+    [JSON.stringify([1, 2]), "json_parse"],
+    [JSON.stringify({ ...GOOD, verdict: "MAYBE" }), "enum"],
+    [JSON.stringify({ ...GOOD, verdict: "no match" }), "enum"],
+    [JSON.stringify({ ...GOOD, summary: "" }), "length"],
+    [JSON.stringify({ ...GOOD, feasibility: "x".repeat(601) }), "length"],
+    [JSON.stringify({ ...GOOD, recommendation: 5 }), "length"],
   ];
-  for (const content of bad) {
-    const { deps, saved, state } = mkDeps({ reply: async () => new Response(JSON.stringify({ choices: [{ message: { content } }] })) });
-    const r = await runTriage(deps, 7, { isAdmin: false });
-    assert.deepEqual(r, { ok: false, code: "malformed_output", marked: true }, content);
-    assert.ok(saved[0].report_md.startsWith(FAILURE_PREFIX));
+  for (const [content, stage] of cases) {
+    const { r, saved, state } = await run(content);
+    assert.deepEqual(r, { ok: false, code: `malformed_output:${stage}`, marked: true }, content);
+    assert.ok(saved[0].report_md.startsWith(`${FAILURE_PREFIX} (malformed_output:${stage})`));
     assert.equal(state.reported, 0);
   }
+});
+
+test("null, absent and non-string content fail as content_type", async () => {
+  for (const content of [null, undefined, ["{}"], { verdict: "NO MATCH" }, 42]) {
+    const { r } = await run(content);
+    assert.deepEqual(r, { ok: false, code: "malformed_output:content_type", marked: true });
+  }
+  const none = mkDeps({ reply: async () => new Response(JSON.stringify({ choices: [] })) });
+  assert.equal((await runTriage(none.deps, 7, { isAdmin: false }) as { code: string }).code, "malformed_output:content_type");
+});
+
+test("unreadable response body fails as response_json", async () => {
+  const m = mkDeps({ reply: async () => new Response("<html>not json</html>") });
+  const r = await runTriage(m.deps, 7, { isAdmin: false });
+  assert.deepEqual(r, { ok: false, code: "malformed_output:response_json", marked: true });
+});
+
+test("no model or member text appears in any failure string", async () => {
+  const leak = "LEAK-MODEL-TEXT-9183";
+  const contents = [
+    leak, `{"verdict":"${leak}"}`, JSON.stringify({ ...GOOD, verdict: leak }),
+    JSON.stringify({ ...GOOD, summary: leak.repeat(40) }), JSON.stringify([leak]), `${leak} {`,
+  ];
+  for (const content of contents) {
+    const { r, saved } = await run(content);
+    assert.equal(r.ok, false);
+    const code = (r as { code: string }).code;
+    assert.match(code, /^malformed_output:(content_type|json_parse|enum|length|response_json)$/);
+    assert.ok(!saved[0].report_md.includes(leak), content);
+    assert.ok(!code.includes(leak));
+  }
+});
+
+test("string and #-prefixed match ids are accepted", async () => {
+  const out = { ...GOOD, matches: [{ id: "3", reason: "string id" }, { id: " #4 ", reason: "hash id" }, { id: "#3", reason: "dup" }] };
+  const { r, saved } = await run(JSON.stringify(out));
+  assert.equal(r.ok, true);
+  assert.match(saved[0].report_md, /Verdict: POSSIBLE OVERLAP\n#3 Speed control - string id\n#4 Dark mode - hash id\n\n/);
+  assert.ok(!saved[0].report_md.includes("dup"));
+});
+
+test("junk match ids are dropped, not coerced", async () => {
+  const out = { ...GOOD, matches: [{ id: 3.5, reason: "x" }, { id: "3abc", reason: "x" }, { id: null, reason: "x" }, { id: "1e1", reason: "x" }, { id: 3, reason: "kept" }] };
+  const { saved } = await run(JSON.stringify(out));
+  assert.match(saved[0].report_md, /#3 Speed control - kept\n\n/);
+  assert.equal((saved[0].report_md.match(/\n#\d/g) ?? []).length, 1);
+});
+
+test("duplicate verdict with unusable matches degrades to NO MATCH and still reports", async () => {
+  for (const matches of [[{ id: 99, reason: "x" }], [], [{ id: "seven", reason: "x" }]]) {
+    for (const verdict of ["LIKELY DUPLICATE", "POSSIBLE OVERLAP"]) {
+      const { r, saved, state } = await run(JSON.stringify({ ...GOOD, verdict, matches }));
+      assert.deepEqual(r, { ok: true, verdict: "NO MATCH", provider: null, cost: null });
+      assert.match(saved[0].report_md, /^Duplicate check: scanned 2 existing requests\nVerdict: NO MATCH\n\n/);
+      assert.match(saved[0].summary_draft, /Duplicate check: NO MATCH\.$/);
+      assert.equal(state.reported, 1);
+    }
+  }
+});
+
+test("unknown or oddly cased difficulty: coerced, never throws", async () => {
+  for (const [given, want] of [["unknown", "medium"], ["n/a", "medium"], ["medium-large", "medium"], [7, "medium"], [undefined, "medium"], ["LARGE", "large"], [" Very Large ", "very large"]]) {
+    const { r, saved } = await run(JSON.stringify({ ...GOOD, difficulty: given }));
+    assert.equal(r.ok, true, String(given));
+    assert.match(saved[0].report_md, new RegExp(`Difficulty: ${want}\\.`));
+  }
+});
+
+test("verdict literals stay strict even when difficulty is coerced", async () => {
+  const { r } = await run(JSON.stringify({ ...GOOD, verdict: "POSSIBLE OVERLAP.", difficulty: "weird" }));
+  assert.deepEqual(r, { ok: false, code: "malformed_output:enum", marked: true });
+});
+
+test("prose-wrapped and fenced JSON are parsed", async () => {
+  const json = JSON.stringify(GOOD);
+  for (const content of [
+    `Here is my analysis:\n${json}\nHope that helps.`, `\n\n${json}  `, "```json\n" + json + "\n```",
+    "```\n" + json + "\n```", "Sure!\n```json\n" + json + "\n```\nDone.",
+  ]) {
+    const { r, saved } = await run(content);
+    assert.equal(r.ok, true, content);
+    assert.match(saved[0].report_md, /^Duplicate check: scanned 2 existing requests\nVerdict: POSSIBLE OVERLAP/);
+  }
+});
+
+test("request body asks for 2500 completion tokens and keeps the routing untouched", () => {
+  const body = buildBody(REQ, OTHERS) as Record<string, unknown>;
+  assert.equal(body.max_tokens, 2500);
+  assert.equal(body.provider, ROUTING.provider);
+  assert.ok(!("reasoning" in body) && !("response_format" in body));
 });
 
 test("injection text in the goal is sent as data and cannot change the stored shape", async () => {
@@ -202,5 +302,5 @@ test("failure marker write itself failing is reported, not thrown; logs carry no
 test("buildBody: usage accounting on, bounded output", () => {
   const b = buildBody(REQ, OTHERS);
   assert.deepEqual(b.usage, { include: true });
-  assert.ok(b.max_tokens <= 2000);
+  assert.ok(b.max_tokens <= 2500);
 });
