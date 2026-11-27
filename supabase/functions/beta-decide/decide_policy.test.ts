@@ -4,7 +4,15 @@ import {
   acceptOutcome, acceptStep, ACTIONS, classifyAccount, formatExpiry, inviteLink, MAX_INTERNAL_NOTE, parseRequest,
   UNCONFIRMED_ACCOUNT_MESSAGE,
 } from "./decide_policy.ts";
-import { BETA_CAP } from "../beta-apply/policy.ts";
+import { BETA_CAP, REPLY_TO, SITE_URL } from "../beta-apply/policy.ts";
+import * as local from "./constants.ts";
+
+test("local constants match beta-apply policy", () => {
+  assert.deepEqual(
+    { BETA_CAP: local.BETA_CAP, REPLY_TO: local.REPLY_TO, SITE_URL: local.SITE_URL },
+    { BETA_CAP, REPLY_TO, SITE_URL },
+  );
+});
 
 test("parseRequest accepts every known action with a positive integer id", () => {
   for (const action of ACTIONS) {

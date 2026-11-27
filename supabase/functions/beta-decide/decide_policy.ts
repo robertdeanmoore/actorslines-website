@@ -1,6 +1,6 @@
 // Pure helpers for the beta-decide function (no Deno APIs, so node --test can import them).
 
-import { BETA_CAP, SITE_URL } from "../beta-apply/policy.ts";
+import { BETA_CAP, SITE_URL } from "./constants.ts";
 
 export const ACTIONS = ["accept", "reject", "resend_invite", "group_added", "withdraw", "reopen"] as const;
 export type DecideAction = typeof ACTIONS[number];
