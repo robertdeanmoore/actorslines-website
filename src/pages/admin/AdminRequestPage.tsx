@@ -16,6 +16,8 @@ import { Badge, StatusBadge as UiStatusBadge } from "../../components/ui/Badge";
 import Callout from "../../components/ui/Callout";
 import { Field, Input, Textarea } from "../../components/ui/Field";
 import { LoadingState } from "../../components/ui/States";
+import RequestAttachments from "../../components/admin/RequestAttachments";
+import { deviceSummary } from "../../lib/attachments";
 
 export default function AdminRequestPage() {
   const { id } = useParams();
@@ -138,7 +140,11 @@ export default function AdminRequestPage() {
             <h1 className="al-page-title">#{request.id} {request.title}</h1>
             <UiStatusBadge status={request.status} />
             <Badge tone={request.kind === "support" ? "warn" : "info"}>{KIND_LABELS[request.kind ?? "enhancement"]}</Badge>
+            {deviceSummary(request) && <Badge tone="info">App report</Badge>}
           </div>
+          {deviceSummary(request) && (
+            <p className="text-sm text-fg-muted">{deviceSummary(request)}</p>
+          )}
           <LinkButton to="/admin" variant="ghost" className="al-back">← Queue</LinkButton>
         </div>
         {flash && (
@@ -167,6 +173,13 @@ export default function AdminRequestPage() {
             <Button variant="destructive" onClick={deleteRequest}>Delete</Button>
           </div>
         </Card>
+
+        {request.source === "app" && (
+          <RequestAttachments
+            requestId={request.id}
+            attachmentsComplete={request.attachments_complete}
+          />
+        )}
 
         <Card as="article">
           <h2 className="al-card__title">AI developer report</h2>
@@ -258,6 +271,9 @@ export default function AdminRequestPage() {
           <h1 className="flex-1 text-xl font-bold">#{request.id} {request.title}</h1>
           <StatusBadge status={request.status} />
         </div>
+        {deviceSummary(request) && (
+          <p className="mt-1 text-sm text-gray-500">{deviceSummary(request)}</p>
+        )}
         {flash && (
           <p role="status" className={`mt-2 text-sm ${flashIsError ? "text-red-700" : "text-brand"}`}>
             {flash}
@@ -287,6 +303,13 @@ export default function AdminRequestPage() {
           <button onClick={deleteRequest} className={`${btn} bg-red-600 text-white hover:bg-red-700`}>Delete</button>
         </div>
       </div>
+
+      {request.source === "app" && (
+        <RequestAttachments
+          requestId={request.id}
+          attachmentsComplete={request.attachments_complete}
+        />
+      )}
 
       <div className={card}>
         <h2 className="font-semibold text-brand">AI developer report</h2>
