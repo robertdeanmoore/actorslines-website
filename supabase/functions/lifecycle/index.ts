@@ -10,7 +10,7 @@
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { deleteInactiveUser } from "./delete_user.ts";
-import { runUsagePurge } from "./purge.ts";
+import { drainAttachmentDeletions, runBetaPurge, runUsagePurge } from "./purge.ts";
 import { runTrialMaintenance } from "./trial_maintenance.ts";
 import { runInactivity } from "./inactivity.ts";
 import { secretMatches } from "./secret_compare.ts";
@@ -54,6 +54,18 @@ Deno.serve(async (req) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
   const now = Date.now();
+
+  // Retention dry run (WIP #269 AC5.4): `?dry_run=1` counts what the beta/attachment purge WOULD
+  // delete and returns at once. Nothing is deleted, no email is sent, no other step runs.
+  if (new URL(req.url).searchParams.get("dry_run") === "1") {
+    const dry = await runBetaPurge((name, args) => admin.rpc(name, args), new Date(now), true);
+    if (dry.errorCode) console.error(`[lifecycle] beta purge dry run failed code=${dry.errorCode}`);
+    return new Response(JSON.stringify({ dryRun: true, wouldDelete: dry.totals, errorCode: dry.errorCode }), {
+      status: dry.errorCode ? 500 : 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   const summary = {
     warned1: 0, warned2: 0, deleted: 0, errors: 0, inactivityExempt: 0,
     compExtended: 0, compErrors: 0,
@@ -61,6 +73,7 @@ Deno.serve(async (req) => {
     notifyPurged: 0, notifyPurgeErrors: 0,
     trialMaintenance: null as unknown,
     usagePurged: { telemetry_events: 0, recognition_reports: 0, request_messages: 0, trusted_devices: 0, invites: 0 }, usagePurgeErrors: 0,
+    betaPurged: { rejected_applications: 0, attachments: 0 }, attachmentFilesRemoved: 0, betaPurgeErrors: 0,
   };
 
   // Box Office: comp_rolling licences are rolling, not perpetual (golden principle #1, rules.md)
@@ -171,6 +184,25 @@ Deno.serve(async (req) => {
   if (usage.errorCode) {
     console.error(`[lifecycle] usage purge failed code=${usage.errorCode}`);
     summary.usagePurgeErrors++;
+  }
+
+  // Beta programme retention (WIP #269 P5.2, migration 0042): rejected applications 6 months after
+  // the decision, attachments 90 days after the request closes. Their database rows go first (a trigger
+  // queues each storage path), then the queued files are removed through the Storage API. Counts only.
+  const beta = await runBetaPurge((name, args) => admin.rpc(name, args), new Date(now), false);
+  summary.betaPurged = beta.totals;
+  if (beta.errorCode) {
+    console.error(`[lifecycle] beta purge failed code=${beta.errorCode}`);
+    summary.betaPurgeErrors++;
+  }
+  const drained = await drainAttachmentDeletions(
+    (name, args) => admin.rpc(name, args),
+    (paths) => admin.storage.from("request-attachments").remove(paths),
+  );
+  summary.attachmentFilesRemoved = drained.removed;
+  if (drained.errorCode) {
+    console.error(`[lifecycle] attachment file removal failed code=${drained.errorCode}`);
+    summary.betaPurgeErrors++;
   }
 
   // Trial-check upkeep (WIP #262, DEF555): retry fail-closed trial checks, count-only alert to the

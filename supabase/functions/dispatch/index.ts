@@ -12,6 +12,11 @@
 //        Runs triage now and returns when the report is stored. Non-admins: own request, one
 //        report only. Admins: any request, re-runnable, no captcha.
 //
+//   { "action": "triage-app",          "request_id": 123 }
+//        Server-to-server only (called by submit-request-app, AC4.8). No user JWT: the bearer token must
+//        equal SUPABASE_SERVICE_ROLE_KEY. Only a request with source='app' is accepted; no captcha, the
+//        caller already limits the member. Same triage as the web path (isAdmin false, one report).
+//
 // Secrets (set with `supabase secrets set`, see SETUP.md):
 //   OPENROUTER_API_KEY_TRIAGE — dedicated, spend-capped OpenRouter key (triage.ts holds the routing).
 //   TURNSTILE_SECRET_KEY — Cloudflare Turnstile secret key, verifies the
@@ -21,10 +26,10 @@
 //                          the email is skipped with a log line; the request still saves.
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
-import { captchaRequired, kindLabel, parseKind, TRIAGE_REQUEST_WINDOW, triageRequestBucket } from "./policy.ts";
+import { captchaRequired, isServerCall, kindLabel, parseKind, TRIAGE_REQUEST_WINDOW, triageRequestBucket } from "./policy.ts";
 import { FAILURE_PREFIX, runTriage, type TriageDeps } from "./triage.ts";
 
-const ALLOWED_ACTIONS = ["submit-request", "triage-report"];
+const ALLOWED_ACTIONS = ["submit-request", "triage-report", "triage-app"];
 const SITE_URL = "https://actorslines.app";
 
 // Limits mirror the CHECK constraints in migrations 0001 and 0024.
@@ -176,6 +181,31 @@ Deno.serve(async (req) => {
 
     if (!ALLOWED_ACTIONS.includes(action ?? "")) return fail(400, "Unknown action");
     if (action !== "submit-request" && !Number.isInteger(request_id)) return fail(400, "request_id required");
+
+    // Server-to-server triage for app reports. Proven by the service-role key BEFORE any user lookup
+    // (the key has no user). Nothing here logs the key or the request body.
+    if (action === "triage-app") {
+      if (!isServerCall(req.headers.get("Authorization"), Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"))) {
+        return fail(401, "Not authorised");
+      }
+      const svc = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+      const { data: appReq } = await svc.from("enhancement_requests").select("id, source").eq("id", request_id).maybeSingle();
+      if (!appReq || appReq.source !== "app") return fail(404, "Request not found");
+      if (!(await rateLimitOk(svc, triageRequestBucket(request_id!), 1, TRIAGE_REQUEST_WINDOW)))
+        return fail(429, "A triage run was started for this request a few minutes ago.");
+      const appResult = await runTriage(triageDeps(svc), request_id!, { isAdmin: false });
+      if (!appResult.ok) {
+        if (appResult.code !== "already_reported") {
+          await svc.from("rate_limit_events").delete().eq("bucket", triageRequestBucket(request_id!))
+            .then(({ error }) => { if (error) console.error("[dispatch] guard release failed", error); });
+        }
+        if (appResult.code === "already_reported") return fail(409, "This request already has an AI report.");
+        if (appResult.code === "too_many_failures") return fail(429, "The AI report keeps failing for this request.");
+        return fail(502, `AI report failed (${appResult.code})`);
+      }
+      console.log(`[dispatch] ok action=triage-app request_id=${request_id}`);
+      return new Response(JSON.stringify({ ok: true }), { headers: { ...cors, "Content-Type": "application/json" } });
+    }
 
     // Identify the caller from their JWT.
     const supabase = createClient(

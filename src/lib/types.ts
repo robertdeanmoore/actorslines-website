@@ -31,6 +31,11 @@ export interface EnhancementRequest {
   created_at: string;
   ready_at?: string | null;
   inlet_acked_at?: string | null;
+  source?: "web" | "app";
+  app_version?: string | null;
+  device_model?: string | null;
+  android_sdk?: number | null;
+  attachments_complete?: boolean;
 }
 
 export interface RequestMessage {
