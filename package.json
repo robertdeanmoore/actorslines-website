@@ -11,12 +11,12 @@
     "test:edge": "node --test \"worker/*.test.ts\" \"supabase/functions/telemetry/*.test.ts\" \"supabase/functions/dispatch/*.test.ts\" \"supabase/functions/beta-apply/*.test.ts\" \"supabase/functions/beta-decide/*.test.ts\" \"supabase/functions/lifecycle/*.test.ts\" \"supabase/functions/inlet/*.test.ts\" \"src/lib/betaOutcome.test.ts\" \"src/lib/attachments.test.ts\" \"supabase/functions/submit-request-app/*.test.ts\""
   },
   "dependencies": {
-    "@marsidev/react-turnstile": "^1.5.3",
-    "@supabase/supabase-js": "^2.47.0",
+    "@marsidev/react-turnstile": "^1.6.3",
+    "@supabase/supabase-js": "^2.119.2",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-markdown": "^10.0.0",
-    "react-router-dom": "^7.1.0"
+    "react-router-dom": "^7.18.6"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.5",
@@ -26,7 +26,7 @@
     "tailwindcss": "^4.3.5",
     "typescript": "^7.0.2",
     "vite": "^8.3.6",
-    "wrangler": "^4.158.0"
+    "wrangler": "^4.167.0"
   },
   "overrides": {
     "browserslist": "^4.28.9",
